@@ -8,7 +8,7 @@ namespace dddnetcore.Domain.Produtos
 {
     public interface IProdutoRepository : IRepository<Produto, ProdutoId>
     {
-        //public Task<List<Orcamento>> GetOrcamentosAsync(Guid? rubricaId = null);
+        public Task<List<Produto>> GetProdutosAsync(Guid? categoriaId = null);
         Task<Produto> UpdateAsync(Produto produto);
     }
 }

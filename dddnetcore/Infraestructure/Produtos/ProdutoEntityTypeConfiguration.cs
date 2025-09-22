@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-// Ensure the correct namespace for Produto is imported
 using dddnetcore.Domain.Produtos;
+using dddnetcore.Domain.Categorias;
 
 namespace dddnetcore.Infraestructure.Produtos
 {
@@ -30,11 +30,15 @@ namespace dddnetcore.Infraestructure.Produtos
                 .HasConversion(
                     b => b.Stock,
                     b => new StockProduto(b)).IsRequired();
-            
+            builder.Property(b => b.PrecoProduto)
+                .HasConversion(
+                    b => b.Preco,
+                    b => new PrecoProduto(b)).IsRequired();
 
-            builder.HasOne(p => p.Categorias)
-                .WithOne()
-                .HasForeignKey("ProdutoId");
+            builder.HasOne(b => b.Categoria)
+                .WithMany()
+                .HasForeignKey("CategoriaId")
+                .IsRequired();
             
         }
     }

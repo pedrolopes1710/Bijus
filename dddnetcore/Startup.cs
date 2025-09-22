@@ -10,6 +10,11 @@ using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.Produtos;
 using dddnetcore.Infraestructure.Produtos;
 
+using dddnetcore.Domain.Categorias;
+using dddnetcore.Infraestructure.Categorias;
+using dddnetcore.Infraestructure.FotoProdutos;
+using dddnetcore.Domain.FotoProdutos;
+
 
 namespace DDDSample1
 {
@@ -79,6 +84,10 @@ namespace DDDSample1
 
             services.AddTransient<IProdutoRepository, ProdutoRepository>();
             services.AddTransient<ProdutoService>();
+            services.AddTransient<ICategoriaRepository, CategoriaRepository>();
+            services.AddTransient<CategoriaService>();
+            //services.AddTransient<IFotoProdutosRepository, FotoProdutoRepository>();     
+            //services.AddTransient<FotoProdutoService>();
 
         }
     }

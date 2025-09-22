@@ -11,7 +11,7 @@ namespace dddnetcore.Domain.Produtos
         public DescricaoProduto DescricaoProduto {get; private set;}
         public PrecoProduto PrecoProduto {get; private set;}
         public StockProduto StockProduto {get; private set;}
-        public CategoriaId CategoriaId {get; private set;}
+        public Categoria Categoria {get; private set;}
            
         private Produto() { }
 
@@ -20,7 +20,7 @@ namespace dddnetcore.Domain.Produtos
             DescricaoProduto descricaoProduto,
             PrecoProduto precoProduto,
             StockProduto stockProduto,
-            CategoriaId categoriaId
+            Categoria categoria
             )
         {
             if (nomeProduto == null)
@@ -35,15 +35,12 @@ namespace dddnetcore.Domain.Produtos
             if (stockProduto == null)
             throw new BusinessRuleValidationException("StockProduto cannot be null.");
 
-            if (categoriaId == null)
-            throw new BusinessRuleValidationException("CategoriaId cannot be null.");
-
             this.Id = new ProdutoId(Guid.NewGuid());
             this.NomeProduto = nomeProduto;
             this.DescricaoProduto = descricaoProduto;
             this.PrecoProduto = precoProduto;
             this.StockProduto = stockProduto;
-            this.CategoriaId = categoriaId;
+            this.Categoria = categoria;
         }
 
     }

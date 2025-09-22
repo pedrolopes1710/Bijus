@@ -1,6 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using dddnetcore.Domain.Produtos;
+using dddnetcore.Infraestructure.Produtos;
+using dddnetcore.Infraestructure.Categorias;
+using dddnetcore.Domain.Categorias;
+using dddnetcore.Domain.FotoProdutos;
+using dddnetcore.Infraestructure.FotoProdutos;
 
 
 namespace DDDSample1.Infrastructure
@@ -10,7 +15,8 @@ namespace DDDSample1.Infrastructure
         //uteis
 
         public DbSet<Produto> Produtos { get; set; }
-
+        public DbSet<Categoria> Categorias { get; set; }
+        public DbSet<FotoProduto> FotoProdutos { get; set; }
         
         public DDDSample1DbContext(DbContextOptions options) : base(options)
         {
@@ -21,6 +27,8 @@ namespace DDDSample1.Infrastructure
         {
             // uteis
             modelBuilder.ApplyConfiguration(new ProdutoEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new CategoriaEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new FotoProdutoEntityTypeConfiguration());  
 
         }
     }

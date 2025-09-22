@@ -5,9 +5,9 @@ namespace dddnetcore.Domain.Produtos
 {
     public class PrecoProduto : IValueObject
     {
-        public int Preco {get; private set;}
+        public double Preco {get; private set;}
 
-        public PrecoProduto(int preco) {
+        public PrecoProduto(double preco) {
             if (preco < 0)
             throw new BusinessRuleValidationException("O preço não pode ser negativo!");
             this.Preco = preco;
