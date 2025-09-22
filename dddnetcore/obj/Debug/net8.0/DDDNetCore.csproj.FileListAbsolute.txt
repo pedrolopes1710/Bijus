@@ -1,0 +1,6 @@
+C:\Users\diogo\Desktop\New\Bijus\dddnetcore\obj\Debug\net8.0\DDDNetCore.csproj.AssemblyReference.cache
+C:\Users\diogo\Desktop\New\Bijus\dddnetcore\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\diogo\Desktop\New\Bijus\dddnetcore\obj\Debug\net8.0\DDDNetCore.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\diogo\Desktop\New\Bijus\dddnetcore\obj\Debug\net8.0\DDDNetCore.csproj.CoreCompileInputs.cache
+C:\Users\diogo\Desktop\New\Bijus\dddnetcore\obj\Debug\net8.0\DDDNetCore.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\diogo\Desktop\New\Bijus\dddnetcore\obj\Debug\net8.0\DDDNetCore.sourcelink.json
