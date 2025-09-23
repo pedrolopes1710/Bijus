@@ -9,12 +9,22 @@ import { ProductGrid } from "./product-grid"
 export function FeaturedProducts() {
   const [produtos, setProdutos] = useState<Produto[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadProdutos() {
-      const data = await fetchProdutos()
-      setProdutos(data.slice(0, 8))
-      setLoading(false)
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await fetchProdutos()
+        setProdutos(data.slice(0, 8))
+      } catch (err) {
+        console.error("Erro ao carregar produtos:", err)
+        setError("Erro ao carregar produtos")
+        setProdutos([])
+      } finally {
+        setLoading(false)
+      }
     }
     loadProdutos()
   }, [])
@@ -39,22 +49,33 @@ export function FeaturedProducts() {
           </p>
         </div>
 
-        <ProductGrid
-          produtos={produtos}
-          loading={loading}
-          onAddToCart={handleAddToCart}
-          onToggleFavorite={handleToggleFavorite}
-        />
+        {error ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">{error}</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Configure a variável NEXT_PUBLIC_API_URL nas configurações do projeto
+            </p>
+          </div>
+        ) : (
+          <>
+            <ProductGrid
+              produtos={produtos}
+              loading={loading}
+              onAddToCart={handleAddToCart}
+              onToggleFavorite={handleToggleFavorite}
+            />
 
-        <div className="text-center mt-12">
-          <Button
-            variant="outline"
-            size="lg"
-            className="border-accent text-accent hover:bg-accent hover:text-accent-foreground bg-transparent"
-          >
-            Ver Todos os Produtos
-          </Button>
-        </div>
+            <div className="text-center mt-12">
+              <Button
+                variant="outline"
+                size="lg"
+                className="border-accent text-accent hover:bg-accent hover:text-accent-foreground bg-transparent"
+              >
+                Ver Todos os Produtos
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </section>
   )

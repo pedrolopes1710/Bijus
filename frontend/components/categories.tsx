@@ -8,12 +8,22 @@ import { CategoryGrid } from "./category-grid"
 export function Categories() {
   const [categorias, setCategorias] = useState<Categoria[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadCategorias() {
-      const data = await fetchCategorias()
-      setCategorias(data)
-      setLoading(false)
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await fetchCategorias()
+        setCategorias(data)
+      } catch (err) {
+        console.error("Erro ao carregar categorias:", err)
+        setError("Erro ao carregar categorias")
+        setCategorias([])
+      } finally {
+        setLoading(false)
+      }
     }
     loadCategorias()
   }, [])
@@ -28,7 +38,16 @@ export function Categories() {
           </p>
         </div>
 
-        <CategoryGrid categorias={categorias} loading={loading} />
+        {error ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">{error}</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Configure a variável NEXT_PUBLIC_API_URL nas configurações do projeto
+            </p>
+          </div>
+        ) : (
+          <CategoryGrid categorias={categorias} loading={loading} />
+        )}
       </div>
     </section>
   )

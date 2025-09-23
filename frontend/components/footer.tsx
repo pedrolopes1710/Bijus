@@ -1,5 +1,6 @@
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export function Footer() {
   return (
@@ -30,9 +31,14 @@ export function Footer() {
             <h4 className="font-semibold">Links Rápidos</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
-                  Sobre Nós
-                </a>
+                <Link href="/catalogo" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                  Catálogo Completo
+                </Link>
+              </li>
+              <li>
+                <Link href="/categorias" className="text-primary-foreground/80 hover:text-accent transition-colors">
+                  Todas as Categorias
+                </Link>
               </li>
               <li>
                 <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
@@ -41,12 +47,7 @@ export function Footer() {
               </li>
               <li>
                 <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
-                  Joias
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
-                  Bijuterias
+                  Sobre Nós
                 </a>
               </li>
               <li>

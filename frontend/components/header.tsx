@@ -7,15 +7,28 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useEffect, useState } from "react"
 import { fetchCategorias } from "@/lib/api"
 import type { Categoria } from "@/lib/types"
+import { createSlug } from "@/lib/utils"
 import Link from "next/link"
 
 export function Header() {
   const [categorias, setCategorias] = useState<Categoria[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadCategorias() {
-      const data = await fetchCategorias()
-      setCategorias(data)
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await fetchCategorias()
+        setCategorias(data)
+      } catch (err) {
+        console.error("Erro ao carregar categorias:", err)
+        setError("Erro ao carregar categorias")
+        setCategorias([]) // Set empty array on error
+      } finally {
+        setLoading(false)
+      }
     }
     loadCategorias()
   }, [])
@@ -33,28 +46,44 @@ export function Header() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
+            <Link href="/catalogo">
+              <Button variant="ghost" className="text-foreground hover:text-accent">
+                Catálogo
+              </Button>
+            </Link>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="text-foreground hover:text-accent">
-                  Categorias
+                  Categorias {loading && "(...)"}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                {categorias.map((categoria) => (
-                  <DropdownMenuItem key={categoria.id}>
-                    <Link href={`/produtos?categoria=${categoria.id}`} className="w-full">
-                      {categoria.nome}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
+                <DropdownMenuItem>
+                  <Link href="/categorias" className="w-full">
+                    Ver Todas as Categorias
+                  </Link>
+                </DropdownMenuItem>
+                {error ? (
+                  <DropdownMenuItem disabled>Erro ao carregar categorias</DropdownMenuItem>
+                ) : categorias.length === 0 && !loading ? (
+                  <DropdownMenuItem disabled>Nenhuma categoria disponível</DropdownMenuItem>
+                ) : (
+                  <>
+                    <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                      ─────────────
+                    </DropdownMenuItem>
+                    {categorias.map((categoria) => (
+                      <DropdownMenuItem key={categoria.id}>
+                        <Link href={`/categoria/${createSlug(categoria.nome)}`} className="w-full">
+                          {categoria.nome}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
-
-            <Link href="/produtos">
-              <Button variant="ghost" className="text-foreground hover:text-accent">
-                Todos os Produtos
-              </Button>
-            </Link>
 
             <Button variant="ghost" className="text-foreground hover:text-accent">
               Coleções

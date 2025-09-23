@@ -3,6 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 import type { Categoria } from "@/lib/types"
+import { createSlug } from "@/lib/utils"
 
 interface CategoryCardProps {
   categoria: Categoria
@@ -20,7 +21,7 @@ export function CategoryCard({ categoria, imageUrl }: CategoryCardProps) {
   const defaultImage = categoryImages[categoria.nome] || "/jewelry-category.png"
 
   return (
-    <Link href={`/produtos?categoria=${categoria.id}`}>
+    <Link href={`/categoria/${createSlug(categoria.nome)}`}>
       <Card className="group cursor-pointer hover:shadow-lg transition-all duration-300 border-0 bg-card/50 backdrop-blur">
         <CardContent className="p-0">
           <div className="aspect-square overflow-hidden rounded-t-lg">
