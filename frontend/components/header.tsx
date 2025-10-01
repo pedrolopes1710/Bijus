@@ -9,11 +9,13 @@ import { fetchCategorias } from "@/lib/api"
 import type { Categoria } from "@/lib/types"
 import { createSlug } from "@/lib/utils"
 import Link from "next/link"
+import { useCart } from "@/contexts/cart-context"
 
 export function Header() {
   const [categorias, setCategorias] = useState<Categoria[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { totalItens, isLoaded } = useCart()
 
   useEffect(() => {
     async function loadCategorias() {
@@ -112,12 +114,16 @@ export function Header() {
             <Button variant="ghost" size="icon" className="text-foreground hover:text-accent">
               <Heart className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-foreground hover:text-accent relative">
-              <ShoppingBag className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                0
-              </span>
-            </Button>
+            <Link href="/carrinho">
+              <Button variant="ghost" size="icon" className="text-foreground hover:text-accent relative">
+                <ShoppingBag className="h-5 w-5" />
+                {isLoaded && totalItens > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {totalItens}
+                  </span>
+                )}
+              </Button>
+            </Link>
             <Button variant="ghost" size="icon" className="md:hidden">
               <Menu className="h-5 w-5" />
             </Button>

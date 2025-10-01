@@ -14,6 +14,8 @@ using dddnetcore.Domain.Categorias;
 using dddnetcore.Infraestructure.Categorias;
 using dddnetcore.Infraestructure.FotoProdutos;
 using dddnetcore.Domain.FotoProdutos;
+using dddnetcore.Domain.Clientes;
+using dddnetcore.Infraestructure.Clientes;
 
 
 namespace DDDSample1
@@ -88,6 +90,8 @@ namespace DDDSample1
             services.AddTransient<CategoriaService>();
             //services.AddTransient<IFotoProdutosRepository, FotoProdutoRepository>();     
             //services.AddTransient<FotoProdutoService>();
+            services.AddTransient<IClienteRepository, ClienteRepository>();
+            services.AddTransient<ClienteService>();
 
         }
     }
