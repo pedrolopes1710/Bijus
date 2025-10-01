@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using dddnetcore.Domain.FotoProdutos;
 using DDDSample1.Infrastructure;
 using DDDSample1.Infrastructure.Shared;

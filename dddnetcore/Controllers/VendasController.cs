@@ -1,48 +1,48 @@
 using Microsoft.AspNetCore.Mvc;
 using DDDSample1.Domain.Shared;
-using dddnetcore.Domain.Produtos;
+using dddnetcore.Domain.Vendas;
 
 namespace DDDSample1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProdutosController : ControllerBase
+    public class VendasController : ControllerBase
     {
-        private readonly ProdutoService _service;
+        private readonly VendaService _service;
 
-        public ProdutosController(ProdutoService service)
+        public VendasController(VendaService service)
         {
             _service = service;
         }
 
         // GET: api/Produtos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProdutoDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<VendaDto>>> GetAll()
         {
             return await _service.GetAllAsync();
         }
 
         // GET: api/Produtos/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ProdutoDto>> GetById(Guid id)
+        public async Task<ActionResult<VendaDto>> GetById(Guid id)
         {
-            var produto = await _service.GetByIdAsync(new ProdutoId(id));
+            var venda = await _service.GetByIdAsync(new VendaId(id));
 
-            if (produto == null)
+            if (venda == null)
             {
                 return NotFound();
             }
 
-            return produto;
+            return venda;
         }
 
         // POST: api/Produtos
         [HttpPost]
-        public async Task<ActionResult<ProdutoDto>> Create(CreatingProdutoDto dto)
+        public async Task<ActionResult<VendaDto>> Create(CreatingVendaDto dto)
         {
             try {
-                ProdutoDto produto = await _service.AddAsync(dto);
-                return CreatedAtAction(nameof(GetById), new { id = produto.Id }, produto);
+                VendaDto venda = await _service.AddAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = venda.Id }, venda);
             } catch (BusinessRuleValidationException e) {
                 return BadRequest(new {e.Message});
             } catch (NullReferenceException e) {
@@ -56,7 +56,7 @@ namespace DDDSample1.Controllers
 
         // PUT: api/Produtos/5
         [HttpPut("{id}")]
-        public async Task<ActionResult<ProdutoDto>> Update(Guid id, ProdutoDto dto)
+        public async Task<ActionResult<VendaDto>> Update(Guid id, VendaDto dto)
         {
             if (id != dto.Id)
             {
@@ -65,13 +65,13 @@ namespace DDDSample1.Controllers
 
             try
             {
-                var produto = await _service.UpdateAsync(dto);
+                var venda = await _service.UpdateAsync(dto);
 
-                if (produto == null)
+                if (venda == null)
                 {
                     return NotFound();
                 }
-                return Ok(produto);
+                return Ok(venda);
             }
             catch(BusinessRuleValidationException ex)
             {
@@ -81,18 +81,18 @@ namespace DDDSample1.Controllers
 
         // DELETE: api/Produtos/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<ProdutoDto>> HardDelete(Guid id)
+        public async Task<ActionResult<VendaDto>> HardDelete(Guid id)
         {
             try
             {
-                var produto = await _service.DeleteAsync(new ProdutoId(id));
+                var venda = await _service.DeleteAsync(new VendaId(id));
 
-                if (produto == null)
+                if (venda == null)
                 {
                     return NotFound();
                 }
 
-                return Ok(produto);
+                return Ok(venda);
             }
             catch(BusinessRuleValidationException ex)
             {

@@ -1,4 +1,3 @@
-using System;
 using dddnetcore.Domain.Categorias;
 
 namespace dddnetcore.Domain.Produtos

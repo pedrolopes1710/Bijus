@@ -1,5 +1,3 @@
-using System;
-
 namespace dddnetcore.Domain.Produtos
 {
     public class CreatingProdutoDto

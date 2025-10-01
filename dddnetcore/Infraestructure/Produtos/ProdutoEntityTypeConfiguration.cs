@@ -1,7 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using dddnetcore.Domain.Produtos;
-using dddnetcore.Domain.Categorias;
 
 namespace dddnetcore.Infraestructure.Produtos
 {

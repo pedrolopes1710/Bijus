@@ -1,19 +1,15 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using DDDSample1.Infrastructure;
-using System;
 using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.Produtos;
 using dddnetcore.Infraestructure.Produtos;
 
 using dddnetcore.Domain.Categorias;
 using dddnetcore.Infraestructure.Categorias;
-using dddnetcore.Infraestructure.FotoProdutos;
-using dddnetcore.Domain.FotoProdutos;
 using dddnetcore.Domain.Clientes;
 using dddnetcore.Infraestructure.Clientes;
 

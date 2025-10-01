@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using DDDSample1.Domain.Shared;
-using dddnetcore.Domain.Categorias;
 
 namespace dddnetcore.Domain.Clientes
 {

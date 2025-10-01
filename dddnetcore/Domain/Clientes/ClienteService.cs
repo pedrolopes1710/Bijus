@@ -1,7 +1,4 @@
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using DDDSample1.Domain.Shared;
-using dddnetcore.Domain.Clientes;
 
 namespace dddnetcore.Domain.Clientes
 {

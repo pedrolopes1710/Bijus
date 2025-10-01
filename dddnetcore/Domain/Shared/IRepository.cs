@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 namespace DDDSample1.Domain.Shared
 {
     public interface IRepository<TEntity, TEntityId>

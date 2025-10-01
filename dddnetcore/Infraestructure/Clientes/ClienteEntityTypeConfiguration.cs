@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using dddnetcore.Domain.Clientes;
 
 namespace dddnetcore.Infraestructure.Clientes

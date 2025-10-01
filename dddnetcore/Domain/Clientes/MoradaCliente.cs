@@ -1,4 +1,3 @@
-using System;
 using DDDSample1.Domain.Shared;
 
 namespace dddnetcore.Domain.Clientes

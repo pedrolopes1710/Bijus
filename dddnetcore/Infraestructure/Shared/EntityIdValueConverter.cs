@@ -1,5 +1,3 @@
-using System;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using DDDSample1.Domain.Shared;
 
 namespace DDDSample1.Infrastructure.Shared

@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using DDDSample1.Domain.Shared;
-using dddnetcore.Domain.FotoProdutos;
 
 namespace dddnetcore.Domain.FotoProdutos
 {

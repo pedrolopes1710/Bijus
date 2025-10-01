@@ -1,4 +1,3 @@
-using System;
 using dddnetcore.Domain.Produtos;
 using DDDSample1.Domain.Shared;
 

@@ -1,6 +1,3 @@
-using System;
-using dddnetcore.Domain.Categorias;
-
 namespace dddnetcore.Domain.Clientes
 {
     public class ClienteDto

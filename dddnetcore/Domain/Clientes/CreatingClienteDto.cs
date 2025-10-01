@@ -1,5 +1,3 @@
-using System;
-
 namespace dddnetcore.Domain.Clientes
 {
     public class CreatingClienteDto
