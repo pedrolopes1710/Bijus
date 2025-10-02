@@ -8,6 +8,7 @@ using dddnetcore.Domain.Clientes;
 using dddnetcore.Infraestructure.Clientes;
 using dddnetcore.Domain.Vendas;
 using dddnetcore.Infraestructure.Vendas;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace DDDSample1.Infrastructure

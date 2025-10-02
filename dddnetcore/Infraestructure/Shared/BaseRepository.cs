@@ -1,4 +1,5 @@
 using DDDSample1.Domain.Shared;
+using Microsoft.EntityFrameworkCore;
 
 namespace DDDSample1.Infrastructure.Shared
 {

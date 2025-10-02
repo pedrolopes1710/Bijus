@@ -1,5 +1,7 @@
 ﻿#nullable disable
 
+using Microsoft.EntityFrameworkCore.Migrations;
+
 namespace DDDNetCore.Migrations
 {
     /// <inheritdoc />

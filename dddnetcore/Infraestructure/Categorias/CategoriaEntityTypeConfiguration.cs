@@ -1,4 +1,6 @@
 using dddnetcore.Domain.Categorias;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace dddnetcore.Infraestructure.Categorias
 {

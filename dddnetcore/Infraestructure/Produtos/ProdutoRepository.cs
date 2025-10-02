@@ -2,6 +2,7 @@ using dddnetcore.Domain.Categorias;
 using dddnetcore.Domain.Produtos;
 using DDDSample1.Infrastructure;
 using DDDSample1.Infrastructure.Shared;
+using Microsoft.EntityFrameworkCore;
 
 namespace dddnetcore.Infraestructure.Produtos
 {

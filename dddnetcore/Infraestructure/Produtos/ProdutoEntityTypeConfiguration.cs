@@ -1,4 +1,6 @@
 using dddnetcore.Domain.Produtos;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace dddnetcore.Infraestructure.Produtos
 {

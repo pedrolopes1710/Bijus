@@ -12,6 +12,9 @@ using dddnetcore.Domain.Categorias;
 using dddnetcore.Infraestructure.Categorias;
 using dddnetcore.Domain.Clientes;
 using dddnetcore.Infraestructure.Clientes;
+using Microsoft.EntityFrameworkCore;
+using dddnetcore.Domain.Vendas;
+using dddnetcore.Infraestructure.Vendas;
 
 
 namespace DDDSample1
@@ -88,6 +91,8 @@ namespace DDDSample1
             //services.AddTransient<FotoProdutoService>();
             services.AddTransient<IClienteRepository, ClienteRepository>();
             services.AddTransient<ClienteService>();
+            services.AddTransient<IVendaRepository, VendaRepository>();
+            services.AddTransient<VendaService>();
 
         }
     }

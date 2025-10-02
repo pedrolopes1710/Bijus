@@ -1,4 +1,6 @@
 using dddnetcore.Domain.FotoProdutos;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace dddnetcore.Infraestructure.FotoProdutos
 {

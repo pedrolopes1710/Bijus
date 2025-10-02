@@ -2,6 +2,7 @@ using dddnetcore.Domain.Clientes;
 using dddnetcore.Domain.Vendas;
 using DDDSample1.Infrastructure;
 using DDDSample1.Infrastructure.Shared;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace dddnetcore.Infraestructure.Vendas
@@ -10,7 +11,7 @@ namespace dddnetcore.Infraestructure.Vendas
     {
         private readonly DDDSample1DbContext _context;
 
-        public VendaRepository(DDDSample1DbContext context) : base(context.Produtos)
+        public VendaRepository(DDDSample1DbContext context) : base(context.Vendas)
         {
             _context = context;
         }
@@ -21,7 +22,7 @@ namespace dddnetcore.Infraestructure.Vendas
             var query = _context.Vendas.AsQueryable();
 
             query = query.Where(venda => venda.Cliente.Id.Equals(new ClienteId(clienteId.Value)))
-                .Include(o => o.Categoria);
+                .Include(o => o.Cliente);
 
             return await query.ToListAsync();
         }

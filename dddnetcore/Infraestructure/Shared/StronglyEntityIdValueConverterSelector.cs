@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using DDDSample1.Domain.Shared;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DDDSample1.Infrastructure.Shared
 {
