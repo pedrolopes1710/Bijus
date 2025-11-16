@@ -1,21 +1,23 @@
 "use client"
 
-import { Search, ShoppingBag, User, Heart, Menu } from "lucide-react"
+import { Search, ShoppingBag, User, Heart, Menu, LogOut } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { useEffect, useState } from "react"
 import { fetchCategorias } from "@/lib/api"
 import type { Categoria } from "@/lib/types"
 import { createSlug } from "@/lib/utils"
 import Link from "next/link"
 import { useCart } from "@/contexts/cart-context"
+import { useAuth } from "@/contexts/auth-context"
 
 export function Header() {
   const [categorias, setCategorias] = useState<Categoria[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { totalItens, isLoaded } = useCart()
+  const { usuario, isAuthenticated, isLoading: authLoading, logout } = useAuth()
 
   useEffect(() => {
     async function loadCategorias() {
@@ -27,7 +29,7 @@ export function Header() {
       } catch (err) {
         console.error("Erro ao carregar categorias:", err)
         setError("Erro ao carregar categorias")
-        setCategorias([]) // Set empty array on error
+        setCategorias([])
       } finally {
         setLoading(false)
       }
@@ -108,9 +110,57 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="icon" className="text-foreground hover:text-accent">
-              <User className="h-5 w-5" />
-            </Button>
+            {!authLoading && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-foreground hover:text-accent">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {isAuthenticated ? (
+                    <>
+                      <DropdownMenuItem disabled className="font-medium">
+                        {usuario?.nome}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                        {usuario?.email}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>
+                        <Link href="/perfil" className="w-full">
+                          Meu Perfil
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href="/pedidos" className="w-full">
+                          Meus Pedidos
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={logout} className="text-destructive cursor-pointer">
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Sair
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuItem>
+                        <Link href="/login" className="w-full">
+                          Entrar
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href="/registro" className="w-full">
+                          Criar Conta
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
             <Button variant="ghost" size="icon" className="text-foreground hover:text-accent">
               <Heart className="h-5 w-5" />
             </Button>
@@ -133,3 +183,5 @@ export function Header() {
     </header>
   )
 }
+
+export default Header

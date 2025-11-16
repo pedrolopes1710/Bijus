@@ -9,7 +9,14 @@ using dddnetcore.Infraestructure.Clientes;
 using dddnetcore.Domain.Vendas;
 using dddnetcore.Infraestructure.Vendas;
 using Microsoft.EntityFrameworkCore;
-
+using dddnetcore.Domain.VendaProdutos;
+using dddnetcore.Infraestructure.VendaProdutos;
+using dddnetcore.Domain.ItensCarrinho;
+using dddnetcore.Infraestructure.ItensCarrinho;
+using dddnetcore.Domain.Carrinhos;
+using dddnetcore.Infraestructure.Carrinhos;
+using dddnetcore.Infraestructure.Users;
+using dddnetcore.Domain.Users;
 
 namespace DDDSample1.Infrastructure
 {
@@ -22,7 +29,10 @@ namespace DDDSample1.Infrastructure
         public DbSet<FotoProduto> FotoProdutos { get; set; }
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<Venda> Vendas { get; set; }
-        
+        public DbSet<VendaProduto> VendaProdutos { get; set; }
+        public DbSet<ItemCarrinho> ItensCarrinho { get; set; }
+        public DbSet<Carrinho> Carrinhos { get; set; }
+        public DbSet<User> Users { get; set; }
         public DDDSample1DbContext(DbContextOptions options) : base(options)
         {
 
@@ -36,7 +46,10 @@ namespace DDDSample1.Infrastructure
             modelBuilder.ApplyConfiguration(new FotoProdutoEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new ClienteEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new VendaEntityTypeConfiguration());
-
+            modelBuilder.ApplyConfiguration(new VendaProdutoEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new ItemCarrinhoEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new CarrinhoEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
         }
     }
 }

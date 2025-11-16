@@ -17,6 +17,27 @@ namespace DDDNetCore.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
 
+            modelBuilder.Entity("dddnetcore.Domain.Carrinhos.Carrinho", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ClienteId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DataAtualizacao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClienteId");
+
+                    b.ToTable("Carrinhos");
+                });
+
             modelBuilder.Entity("dddnetcore.Domain.Categorias.Categoria", b =>
                 {
                     b.Property<Guid>("Id")
@@ -72,6 +93,29 @@ namespace DDDNetCore.Migrations
                     b.ToTable("FotoProdutos");
                 });
 
+            modelBuilder.Entity("dddnetcore.Domain.ItensCarrinho.ItemCarrinho", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CarrinhoId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ProdutoId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Quantidade")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CarrinhoId");
+
+                    b.HasIndex("ProdutoId");
+
+                    b.ToTable("ItensCarrinho");
+                });
+
             modelBuilder.Entity("dddnetcore.Domain.Produtos.Produto", b =>
                 {
                     b.Property<Guid>("Id")
@@ -101,6 +145,55 @@ namespace DDDNetCore.Migrations
                     b.ToTable("Produtos");
                 });
 
+            modelBuilder.Entity("dddnetcore.Domain.Users.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ClienteId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserPassword")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClienteId");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.VendaProdutos.VendaProduto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("PrecoUnitario")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ProdutoId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Quantidade")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("VendaId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProdutoId");
+
+                    b.HasIndex("VendaId");
+
+                    b.ToTable("VendaProdutos");
+                });
+
             modelBuilder.Entity("dddnetcore.Domain.Vendas.Venda", b =>
                 {
                     b.Property<Guid>("Id")
@@ -126,8 +219,34 @@ namespace DDDNetCore.Migrations
                     b.ToTable("Vendas");
                 });
 
+            modelBuilder.Entity("dddnetcore.Domain.Carrinhos.Carrinho", b =>
+                {
+                    b.HasOne("dddnetcore.Domain.Clientes.Cliente", "Cliente")
+                        .WithMany()
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
+                });
+
             modelBuilder.Entity("dddnetcore.Domain.FotoProdutos.FotoProduto", b =>
                 {
+                    b.HasOne("dddnetcore.Domain.Produtos.Produto", "Produto")
+                        .WithMany()
+                        .HasForeignKey("ProdutoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Produto");
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.ItensCarrinho.ItemCarrinho", b =>
+                {
+                    b.HasOne("dddnetcore.Domain.Carrinhos.Carrinho", null)
+                        .WithMany("Itens")
+                        .HasForeignKey("CarrinhoId");
+
                     b.HasOne("dddnetcore.Domain.Produtos.Produto", "Produto")
                         .WithMany()
                         .HasForeignKey("ProdutoId")
@@ -148,6 +267,36 @@ namespace DDDNetCore.Migrations
                     b.Navigation("Categoria");
                 });
 
+            modelBuilder.Entity("dddnetcore.Domain.Users.User", b =>
+                {
+                    b.HasOne("dddnetcore.Domain.Clientes.Cliente", "Cliente")
+                        .WithMany()
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.VendaProdutos.VendaProduto", b =>
+                {
+                    b.HasOne("dddnetcore.Domain.Produtos.Produto", "Produto")
+                        .WithMany()
+                        .HasForeignKey("ProdutoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("dddnetcore.Domain.Vendas.Venda", "Venda")
+                        .WithMany()
+                        .HasForeignKey("VendaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Produto");
+
+                    b.Navigation("Venda");
+                });
+
             modelBuilder.Entity("dddnetcore.Domain.Vendas.Venda", b =>
                 {
                     b.HasOne("dddnetcore.Domain.Clientes.Cliente", "Cliente")
@@ -157,6 +306,11 @@ namespace DDDNetCore.Migrations
                         .IsRequired();
 
                     b.Navigation("Cliente");
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.Carrinhos.Carrinho", b =>
+                {
+                    b.Navigation("Itens");
                 });
 #pragma warning restore 612, 618
         }

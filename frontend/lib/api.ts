@@ -1,4 +1,4 @@
-import type { Categoria, Produto } from "./types"
+import type { Categoria, Produto, DadosRegisto, DadosLogin, Utilizador } from "./types"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5225/api"
 
@@ -68,5 +68,79 @@ export async function fetchProdutosPorCategoria(categoriaId: string): Promise<Pr
   } catch (error) {
     console.error("Erro ao buscar produtos por categoria:", error)
     throw new Error("Falha ao carregar produtos da categoria. Verifique se a API está funcionando.")
+  }
+}
+
+export async function registarUtiluzador(dados: DadosRegisto): Promise<Utilizador> {
+  try {
+    console.log("[v0] Registrando usuário:", dados.email)
+    const response = await fetch(`${API_BASE_URL}/usuarios/registro`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dados),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || "Erro ao registrar usuário")
+    }
+
+    const usuario = await response.json()
+    console.log("[v0] Usuário registrado com sucesso:", usuario.id)
+    return usuario
+  } catch (error) {
+    console.error("Erro ao registrar usuário:", error)
+    throw error
+  }
+}
+
+export async function loginUtilizador(dados: DadosLogin): Promise<{ utilizador: Utilizador; token: string }> {
+  try {
+    console.log("[v0] Login:", dados.email)
+    const response = await fetch(`${API_BASE_URL}/users`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dados),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || "Credenciais inválidas")
+    }
+
+    const result = await response.json()
+    console.log("[v0] Login bem-sucedido:", result.utilizador.id)
+    return result
+  } catch (error) {
+    console.error("Erro ao fazer login:", error)
+    throw error
+  }
+}
+
+export async function verificarToken(token: string): Promise<Utilizador> {
+  try {
+    console.log("[v0] Verificando token")
+    const response = await fetch(`${API_BASE_URL}/users`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error("Token inválido")
+    }
+
+    const usuario = await response.json()
+    console.log("[v0] Token válido:", usuario.id)
+    return usuario
+  } catch (error) {
+    console.error("Erro ao verificar token:", error)
+    throw error
   }
 }

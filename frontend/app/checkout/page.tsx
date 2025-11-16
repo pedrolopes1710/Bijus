@@ -3,28 +3,31 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from 'next/navigation'
 import { useCart } from "@/contexts/cart-context"
+import { useAuth } from "@/contexts/auth-context"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { ProtectedRoute } from "@/components/protected-route"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { CreditCard, Smartphone, Building2, Check } from "lucide-react"
+import { CreditCard, Smartphone, Building2, Check } from 'lucide-react'
 import type { DadosEnvio, DadosPagamento } from "@/lib/types"
 
 export default function CheckoutPage() {
   const router = useRouter()
   const { itens, totalPreco, setDadosEnvio, setDadosPagamento, limparCarrinho, isLoaded } = useCart()
+  const { usuario } = useAuth()
   const [etapa, setEtapa] = useState<"envio" | "pagamento" | "confirmacao">("envio")
   const [metodoPagamento, setMetodoPagamento] = useState<"cartao" | "mbway" | "transferencia">("cartao")
 
   const [dadosEnvioForm, setDadosEnvioForm] = useState<DadosEnvio>({
-    nome: "",
-    email: "",
-    telefone: "",
+    nome: usuario?.nome || "",
+    email: usuario?.email || "",
+    telefone: usuario?.telefone || "",
     endereco: "",
     cidade: "",
     estado: "",
@@ -48,7 +51,7 @@ export default function CheckoutPage() {
 
   if (!isLoaded) {
     return (
-      <>
+      <ProtectedRoute>
         <Header />
         <main className="min-h-screen bg-neutral-50 py-12">
           <div className="container mx-auto px-4">
@@ -58,7 +61,7 @@ export default function CheckoutPage() {
           </div>
         </main>
         <Footer />
-      </>
+      </ProtectedRoute>
     )
   }
 
@@ -90,7 +93,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <>
+    <ProtectedRoute>
       <Header />
       <main className="min-h-screen bg-neutral-50 py-12">
         <div className="container mx-auto px-4 max-w-6xl">
@@ -418,6 +421,6 @@ export default function CheckoutPage() {
         </div>
       </main>
       <Footer />
-    </>
+    </ProtectedRoute>
   )
 }

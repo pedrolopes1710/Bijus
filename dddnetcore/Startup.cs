@@ -15,6 +15,17 @@ using dddnetcore.Infraestructure.Clientes;
 using Microsoft.EntityFrameworkCore;
 using dddnetcore.Domain.Vendas;
 using dddnetcore.Infraestructure.Vendas;
+using dddnetcore.Domain.VendaProdutos;
+using dddnetcore.Infraestructure.VendaProdutos;
+using dddnetcore.Domain.ItensCarrinho;
+using dddnetcore.Infraestructure.ItensCarrinho;
+using dddnetcore.Domain.Carrinhos;
+using dddnetcore.Infraestructure.Carrinhos;
+using dddnetcore.Domain.Users;
+using dddnetcore.Infraestructure.Users;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 
 namespace DDDSample1
@@ -35,22 +46,44 @@ namespace DDDSample1
             services.AddDbContext<DDDSample1DbContext>(opt =>
                 opt.UseSqlite(connectionString));
 
-                // Adiciona a configuração de CORS
+            // CORS
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigin", policy =>
                 {
-                // Aqui, define o domínio do frontend que vai poder acessar a API
-                policy.WithOrigins("http://localhost:3000")  // Porta do frontend (Vite)
-                    .AllowAnyHeader()
-                    .AllowAnyMethod();
+                    policy.WithOrigins("http://localhost:3000")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
                 });
-            });    
+            });
 
+            // JWT CONFIG
+            var key = Encoding.ASCII.GetBytes("ef103f0c234ab2ae5807ac14c6c055f869a785fa06dfac00e96441703b5ca733"); // usa uma chave melhor depois
+
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+
+            // Serviços da aplicação
             ConfigureMyServices(services);
 
             services.AddControllers().AddNewtonsoftJson();
         }
+
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -68,7 +101,7 @@ namespace DDDSample1
 
             // Habilita o uso do CORS
             app.UseCors("AllowSpecificOrigin");  // Nome da política que definimos antes
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -93,7 +126,14 @@ namespace DDDSample1
             services.AddTransient<ClienteService>();
             services.AddTransient<IVendaRepository, VendaRepository>();
             services.AddTransient<VendaService>();
-
+            services.AddTransient<IVendaProdutoRepository, VendaProdutoRepository>();
+            services.AddTransient<VendaProdutoService>();
+            services.AddTransient<IItemCarrinhoRepository, ItemCarrinhoRepository>();
+            services.AddTransient<ItemCarrinhoService>();
+            services.AddTransient<ICarrinhoRepository, CarrinhoRepository>();
+            services.AddTransient<CarrinhoService>();
+            services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<UserService>();
         }
     }
 }

@@ -60,13 +60,9 @@
               "target": "Package",
               "version": "[3.1.1, )"
             },
-            "FluentAssertions": {
-              "target": "Package",
-              "version": "[6.12.1, )"
-            },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
-              "version": "[9.0.3, )"
+              "version": "[9.0.0, )"
             },
             "Microsoft.AspNetCore.Mvc.NewtonsoftJson": {
               "target": "Package",
@@ -94,10 +90,6 @@
               "target": "Package",
               "version": "[9.0.3, )"
             },
-            "Microsoft.EntityFrameworkCore.Relational.Design": {
-              "target": "Package",
-              "version": "[1.1.6, )"
-            },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
               "version": "[7.0.0, )"
@@ -106,17 +98,9 @@
               "target": "Package",
               "version": "[9.0.3, )"
             },
-            "Microsoft.NET.Test.Sdk": {
-              "target": "Package",
-              "version": "[17.14.1, )"
-            },
             "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": {
               "target": "Package",
               "version": "[1.18.1, )"
-            },
-            "Moq": {
-              "target": "Package",
-              "version": "[4.20.72, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",
@@ -125,16 +109,6 @@
             "RestSharp": {
               "target": "Package",
               "version": "[106.15.0, )"
-            },
-            "xunit": {
-              "target": "Package",
-              "version": "[2.9.3, )"
-            },
-            "xunit.runner.visualstudio": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[3.1.1, )"
             }
           },
           "imports": [

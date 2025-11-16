@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react"
+import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
@@ -121,3 +121,5 @@ export function Footer() {
     </footer>
   )
 }
+
+export default Footer
