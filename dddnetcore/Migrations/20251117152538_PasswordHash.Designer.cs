@@ -3,6 +3,7 @@ using System;
 using DDDSample1.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DDDNetCore.Migrations
 {
     [DbContext(typeof(DDDSample1DbContext))]
-    partial class DDDSample1DbContextModelSnapshot : ModelSnapshot
+    [Migration("20251117152538_PasswordHash")]
+    partial class PasswordHash
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
@@ -55,6 +58,10 @@ namespace DDDNetCore.Migrations
             modelBuilder.Entity("dddnetcore.Domain.Clientes.Cliente", b =>
                 {
                     b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EmailCliente")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("MoradaCliente")
@@ -149,6 +156,14 @@ namespace DDDNetCore.Migrations
                     b.Property<Guid>("ClienteId")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserPassword")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ClienteId");
@@ -218,31 +233,6 @@ namespace DDDNetCore.Migrations
                     b.Navigation("Cliente");
                 });
 
-            modelBuilder.Entity("dddnetcore.Domain.Clientes.Cliente", b =>
-                {
-                    b.OwnsOne("dddnetcore.Domain.Clientes.EmailCliente", "EmailCliente", b1 =>
-                        {
-                            b1.Property<Guid>("ClienteId")
-                                .HasColumnType("TEXT");
-
-                            b1.Property<string>("Email")
-                                .IsRequired()
-                                .HasMaxLength(150)
-                                .HasColumnType("TEXT")
-                                .HasColumnName("EmailCliente");
-
-                            b1.HasKey("ClienteId");
-
-                            b1.ToTable("Clientes");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ClienteId");
-                        });
-
-                    b.Navigation("EmailCliente")
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("dddnetcore.Domain.FotoProdutos.FotoProduto", b =>
                 {
                     b.HasOne("dddnetcore.Domain.Produtos.Produto", "Produto")
@@ -288,50 +278,7 @@ namespace DDDNetCore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("dddnetcore.Domain.Users.UserName", "UserName", b1 =>
-                        {
-                            b1.Property<Guid>("UserId")
-                                .HasColumnType("TEXT");
-
-                            b1.Property<string>("Nome")
-                                .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("TEXT")
-                                .HasColumnName("UserName");
-
-                            b1.HasKey("UserId");
-
-                            b1.ToTable("Users");
-
-                            b1.WithOwner()
-                                .HasForeignKey("UserId");
-                        });
-
-                    b.OwnsOne("dddnetcore.Domain.Users.UserPassword", "UserPassword", b1 =>
-                        {
-                            b1.Property<Guid>("UserId")
-                                .HasColumnType("TEXT");
-
-                            b1.Property<string>("Password")
-                                .IsRequired()
-                                .HasColumnType("TEXT")
-                                .HasColumnName("PasswordHash");
-
-                            b1.HasKey("UserId");
-
-                            b1.ToTable("Users");
-
-                            b1.WithOwner()
-                                .HasForeignKey("UserId");
-                        });
-
                     b.Navigation("Cliente");
-
-                    b.Navigation("UserName")
-                        .IsRequired();
-
-                    b.Navigation("UserPassword")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("dddnetcore.Domain.VendaProdutos.VendaProduto", b =>

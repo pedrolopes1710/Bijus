@@ -1,17 +1,17 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import type { Usuario, DadosRegistro, DadosLogin } from "@/lib/types"
-import { registrarUsuario, loginUsuario, verificarToken } from "@/lib/api"
-import { hashPassword } from "@/lib/crypto"
+import type { Usuario, DadosRegisto, DadosLogin } from "@/lib/types"
+import { registarUsuario, loginUsuario, fetchUsuario } from "@/lib/api"
 
 interface AuthContextType {
   usuario: Usuario | null
   isLoading: boolean
   isAuthenticated: boolean
   login: (dados: DadosLogin) => Promise<void>
-  registro: (dados: DadosRegistro) => Promise<void>
+  registo: (dados: DadosRegisto) => Promise<void>
   logout: () => void
+  recarregarUsuario: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -21,46 +21,67 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Verificar se há token salvo
     const token = localStorage.getItem("auth_token")
-    if (token) {
-      verificarToken(token)
-        .then((user) => {
-          setUsuario(user)
-        })
-        .catch(() => {
-          localStorage.removeItem("auth_token")
-        })
-        .finally(() => {
-          setIsLoading(false)
-        })
-    } else {
-      setIsLoading(false)
+    const userStr = localStorage.getItem("auth_user")
+    
+    if (token && userStr) {
+      try {
+        const user = JSON.parse(userStr)
+        setUsuario(user)
+      } catch (error) {
+        console.error("[v0] Erro ao carregar usuário:", error)
+        localStorage.removeItem("auth_token")
+        localStorage.removeItem("auth_user")
+      }
     }
+    setIsLoading(false)
   }, [])
 
   const login = async (dados: DadosLogin) => {
     try {
-      // Hash da senha antes de enviar
-      const senhaHash = await hashPassword(dados.senha)
-      const resultado = await loginUsuario({ ...dados, senha: senhaHash })
+      const resultado = await loginUsuario(dados)
+      console.log("[v0] Login resultado:", resultado)
 
-      setUsuario(resultado.usuario)
-      localStorage.setItem("auth_token", resultado.token)
+      const tokenStr = resultado.token || ""
+      const userObj = resultado.usuario
+
+      if (!userObj) throw new Error("Resposta do servidor inválida")
+
+      setUsuario(userObj)
+      localStorage.setItem("auth_token", tokenStr)
+      localStorage.setItem("auth_user", JSON.stringify(userObj))
     } catch (error) {
       throw error
     }
   }
 
-  const registro = async (dados: DadosRegistro) => {
+  const registo = async (dados: DadosRegisto) => {
     try {
-      // Hash da senha antes de enviar
-      const senhaHash = await hashPassword(dados.senha)
-      const usuario = await registrarUsuario({ ...dados, senha: senhaHash })
+      const resultado = await registarUsuario(dados)
 
-      // Após registro, fazer login automaticamente
-      await login({ email: dados.email, senha: dados.senha })
+      // registarUsuario retorna: { usuario, token }
+      const user = resultado.usuario || resultado
+      const token = resultado.token || ""
+
+      setUsuario(user)
+      localStorage.setItem("auth_token", token)
+      localStorage.setItem("auth_user", JSON.stringify(user))
     } catch (error) {
+      throw error
+    }
+  }
+
+  const recarregarUsuario = async () => {
+    if (!usuario?.userName) {
+      throw new Error("Nenhum utilizador autenticado")
+    }
+    
+    try {
+      const usuarioAtualizado = await fetchUsuario(usuario.userName)
+      setUsuario(usuarioAtualizado)
+      localStorage.setItem("auth_user", JSON.stringify(usuarioAtualizado))
+    } catch (error) {
+      console.error("[v0] Erro ao recarregar utilizador:", error)
       throw error
     }
   }
@@ -68,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUsuario(null)
     localStorage.removeItem("auth_token")
+    localStorage.removeItem("auth_user")
   }
 
   return (
@@ -77,8 +99,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         isAuthenticated: !!usuario,
         login,
-        registro,
+        registo,
         logout,
+        recarregarUsuario,
       }}
     >
       {children}

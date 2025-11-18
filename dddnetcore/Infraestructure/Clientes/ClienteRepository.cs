@@ -2,6 +2,7 @@ using dddnetcore.Domain.Clientes;
 
 using DDDSample1.Infrastructure;
 using DDDSample1.Infrastructure.Shared;
+using Microsoft.EntityFrameworkCore;
 
 namespace dddnetcore.Infraestructure.Clientes
 {
@@ -19,6 +20,10 @@ namespace dddnetcore.Infraestructure.Clientes
             _context.Clientes.Update(cliente);
             await _context.SaveChangesAsync();
             return cliente;
+        }
+        public Task<Cliente>GetByEmailAsync(String email)
+        {
+            return _context.Clientes.FirstOrDefaultAsync(c => c.EmailCliente.Equals(email));
         }
     }
 }

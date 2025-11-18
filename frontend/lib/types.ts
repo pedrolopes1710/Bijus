@@ -40,3 +40,32 @@ export interface DadosPagamento {
   cvv?: string
   numeroMbway?: string
 }
+
+export interface Cliente {
+  id: string
+  nome: string
+  email: string
+  morada: string
+}
+
+export interface Usuario {
+  id: string
+  userName: string
+  userPassword?: string // Opcional, não deve ser exposto no frontend
+  clienteDto: Cliente
+}
+
+export interface DadosRegisto {
+  // Dados do cliente
+  nome: string
+  email: string
+  morada: string
+  // Dados do usuário
+  username: string
+  password: string
+}
+
+export interface DadosLogin {
+  username: string
+  password: string
+}

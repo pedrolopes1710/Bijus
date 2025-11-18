@@ -15,88 +15,110 @@ namespace DDDSample1.Controllers
             _service = service;
         }
 
-        // GET: api/Produtos
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
         {
-            return await _service.GetAllAsync();
+            try
+            {
+                var users = await _service.GetAllAsync();
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
-        // GET: api/Produtos/5
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDto>> GetById(Guid id)
         {
-            var user = await _service.GetByIdAsync(new UserId(id));
-
-            if (user == null)
+            try
             {
-                return NotFound();
+                var user = await _service.GetByIdAsync(new UserId(id));
+                return Ok(user);
             }
-
-            return user;
+            catch (BusinessRuleValidationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
-        // POST: api/Produtos
         [HttpPost]
         public async Task<ActionResult<UserDto>> Create(CreatingUserDto dto)
         {
-            try {
-                UserDto user = await _service.AddAsync(dto);
+            try
+            {
+                var user = await _service.AddAsync(dto);
                 return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
-            } catch (BusinessRuleValidationException e) {
-                return BadRequest(new {e.Message});
-            } catch (NullReferenceException e) {
-                return NotFound(new {e.Message});
-            } catch (ArgumentNullException e) {
-                return BadRequest(new {e.Message});
-            } catch (Exception) {
-                return StatusCode(500, new { message = "An unexpected error occurred." });
+            }
+            catch (BusinessRuleValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
-        // PUT: api/Produtos/5
         [HttpPut("{id}")]
         public async Task<ActionResult<UserDto>> Update(Guid id, UserDto dto)
         {
             if (id != dto.Id)
-            {
-                return BadRequest();
-            }
+                return BadRequest(new { message = "ID não corresponde." });
 
             try
             {
                 var user = await _service.UpdateAsync(dto);
-
-                if (user == null)
-                {
-                    return NotFound();
-                }
                 return Ok(user);
             }
-            catch(BusinessRuleValidationException ex)
+            catch (BusinessRuleValidationException ex)
             {
-                return BadRequest(new {Message = ex.Message});
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
-        // DELETE: api/Produtos/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<UserDto>> HardDelete(Guid id)
+        public async Task<ActionResult> Delete(Guid id)
         {
             try
             {
-                var user = await _service.DeleteAsync(new UserId(id));
-
-                if (user == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(user);
+                await _service.DeleteAsync(new UserId(id));
+                return NoContent();
             }
-            catch(BusinessRuleValidationException ex)
+            catch (BusinessRuleValidationException ex)
             {
-                return BadRequest(new {Message = ex.Message});
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult> Login(LoginDto dto)
+        {
+            try
+            {
+                var token = await _service.LoginAsync(dto.UserOrEmail, dto.UserPassword);
+                return Ok(new { token = token });
+            }
+            catch (BusinessRuleValidationException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
             }
         }
     }

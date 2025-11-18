@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
+using BCrypt.Net;
 
 namespace dddnetcore.Domain.Users
 {
@@ -12,12 +13,15 @@ namespace dddnetcore.Domain.Users
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserRepository _repo;
         private readonly IClienteRepository _clienteRepo;
+        private readonly ILogger<UserService> _logger;
+         private readonly string _jwtSecret = "ef103f0c234ab2ae5807ac14c6c055f869a785fa06dfac00e96441703b5ca733";
 
-        public UserService(IUnitOfWork unitOfWork, IUserRepository repo, IClienteRepository clienteRepo)
+        public UserService(IUnitOfWork unitOfWork, IUserRepository repo, IClienteRepository clienteRepo,ILogger<UserService> logger)
         {
             this._unitOfWork = unitOfWork;
             this._repo = repo;
             this._clienteRepo = clienteRepo;
+            this._logger = logger;
         }
 
         public async Task<List<UserDto>> GetAllAsync(Guid? userId = null) {
@@ -75,45 +79,44 @@ namespace dddnetcore.Domain.Users
 
             return new UserDto(user);
         }
-        public async Task<string> LoginAsync(string userOrEmail, string password)
+        public async Task<LoginResponseDto> LoginAsync(string userOrEmail, string password)
         {
-            User user = null;
+            if (string.IsNullOrEmpty(userOrEmail) || string.IsNullOrEmpty(password))
+                throw new BusinessRuleValidationException("Nome de usuário e senha são obrigatórios.");
 
-            // 1 — tentar buscar por username
-            user = await _repo.GetByUsernameAsync(userOrEmail);
-
-            // 2 — se não achou, tentar por email
+            var user = await _repo.GetByUsernameOrEmailAsync(userOrEmail);
             if (user == null)
+                throw new BusinessRuleValidationException("Usuário não encontrado.");
+
+             // LOG
+            _logger.LogInformation($"Tentativa de login para: {userOrEmail}");
+            _logger.LogInformation($"Senha fornecida: {password}");
+            _logger.LogInformation($"Hash armazenado: {user.UserPassword.Password}");
+
+            var isValid = user.UserPassword.VerifyPassword(password);
+            _logger.LogInformation($"Verificação de senha: {isValid}");
+
+            if (!isValid)
+                throw new BusinessRuleValidationException("Senha incorreta.");
+            
+            return new LoginResponseDto
             {
-                var cliente = await _clienteRepository.GetByEmailAsync(userOrEmail);
-                if (cliente != null)
-                {
-                    user = await _userRepository.GetByIdAsync(cliente.UserId);
-                }
-            }
-
-            if (user == null)
-                return null;
-
-            // Validar password
-            if (!BCrypt.Net.BCrypt.Verify(password, user.Password))
-                return null;
-
-            // Buscar Cliente associado ao User
-            var userCliente = await _clienteRepository.GetByUserIdAsync(user.Id);
-
-            return GenerateJwtToken(user, userCliente);
+                Token = GenerateJwtToken(user),
+                User = new UserDto(user)
+            };
+           
         }
 
         private string GenerateJwtToken(User user)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("ef103f0c234ab2ae5807ac14c6c055f869a785fa06dfac00e96441703b5ca733"));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSecret));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.AsGuid().ToString()),
+                new Claim(ClaimTypes.Name, user.UserName.Nome),
+
             };
 
             var token = new JwtSecurityToken(
@@ -124,6 +127,5 @@ namespace dddnetcore.Domain.Users
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
     }
 }

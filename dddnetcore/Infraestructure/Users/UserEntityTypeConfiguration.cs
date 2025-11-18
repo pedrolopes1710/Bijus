@@ -15,15 +15,21 @@ namespace dddnetcore.Infraestructure.Users
                 .HasConversion(
                     id => id.AsGuid(), 
                     guid => new UserId(guid));
-            builder.Property(b => b.UserName)
-                .HasConversion(
-                    b => b.Nome,
-                    b => new UserName(b)).IsRequired();
+            builder.OwnsOne(b => b.UserName, un =>
+            {
+                un.Property(p => p.Nome)
+                  .HasColumnName("UserName")
+                  .HasMaxLength(100)
+                  .IsRequired();
+            });
 
-            builder.Property(b => b.UserPassword)
-                .HasConversion(
-                    b => b.Password,
-                    b => new UserPassword(b)).IsRequired();
+            // Mapear UserPassword como owned type -> coluna "PasswordHash"
+            builder.OwnsOne(b => b.UserPassword, up =>
+            {
+                up.Property(p => p.Password)
+                  .HasColumnName("PasswordHash")
+                  .IsRequired();
+            });
 
             builder.HasOne(b => b.Cliente)
                 .WithMany()

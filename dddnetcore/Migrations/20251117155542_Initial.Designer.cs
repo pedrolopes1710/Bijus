@@ -3,6 +3,7 @@ using System;
 using DDDSample1.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DDDNetCore.Migrations
 {
     [DbContext(typeof(DDDSample1DbContext))]
-    partial class DDDSample1DbContextModelSnapshot : ModelSnapshot
+    [Migration("20251117155542_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
@@ -55,6 +58,10 @@ namespace DDDNetCore.Migrations
             modelBuilder.Entity("dddnetcore.Domain.Clientes.Cliente", b =>
                 {
                     b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EmailCliente")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("MoradaCliente")
@@ -216,31 +223,6 @@ namespace DDDNetCore.Migrations
                         .IsRequired();
 
                     b.Navigation("Cliente");
-                });
-
-            modelBuilder.Entity("dddnetcore.Domain.Clientes.Cliente", b =>
-                {
-                    b.OwnsOne("dddnetcore.Domain.Clientes.EmailCliente", "EmailCliente", b1 =>
-                        {
-                            b1.Property<Guid>("ClienteId")
-                                .HasColumnType("TEXT");
-
-                            b1.Property<string>("Email")
-                                .IsRequired()
-                                .HasMaxLength(150)
-                                .HasColumnType("TEXT")
-                                .HasColumnName("EmailCliente");
-
-                            b1.HasKey("ClienteId");
-
-                            b1.ToTable("Clientes");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ClienteId");
-                        });
-
-                    b.Navigation("EmailCliente")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("dddnetcore.Domain.FotoProdutos.FotoProduto", b =>

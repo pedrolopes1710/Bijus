@@ -121,11 +121,18 @@ export function Header() {
                   {isAuthenticated ? (
                     <>
                       <DropdownMenuItem disabled className="font-medium">
-                        {usuario?.nome}
+                        {usuario?.userName}
                       </DropdownMenuItem>
-                      <DropdownMenuItem disabled className="text-xs text-muted-foreground">
-                        {usuario?.email}
-                      </DropdownMenuItem>
+                      {usuario?.clienteDto && (
+                        <>
+                          <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                            {usuario.clienteDto.nome}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                            {usuario.clienteDto.email}
+                          </DropdownMenuItem>
+                        </>
+                      )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem>
                         <Link href="/perfil" className="w-full">
@@ -140,7 +147,7 @@ export function Header() {
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={logout} className="text-destructive cursor-pointer">
                         <LogOut className="h-4 w-4 mr-2" />
-                        Sair
+                        Terminar Sessão
                       </DropdownMenuItem>
                     </>
                   ) : (
@@ -151,7 +158,7 @@ export function Header() {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem>
-                        <Link href="/registro" className="w-full">
+                        <Link href="/registo" className="w-full">
                           Criar Conta
                         </Link>
                       </DropdownMenuItem>

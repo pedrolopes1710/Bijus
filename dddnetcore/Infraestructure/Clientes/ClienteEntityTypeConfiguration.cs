@@ -19,10 +19,13 @@ namespace dddnetcore.Infraestructure.Clientes
                 .HasConversion(
                     b => b.Nome,
                     b => new NomeCliente(b)).IsRequired();
-            builder.Property(b => b.EmailCliente)
-                .HasConversion(
-                    b => b.Email,
-                    b => new EmailCliente(b)).IsRequired();
+            builder.OwnsOne(b => b.EmailCliente, ec =>
+            {
+                ec.Property(p => p.Email)
+                  .HasColumnName("EmailCliente")
+                  .HasMaxLength(150)
+                  .IsRequired();
+            });
             builder.Property(b => b.MoradaCliente)
                 .HasConversion(
                     b => b.Morada,

@@ -4,23 +4,23 @@ import { useState } from "react"
 import { useRouter } from 'next/navigation'
 import Link from "next/link"
 import { useAuth } from "@/contexts/auth-context"
-import { validarSenha } from "@/lib/crypto"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, User, MapPin } from 'lucide-react'
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 
-export default function RegistroPage() {
+export default function RegistoPage() {
   const router = useRouter()
-  const { registro } = useAuth()
+  const { registo } = useAuth()
   const [nome, setNome] = useState("")
   const [email, setEmail] = useState("")
-  const [telefone, setTelefone] = useState("")
-  const [senha, setSenha] = useState("")
+  const [morada, setMorada] = useState("")
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
   const [confirmarSenha, setConfirmarSenha] = useState("")
   const [mostrarSenha, setMostrarSenha] = useState(false)
   const [erro, setErro] = useState("")
@@ -30,15 +30,13 @@ export default function RegistroPage() {
     e.preventDefault()
     setErro("")
 
-    // Validar senha
-    const validacao = validarSenha(senha)
-    if (!validacao.valida) {
-      setErro(validacao.mensagem)
+    if (password.length < 6) {
+      setErro("A senha deve ter pelo menos 6 caracteres")
       return
     }
 
     // Verificar se senhas coincidem
-    if (senha !== confirmarSenha) {
+    if (password !== confirmarSenha) {
       setErro("As senhas não coincidem")
       return
     }
@@ -46,7 +44,7 @@ export default function RegistroPage() {
     setIsLoading(true)
 
     try {
-      await registro({ nome, email, senha, telefone: telefone || undefined })
+      await registo({ nome, email, morada, username, password })
       router.push("/")
     } catch (error) {
       setErro(error instanceof Error ? error.message : "Erro ao criar conta")
@@ -108,33 +106,52 @@ export default function RegistroPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="telefone">
-                    Telefone <span className="text-muted-foreground text-xs">(opcional)</span>
-                  </Label>
+                  <Label htmlFor="morada">Morada</Label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="telefone"
-                      type="tel"
-                      placeholder="+351 912 345 678"
-                      value={telefone}
-                      onChange={(e) => setTelefone(e.target.value)}
+                      id="morada"
+                      type="text"
+                      placeholder="Rua, número, código postal, cidade"
+                      value={morada}
+                      onChange={(e) => setMorada(e.target.value)}
+                      required
                       className="pl-10"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="senha">Senha</Label>
+                  <Label htmlFor="username">Username</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder="seu_username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                      className="pl-10"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Será usado para fazer login na sua conta
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password">Senha</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="senha"
+                      id="password"
                       type={mostrarSenha ? "text" : "password"}
                       placeholder="••••••••"
-                      value={senha}
-                      onChange={(e) => setSenha(e.target.value)}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       required
+                      minLength={6}
                       className="pl-10 pr-10"
                     />
                     <button
@@ -146,7 +163,7 @@ export default function RegistroPage() {
                     </button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Mínimo 8 caracteres, com letra maiúscula, minúscula e número
+                    Mínimo 6 caracteres
                   </p>
                 </div>
 
