@@ -1,5 +1,7 @@
 using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.Categorias;
+using dddnetcore.Domain.Colecoes;
+using dddnetcore.Domain.FotoProdutos;
 
 namespace dddnetcore.Domain.Produtos
 {
@@ -9,8 +11,9 @@ namespace dddnetcore.Domain.Produtos
         public DescricaoProduto DescricaoProduto {get; private set;}
         public PrecoProduto PrecoProduto {get; private set;}
         public StockProduto StockProduto {get; private set;}
-        public Categoria Categoria {get; private set;}
-           
+        public Categoria Categoria { get; private set; }
+        public List<FotoProduto> FotoProduto { get; private set; }
+        public ColecaoId ColecaoId { get; private set; }
         private Produto() { }
 
         public Produto(
@@ -40,6 +43,11 @@ namespace dddnetcore.Domain.Produtos
             this.StockProduto = stockProduto;
             this.Categoria = categoria;
         }
-
+        public void SetColecaoId(ColecaoId colecaoId)
+        {
+            if (colecaoId == null)
+                throw new BusinessRuleValidationException("ColecaoId não pode ser nulo.");
+            this.ColecaoId = colecaoId;
+        }
     }
 }

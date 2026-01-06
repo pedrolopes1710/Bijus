@@ -10,6 +10,13 @@ export interface Produto {
   preco: number
   stock: number
   categoria: Categoria
+  fotos?: FotoProduto[]
+}
+
+export interface FotoProduto {
+  id: string
+  urlProduto: string
+  produtoId: string
 }
 
 export interface ApiResponse<T> {
@@ -68,4 +75,20 @@ export interface DadosRegisto {
 export interface DadosLogin {
   username: string
   password: string
+}
+export interface FotoColecao {
+  id: string
+  urlColecao: string
+  colecaoId: string
+}
+
+export interface Colecao {
+  id: string
+  dataAtualizacao: string
+  dataCriacao: string
+  estadoColecao: string
+  nomeColecao: string
+  descricaoColecao: string
+  produto: Produto[]
+  fotos: FotoColecao[]
 }

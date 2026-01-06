@@ -1,1 +1,331 @@
-{"Version":1,"Hash":"aG8NdXha+ZVlr4VhLoGtGDzRG5sl4XVtE+RBaapXmso=","Source":"DDDNetCore","BasePath":"_content/DDDNetCore","Mode":"Default","ManifestType":"Build","ReferencedProjectsConfiguration":[],"DiscoveryPatterns":[],"Assets":[],"Endpoints":[]}
+{
+  "Version": 1,
+  "Hash": "6oBYkYGSdUuAGFYVaxPfYF+GF1qQUctujrwpZ54NHMQ=",
+  "Source": "DDDNetCore",
+  "BasePath": "_content/DDDNetCore",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "DDDNetCore\\wwwroot",
+      "Source": "DDDNetCore",
+      "ContentRoot": "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\wwwroot\\",
+      "BasePath": "_content/DDDNetCore",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\wwwroot\\uploads\\colecoes\\a70f874d-680f-451a-ab79-8a1d3c6abccc.jpeg",
+      "SourceId": "DDDNetCore",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\wwwroot\\",
+      "BasePath": "_content/DDDNetCore",
+      "RelativePath": "uploads/colecoes/a70f874d-680f-451a-ab79-8a1d3c6abccc#[.{fingerprint}]?.jpeg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "niizpwuyi7",
+      "Integrity": "gR4b7ZXtp4LeK5xiLmvT06tlOWoMtFRgdc4DGn/qhH4=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\colecoes\\a70f874d-680f-451a-ab79-8a1d3c6abccc.jpeg"
+    },
+    {
+      "Identity": "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\wwwroot\\uploads\\produtos\\625f72e1-d896-47c2-8aa8-7d0ec6d564e4.jpeg",
+      "SourceId": "DDDNetCore",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\wwwroot\\",
+      "BasePath": "_content/DDDNetCore",
+      "RelativePath": "uploads/produtos/625f72e1-d896-47c2-8aa8-7d0ec6d564e4#[.{fingerprint}]?.jpeg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "niizpwuyi7",
+      "Integrity": "gR4b7ZXtp4LeK5xiLmvT06tlOWoMtFRgdc4DGn/qhH4=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\produtos\\625f72e1-d896-47c2-8aa8-7d0ec6d564e4.jpeg"
+    },
+    {
+      "Identity": "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\wwwroot\\uploads\\produtos\\96f36152-d0f5-4ab0-ae43-81250dcbc70b.jpeg",
+      "SourceId": "DDDNetCore",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\wwwroot\\",
+      "BasePath": "_content/DDDNetCore",
+      "RelativePath": "uploads/produtos/96f36152-d0f5-4ab0-ae43-81250dcbc70b#[.{fingerprint}]?.jpeg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "niizpwuyi7",
+      "Integrity": "gR4b7ZXtp4LeK5xiLmvT06tlOWoMtFRgdc4DGn/qhH4=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\produtos\\96f36152-d0f5-4ab0-ae43-81250dcbc70b.jpeg"
+    }
+  ],
+  "Endpoints": [
+    {
+      "Route": "uploads/colecoes/a70f874d-680f-451a-ab79-8a1d3c6abccc.jpeg",
+      "AssetFile": "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\wwwroot\\uploads\\colecoes\\a70f874d-680f-451a-ab79-8a1d3c6abccc.jpeg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "115458"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"gR4b7ZXtp4LeK5xiLmvT06tlOWoMtFRgdc4DGn/qhH4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 04 Jan 2026 00:37:45 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-gR4b7ZXtp4LeK5xiLmvT06tlOWoMtFRgdc4DGn/qhH4="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/colecoes/a70f874d-680f-451a-ab79-8a1d3c6abccc.niizpwuyi7.jpeg",
+      "AssetFile": "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\wwwroot\\uploads\\colecoes\\a70f874d-680f-451a-ab79-8a1d3c6abccc.jpeg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "115458"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"gR4b7ZXtp4LeK5xiLmvT06tlOWoMtFRgdc4DGn/qhH4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 04 Jan 2026 00:37:45 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "niizpwuyi7"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/colecoes/a70f874d-680f-451a-ab79-8a1d3c6abccc.jpeg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-gR4b7ZXtp4LeK5xiLmvT06tlOWoMtFRgdc4DGn/qhH4="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/produtos/625f72e1-d896-47c2-8aa8-7d0ec6d564e4.jpeg",
+      "AssetFile": "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\wwwroot\\uploads\\produtos\\625f72e1-d896-47c2-8aa8-7d0ec6d564e4.jpeg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "115458"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"gR4b7ZXtp4LeK5xiLmvT06tlOWoMtFRgdc4DGn/qhH4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 04 Jan 2026 00:30:42 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-gR4b7ZXtp4LeK5xiLmvT06tlOWoMtFRgdc4DGn/qhH4="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/produtos/625f72e1-d896-47c2-8aa8-7d0ec6d564e4.niizpwuyi7.jpeg",
+      "AssetFile": "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\wwwroot\\uploads\\produtos\\625f72e1-d896-47c2-8aa8-7d0ec6d564e4.jpeg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "115458"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"gR4b7ZXtp4LeK5xiLmvT06tlOWoMtFRgdc4DGn/qhH4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 04 Jan 2026 00:30:42 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "niizpwuyi7"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/produtos/625f72e1-d896-47c2-8aa8-7d0ec6d564e4.jpeg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-gR4b7ZXtp4LeK5xiLmvT06tlOWoMtFRgdc4DGn/qhH4="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/produtos/96f36152-d0f5-4ab0-ae43-81250dcbc70b.jpeg",
+      "AssetFile": "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\wwwroot\\uploads\\produtos\\96f36152-d0f5-4ab0-ae43-81250dcbc70b.jpeg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "115458"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"gR4b7ZXtp4LeK5xiLmvT06tlOWoMtFRgdc4DGn/qhH4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 04 Jan 2026 00:30:07 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-gR4b7ZXtp4LeK5xiLmvT06tlOWoMtFRgdc4DGn/qhH4="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/produtos/96f36152-d0f5-4ab0-ae43-81250dcbc70b.niizpwuyi7.jpeg",
+      "AssetFile": "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\wwwroot\\uploads\\produtos\\96f36152-d0f5-4ab0-ae43-81250dcbc70b.jpeg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "115458"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"gR4b7ZXtp4LeK5xiLmvT06tlOWoMtFRgdc4DGn/qhH4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sun, 04 Jan 2026 00:30:07 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "niizpwuyi7"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/produtos/96f36152-d0f5-4ab0-ae43-81250dcbc70b.jpeg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-gR4b7ZXtp4LeK5xiLmvT06tlOWoMtFRgdc4DGn/qhH4="
+        }
+      ]
+    }
+  ]
+}

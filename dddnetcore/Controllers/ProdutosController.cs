@@ -38,7 +38,7 @@ namespace DDDSample1.Controllers
 
         // POST: api/Produtos
         [HttpPost]
-        public async Task<ActionResult<ProdutoDto>> Create(CreatingProdutoDto dto)
+        public async Task<IActionResult> Create([FromForm] CreatingProdutoDto dto)
         {
             try {
                 ProdutoDto produto = await _service.AddAsync(dto);

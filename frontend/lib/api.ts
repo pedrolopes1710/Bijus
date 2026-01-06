@@ -1,6 +1,31 @@
-import type { Categoria, Produto, DadosRegisto, DadosLogin, Usuario } from "./types"
+import type { Categoria, Produto, DadosRegisto, DadosLogin, Usuario, Colecao } from "./types"
+
+/*const API_BASE_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:5225"
+    : "https://monocyclic-endotrophic-emilie.ngrok-free.dev";
+
+export default API_BASE_URL;*/
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5225/api"
+
+export function resolveImageUrl(url: string | undefined | null | any) {
+  // Handle if it's an object with url property (legacy format or from API)
+  if (typeof url === 'object' && url !== null && url.url) {
+    url = url.url
+  }
+  
+  if (!url) return url
+  if (typeof url !== 'string') return undefined
+  if (url.startsWith("http://") || url.startsWith("https://")) return url
+  const apiHost = API_BASE_URL.replace(/\/api\/?$/, "")
+  // If image is stored under the frontend `public` folder (commonly `/uploads/...`),
+  // keep it relative so the browser will request it from the frontend origin.
+  if (url.startsWith("/uploads/")) return url
+  if (url.startsWith("/")) return `${apiHost}${url}`
+  return `${apiHost}/${url}`
+}
+
 
 export async function fetchCategorias(): Promise<Categoria[]> {
   try {
@@ -47,7 +72,6 @@ export async function fetchProdutos(): Promise<Produto[]> {
     throw new Error("Falha ao carregar produtos. Verifique se a API está funcionando.")
   }
 }
-
 export async function fetchProdutosPorCategoria(categoriaId: string): Promise<Produto[]> {
   try {
     console.log("[v0] Fetching produtos by categoria:", categoriaId)
@@ -118,11 +142,16 @@ export async function registarUsuario(dados: DadosRegisto): Promise<{ usuario: U
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username: dados.username,
-        password: dados.password, // Password em texto puro - backend faz hash
+        userName: dados.username,
+        userPassword: dados.password, // Password em texto puro - backend faz hash
         clienteId: cliente.id,
       }),
     })
+    console.log("Body enviado para criação de usuário:", JSON.stringify({
+        userName: dados.username,
+        userPassword: dados.password, // Password em texto puro - backend faz hash
+        clienteId: cliente.id,
+      }))
 
     if (!userResponse.ok) {
       let errorMessage = "Erro ao criar usuário"
@@ -251,3 +280,49 @@ export async function fetchUsuario(username: string): Promise<Usuario> {
     throw error
   }
 }
+export async function fetchColecoes(): Promise<Colecao[]> {
+  try {
+    console.log("[v0] Fetching colecoes from:", `${API_BASE_URL}/colecoes`)
+    const response = await fetch(`${API_BASE_URL}/colecoes`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const data = await response.json()
+    console.log("[v0] Colecoes fetched successfully:", data.length, "items")
+    return data
+  } catch (error) {
+    console.error("Erro ao buscar coleções:", error)
+    throw new Error("Falha ao carregar coleções. Verifique se a API está funcionando.")
+  }
+}
+
+export async function fetchColecao(id: string): Promise<Colecao> {
+  try {
+    console.log("[v0] Fetching colecao:", id)
+    const response = await fetch(`${API_BASE_URL}/colecoes/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const data = await response.json()
+    console.log("[v0] Colecao fetched successfully:", data.id)
+    return data
+  } catch (error) {
+    console.error("Erro ao buscar coleção:", error)
+    throw new Error("Falha ao carregar coleção. Verifique se a API está funcionando.")
+  }
+}
+

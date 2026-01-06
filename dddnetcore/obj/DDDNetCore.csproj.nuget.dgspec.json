@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\DDDNetCore.csproj": {}
+    "c:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\DDDNetCore.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\DDDNetCore.csproj": {
+    "c:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\DDDNetCore.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\DDDNetCore.csproj",
+        "projectUniqueName": "c:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\DDDNetCore.csproj",
         "projectName": "DDDNetCore",
-        "projectPath": "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\DDDNetCore.csproj",
+        "projectPath": "c:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\DDDNetCore.csproj",
         "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\obj\\",
+        "outputPath": "c:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -70,35 +70,30 @@
             },
             "Microsoft.AspNetCore.Mvc.NewtonsoftJson": {
               "target": "Package",
-              "version": "[7.0.0, )"
+              "version": "[9.0.0, )"
+            },
+            "Microsoft.Data.SqlClient": {
+              "target": "Package",
+              "version": "[6.1.3, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[9.0.3, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
               "version": "[9.0.3, )"
             },
             "Microsoft.EntityFrameworkCore.InMemory": {
               "target": "Package",
-              "version": "[7.0.0, )"
+              "version": "[9.0.3, )"
             },
             "Microsoft.EntityFrameworkCore.Proxies": {
-              "target": "Package",
-              "version": "[8.0.4, )"
-            },
-            "Microsoft.EntityFrameworkCore.Relational": {
               "target": "Package",
               "version": "[9.0.3, )"
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
-              "target": "Package",
-              "version": "[7.0.0, )"
-            },
-            "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",
               "version": "[9.0.3, )"
             },

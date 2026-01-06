@@ -34,6 +34,7 @@ namespace dddnetcore.Infraestructure.Produtos
         public new async Task<List<Produto>> GetAllAsync() {
             return await _context.Produtos
                 .Include(o => o.Categoria)
+                .Include(o=> o.FotoProduto)
                 .ToListAsync();
         }
     }

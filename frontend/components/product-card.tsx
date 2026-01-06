@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Heart, ShoppingBag, Star } from "lucide-react"
 import type { Produto } from "@/lib/types"
+import { resolveImageUrl } from "@/lib/api"
 import Link from "next/link"
 import { createSlug } from "@/lib/utils"
 import { useCart } from "@/contexts/cart-context"
@@ -67,7 +68,11 @@ export function ProductCard({ produto, onToggleFavorite }: ProductCardProps) {
             </Button>
 
             <img
-              src={`/.jpg?key=zqczz&height=400&width=400&query=${encodeURIComponent(produto.nome + " jewelry")}`}
+              src={
+                produto.fotos && produto.fotos.length > 0
+                  ? resolveImageUrl(produto.fotos[0].urlProduto?.url) || `/.jpg?key=zqczz&height=400&width=400&query=${encodeURIComponent(produto.nome + " jewelry")}`
+                  : `/.jpg?key=zqczz&height=400&width=400&query=${encodeURIComponent(produto.nome + " jewelry")}`
+              }
               alt={produto.nome}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />

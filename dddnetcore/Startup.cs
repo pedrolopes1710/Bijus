@@ -26,12 +26,20 @@ using dddnetcore.Infraestructure.Users;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using dddnetcore.Domain.FotoProdutos;
+using dddnetcore.Infraestructure.FotoProdutos;
+using dddnetcore.Domain.FotoColecoes;
+using dddnetcore.Infraestructure.FotoColecoes;
+using dddnetcore.Domain.Colecoes;
+using dddnetcore.Infraestructure.Colecoes;
 
 
 namespace DDDSample1
 {
+
     public class Startup
     {
+        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -41,17 +49,22 @@ namespace DDDSample1
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
-
-            services.AddDbContext<DDDSample1DbContext>(opt =>
-                opt.UseSqlite(connectionString));
+            var connectionString = Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING")!;
+            var allowedOrigins = new[]
+            {
+                "http://localhost:3000",
+                "https://monocyclic-endotrophic-emilie.ngrok-free.dev"
+            };  
+            services.AddDbContext<DDDSample1DbContext>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING")));
 
             // CORS
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigin", policy =>
                 {
-                    policy.WithOrigins("http://localhost:3000")
+                    policy.WithOrigins(allowedOrigins)
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                 });
@@ -97,6 +110,10 @@ namespace DDDSample1
             }
             
             //app.UseHttpsRedirection();
+            
+            // Serve ficheiros estáticos da pasta wwwroot
+            app.UseStaticFiles();
+            
             app.UseRouting();
 
             // Habilita o uso do CORS
@@ -120,8 +137,12 @@ namespace DDDSample1
             services.AddTransient<ProdutoService>();
             services.AddTransient<ICategoriaRepository, CategoriaRepository>();
             services.AddTransient<CategoriaService>();
-            //services.AddTransient<IFotoProdutosRepository, FotoProdutoRepository>();     
-            //services.AddTransient<FotoProdutoService>();
+            services.AddTransient<IFotoProdutosRepository, FotoProdutoRepository>();     
+            services.AddTransient<FotoProdutoService>();
+            services.AddTransient<IFotoColecaoRepository, FotoColecaoRepository>();
+            services.AddTransient<FotoColecaoService>();
+            services.AddTransient<IColecaoRepository, ColecaoRepository>();
+            services.AddTransient<ColecaoService>();
             services.AddTransient<IClienteRepository, ClienteRepository>();
             services.AddTransient<ClienteService>();
             services.AddTransient<IVendaRepository, VendaRepository>();

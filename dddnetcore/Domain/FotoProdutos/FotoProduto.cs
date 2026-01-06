@@ -8,11 +8,12 @@ namespace dddnetcore.Domain.FotoProdutos
         
         public UrlProduto UrlProduto { get; private set; } 
 
-        public Produto Produto { get; private set; }
+        public ProdutoId ProdutoId { get; private set; }
         private FotoProduto() { }
 
         public FotoProduto(
-            UrlProduto urlProduto
+            UrlProduto urlProduto,
+            ProdutoId produtoId
         )
         
         {
@@ -21,6 +22,7 @@ namespace dddnetcore.Domain.FotoProdutos
 
             this.Id = new FotoProdutoId(Guid.NewGuid());
             this.UrlProduto = urlProduto;
+            this.ProdutoId = produtoId;
         }
     }
 }

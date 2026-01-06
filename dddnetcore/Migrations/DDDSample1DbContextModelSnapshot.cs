@@ -3,6 +3,7 @@ using System;
 using DDDSample1.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -15,21 +16,25 @@ namespace DDDNetCore.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "9.0.3")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("dddnetcore.Domain.Carrinhos.Carrinho", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ClienteId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DataAtualizacao")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DataCriacao")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -41,11 +46,11 @@ namespace DDDNetCore.Migrations
             modelBuilder.Entity("dddnetcore.Domain.Categorias.Categoria", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("NomeCategoria")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -55,32 +60,78 @@ namespace DDDNetCore.Migrations
             modelBuilder.Entity("dddnetcore.Domain.Clientes.Cliente", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("MoradaCliente")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NomeCliente")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Clientes");
                 });
 
+            modelBuilder.Entity("dddnetcore.Domain.Colecoes.Colecao", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("DataAtualizacaoColecao")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DataCriacaoColecao")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DescricaoColecao")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EstadoColecao")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NomeColecao")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Colecoes");
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.FotoColecoes.FotoColecao", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ColecaoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UrlColecao")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ColecaoId");
+
+                    b.ToTable("FotoColecoes");
+                });
+
             modelBuilder.Entity("dddnetcore.Domain.FotoProdutos.FotoProduto", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProdutoId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("UrlProduto")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -92,16 +143,16 @@ namespace DDDNetCore.Migrations
             modelBuilder.Entity("dddnetcore.Domain.ItensCarrinho.ItemCarrinho", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("CarrinhoId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProdutoId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Quantidade")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -115,28 +166,33 @@ namespace DDDNetCore.Migrations
             modelBuilder.Entity("dddnetcore.Domain.Produtos.Produto", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("CategoriaId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ColecaoId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("DescricaoProduto")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NomeProduto")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("PrecoProduto")
-                        .HasColumnType("REAL");
+                        .HasColumnType("float");
 
                     b.Property<int>("StockProduto")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CategoriaId");
+
+                    b.HasIndex("ColecaoId");
 
                     b.ToTable("Produtos");
                 });
@@ -144,10 +200,10 @@ namespace DDDNetCore.Migrations
             modelBuilder.Entity("dddnetcore.Domain.Users.User", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ClienteId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -159,19 +215,19 @@ namespace DDDNetCore.Migrations
             modelBuilder.Entity("dddnetcore.Domain.VendaProdutos.VendaProduto", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("PrecoUnitario")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("ProdutoId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Quantidade")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
 
                     b.Property<Guid>("VendaId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -185,20 +241,20 @@ namespace DDDNetCore.Migrations
             modelBuilder.Entity("dddnetcore.Domain.Vendas.Venda", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ClienteId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("VendaData")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("VendaEstado")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("VendaTotal")
-                        .HasColumnType("REAL");
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
@@ -223,12 +279,12 @@ namespace DDDNetCore.Migrations
                     b.OwnsOne("dddnetcore.Domain.Clientes.EmailCliente", "EmailCliente", b1 =>
                         {
                             b1.Property<Guid>("ClienteId")
-                                .HasColumnType("TEXT");
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Email")
                                 .IsRequired()
                                 .HasMaxLength(150)
-                                .HasColumnType("TEXT")
+                                .HasColumnType("nvarchar(150)")
                                 .HasColumnName("EmailCliente");
 
                             b1.HasKey("ClienteId");
@@ -243,15 +299,22 @@ namespace DDDNetCore.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("dddnetcore.Domain.FotoColecoes.FotoColecao", b =>
+                {
+                    b.HasOne("dddnetcore.Domain.Colecoes.Colecao", null)
+                        .WithMany("FotoColecao")
+                        .HasForeignKey("ColecaoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("dddnetcore.Domain.FotoProdutos.FotoProduto", b =>
                 {
-                    b.HasOne("dddnetcore.Domain.Produtos.Produto", "Produto")
-                        .WithMany()
+                    b.HasOne("dddnetcore.Domain.Produtos.Produto", null)
+                        .WithMany("FotoProduto")
                         .HasForeignKey("ProdutoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Produto");
                 });
 
             modelBuilder.Entity("dddnetcore.Domain.ItensCarrinho.ItemCarrinho", b =>
@@ -277,6 +340,10 @@ namespace DDDNetCore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("dddnetcore.Domain.Colecoes.Colecao", null)
+                        .WithMany("Produto")
+                        .HasForeignKey("ColecaoId");
+
                     b.Navigation("Categoria");
                 });
 
@@ -291,12 +358,12 @@ namespace DDDNetCore.Migrations
                     b.OwnsOne("dddnetcore.Domain.Users.UserName", "UserName", b1 =>
                         {
                             b1.Property<Guid>("UserId")
-                                .HasColumnType("TEXT");
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Nome")
                                 .IsRequired()
                                 .HasMaxLength(100)
-                                .HasColumnType("TEXT")
+                                .HasColumnType("nvarchar(100)")
                                 .HasColumnName("UserName");
 
                             b1.HasKey("UserId");
@@ -310,11 +377,11 @@ namespace DDDNetCore.Migrations
                     b.OwnsOne("dddnetcore.Domain.Users.UserPassword", "UserPassword", b1 =>
                         {
                             b1.Property<Guid>("UserId")
-                                .HasColumnType("TEXT");
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Password")
                                 .IsRequired()
-                                .HasColumnType("TEXT")
+                                .HasColumnType("nvarchar(max)")
                                 .HasColumnName("PasswordHash");
 
                             b1.HasKey("UserId");
@@ -367,6 +434,18 @@ namespace DDDNetCore.Migrations
             modelBuilder.Entity("dddnetcore.Domain.Carrinhos.Carrinho", b =>
                 {
                     b.Navigation("Itens");
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.Colecoes.Colecao", b =>
+                {
+                    b.Navigation("FotoColecao");
+
+                    b.Navigation("Produto");
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.Produtos.Produto", b =>
+                {
+                    b.Navigation("FotoProduto");
                 });
 #pragma warning restore 612, 618
         }

@@ -5,7 +5,9 @@ import { notFound, useParams } from "next/navigation"
 import { fetchProdutos } from "@/lib/api"
 import { createSlug } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Heart, ShoppingBag, Star, ArrowLeft, Truck, Shield, RefreshCw, Minus, Plus } from "lucide-react"
+import { Heart, ShoppingBag, Star, ArrowLeft, Truck, Shield, RefreshCw, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react"
+import useEmblaCarousel from "embla-carousel-react"
+import { resolveImageUrl } from "@/lib/api"
 import Link from "next/link"
 import { useCart } from "@/contexts/cart-context"
 import { Header } from "@/components/header"
@@ -107,11 +109,16 @@ export default function ProdutoPage() {
                     <span className="px-3 py-1 text-sm font-semibold rounded-full bg-red-500 text-white">Esgotado</span>
                   </div>
                 )}
-                <img
-                  src={`/.jpg?height=600&width=600&query=${encodeURIComponent(produto.nome + " jewelry")}`}
-                  alt={produto.nome}
-                  className="w-full h-full object-cover"
-                />
+                {/* Embla slider for product photos */}
+                {produto?.fotos && produto.fotos.length > 0 ? (
+                  <EmblaSlider fotos={produto.fotos} />
+                ) : (
+                  <img
+                    src={`/.jpg?height=600&width=600&query=${encodeURIComponent(produto.nome + " jewelry")}`}
+                    alt={produto.nome}
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
             </div>
 
@@ -213,7 +220,7 @@ export default function ProdutoPage() {
                   <Link key={p.id} href={`/produto/${createSlug(p.nome)}`} className="group">
                     <div className="aspect-square overflow-hidden rounded-lg bg-muted mb-3">
                       <img
-                        src={`/.jpg?height=300&width=300&query=${encodeURIComponent(p.nome + " jewelry")}`}
+                        src={resolveImageUrl(p.fotos?.[0]?.urlProduto) || "/placeholder.svg"}
                         alt={p.nome}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
@@ -231,5 +238,48 @@ export default function ProdutoPage() {
       </div>
       <Footer />
     </>
+  )
+}
+
+// Embla slider component (small, self-contained)
+function EmblaSlider({ fotos }: { fotos: any[] }) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false })
+
+  const scrollPrev = () => emblaApi && emblaApi.scrollPrev()
+  const scrollNext = () => emblaApi && emblaApi.scrollNext()
+
+  return (
+    <div className="relative w-full h-full">
+      <div className="overflow-hidden h-full" ref={emblaRef as any}>
+        <div className="flex h-full">
+          {fotos.map((f) => (
+            <div key={f.id} className="flex-[0_0_100%] h-full">
+              <img
+                src={resolveImageUrl(f.urlProduto) || ""}
+                alt="produto"
+                className="w-full h-full object-cover"
+                onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg" }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <button
+        aria-label="previous"
+        onClick={scrollPrev}
+        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 p-2 rounded-full text-white"
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+
+      <button
+        aria-label="next"
+        onClick={scrollNext}
+        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 p-2 rounded-full text-white"
+      >
+        <ChevronRight className="h-5 w-5" />
+      </button>
+    </div>
   )
 }

@@ -17,6 +17,10 @@ using dddnetcore.Domain.Carrinhos;
 using dddnetcore.Infraestructure.Carrinhos;
 using dddnetcore.Infraestructure.Users;
 using dddnetcore.Domain.Users;
+using dddnetcore.Domain.FotoColecoes;
+using dddnetcore.Infraestructure.FotoColecoes;
+using dddnetcore.Domain.Colecoes;
+using dddnetcore.Infraestructure.Colecoes;
 
 namespace DDDSample1.Infrastructure
 {
@@ -33,6 +37,8 @@ namespace DDDSample1.Infrastructure
         public DbSet<ItemCarrinho> ItensCarrinho { get; set; }
         public DbSet<Carrinho> Carrinhos { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<FotoColecao> FotoColecoes { get; set; }
+        public DbSet<Colecao> Colecoes { get; set; }
         public DDDSample1DbContext(DbContextOptions options) : base(options)
         {
 
@@ -50,6 +56,8 @@ namespace DDDSample1.Infrastructure
             modelBuilder.ApplyConfiguration(new ItemCarrinhoEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new CarrinhoEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new FotoColecaoEntityTypeConfiguration());  
+            modelBuilder.ApplyConfiguration(new ColecaoEntityTypeConfiguration());
         }
     }
 }

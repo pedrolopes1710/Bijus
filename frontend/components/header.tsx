@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { useEffect, useState } from "react"
-import { fetchCategorias } from "@/lib/api"
-import type { Categoria } from "@/lib/types"
+import { fetchCategorias, fetchColecoes } from "@/lib/api"
+import type { Categoria, Colecao } from "@/lib/types"
 import { createSlug } from "@/lib/utils"
 import Link from "next/link"
 import { useCart } from "@/contexts/cart-context"
@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/auth-context"
 
 export function Header() {
   const [categorias, setCategorias] = useState<Categoria[]>([])
+  const [colecoes, setColecoes] = useState<Colecao[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { totalItens, isLoaded } = useCart()
@@ -35,6 +36,22 @@ export function Header() {
       }
     }
     loadCategorias()
+
+    async function loadColecoes() {
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await fetchColecoes()
+        setColecoes(data)
+      } catch (err) {
+        console.error("Erro ao carregar categorias:", err)
+        setError("Erro ao carregar categorias")
+        setCategorias([])
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadColecoes()
   }, [])
 
   return (
@@ -44,21 +61,21 @@ export function Header() {
           {/* Logo */}
           <div className="flex items-center space-x-4">
             <Link href="/">
-              <h1 className="text-2xl font-bold text-primary cursor-pointer">BijouxVera</h1>
+              <h1 className="text-2xl font-bold text-primary cursor-pointer">Biscuit&Arte</h1>
             </Link>
           </div>
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link href="/catalogo">
-              <Button variant="ghost" className="text-foreground hover:text-accent">
+              <Button variant="ghost" className="text-foreground hover:text-white">
                 Catálogo
               </Button>
             </Link>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="text-foreground hover:text-accent">
+                <Button variant="ghost" className="text-foreground hover:text-white">
                   Categorias {loading && "(...)"}
                 </Button>
               </DropdownMenuTrigger>
@@ -89,12 +106,38 @@ export function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="ghost" className="text-foreground hover:text-accent">
-              Coleções
-            </Button>
-            <Button variant="ghost" className="text-foreground hover:text-accent">
-              Sobre
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="text-foreground hover:text-white">
+                  Coleções {loading && "(...)"}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>
+                  <Link href="/colecoes" className="w-full">
+                    Ver Todas as Coleções
+                  </Link>
+                </DropdownMenuItem>
+                {error ? (
+                  <DropdownMenuItem disabled>Erro ao carregar coleções</DropdownMenuItem>
+                ) : colecoes.length === 0 && !loading ? (
+                  <DropdownMenuItem disabled>Nenhuma coleção disponível</DropdownMenuItem>
+                ) : (
+                  <>
+                    <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                      ─────────────
+                    </DropdownMenuItem>
+                    {colecoes.map((colecao) => (
+                      <DropdownMenuItem key={colecao.id}>
+                        <Link href={`/colecao/${createSlug(colecao.nomeColecao)}`} className="w-full">
+                          {colecao.nomeColecao}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
 
           {/* Search Bar */}
@@ -113,7 +156,7 @@ export function Header() {
             {!authLoading && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-foreground hover:text-accent">
+                  <Button variant="ghost" size="icon" className="text-foreground hover:text-white">
                     <User className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -168,11 +211,11 @@ export function Header() {
               </DropdownMenu>
             )}
 
-            <Button variant="ghost" size="icon" className="text-foreground hover:text-accent">
+            <Button variant="ghost" size="icon" className="text-foreground hover:text-white">
               <Heart className="h-5 w-5" />
             </Button>
             <Link href="/carrinho">
-              <Button variant="ghost" size="icon" className="text-foreground hover:text-accent relative">
+              <Button variant="ghost" size="icon" className="text-foreground hover:text-white relative">
                 <ShoppingBag className="h-5 w-5" />
                 {isLoaded && totalItens > 0 && (
                   <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">

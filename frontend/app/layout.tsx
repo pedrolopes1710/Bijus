@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "BijouxVera - Joias e Bijuterias Elegantes",
+  title: "Biscuit&Arte - Arte em Biscuit",
   description:
     "Descubra nossa coleção exclusiva de joias e bijuterias. Peças únicas e elegantes para todas as ocasiões.",
 }

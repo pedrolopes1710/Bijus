@@ -4,7 +4,7 @@ namespace dddnetcore.Domain.FotoProdutos
 {
     public interface IFotoProdutosRepository : IRepository<FotoProduto, FotoProdutoId>
     {
-        //public Task<List<Orcamento>> GetOrcamentosAsync(Guid? rubricaId = null);
+        public Task<List<FotoProduto>> GetFotoProdutoAsync(Guid? fotoProdutoId = null);
         Task<FotoProduto> UpdateAsync(FotoProduto fotoProduto);
     }
 }

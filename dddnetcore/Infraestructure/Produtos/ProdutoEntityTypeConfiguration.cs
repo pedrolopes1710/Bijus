@@ -1,3 +1,4 @@
+using dddnetcore.Domain.Colecoes;
 using dddnetcore.Domain.Produtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -39,6 +40,10 @@ namespace dddnetcore.Infraestructure.Produtos
                 .HasForeignKey("CategoriaId")
                 .IsRequired();
             
+            builder.HasOne<Colecao>()
+                .WithMany(p => p.Produto)
+                .HasForeignKey("ColecaoId")
+                .IsRequired(false);
         }
     }
 }

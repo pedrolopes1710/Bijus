@@ -7,5 +7,6 @@ namespace dddnetcore.Domain.Produtos
         public double Preco { get; set; }
         public int Stock { get; set; } 
         public Guid CategoriaId { get; set; }
+       public List<IFormFile> Fotos { get; set; }
     }
 }

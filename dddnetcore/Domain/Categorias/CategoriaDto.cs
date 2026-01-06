@@ -9,8 +9,15 @@ namespace dddnetcore.Domain.Categorias
 
         public CategoriaDto(Categoria categoria)
         {
+            if (categoria == null)
+            {
+                this.Id = Guid.Empty;
+                this.Nome = null;
+                return;
+            }
+
             this.Id = categoria.Id.AsGuid();
-            this.Nome = categoria.NomeCategoria.Nome;
+            this.Nome = categoria.NomeCategoria?.Nome;
         }
     }
 }

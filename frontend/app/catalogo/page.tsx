@@ -18,11 +18,13 @@ export default function CatalogoPage() {
   useEffect(() => {
     async function loadProdutos() {
       try {
+        console.log("[v0] Carregando todos os produtos...")
         const produtosData = await fetchProdutos()
+        console.log("[v0] Produtos carregados:", produtosData.length)
         setProdutos(produtosData)
         setFilteredProdutos(produtosData)
       } catch (error) {
-        console.error("Erro ao carregar produtos:", error)
+        console.error("[v0] Erro ao carregar produtos:", error)
       } finally {
         setLoading(false)
       }
@@ -43,16 +45,6 @@ export default function CatalogoPage() {
       setFilteredProdutos(produtos)
     }
   }, [produtos, searchTerm])
-
-  const handleAddToCart = (produto: Produto) => {
-    console.log("[v0] Adding to cart:", produto.nome)
-    // TODO: Implementar lógica do carrinho
-  }
-
-  const handleToggleFavorite = (produto: Produto) => {
-    console.log("[v0] Toggling favorite:", produto.nome)
-    // TODO: Implementar lógica de favoritos
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -88,12 +80,7 @@ export default function CatalogoPage() {
           </div>
         )}
 
-        <ProductGrid
-          produtos={filteredProdutos}
-          loading={loading}
-          onAddToCart={handleAddToCart}
-          onToggleFavorite={handleToggleFavorite}
-        />
+        <ProductGrid produtos={filteredProdutos} loading={loading} />
 
         {!loading && filteredProdutos.length === 0 && (
           <div className="text-center py-12">

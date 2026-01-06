@@ -13,7 +13,7 @@ namespace dddnetcore.Domain.Carrinhos
         public DataCriacaoCarrinho DataCriacao { get; private set; }   
         public DataUltimaAtualizacaoCarrinho DataAtualizacao { get; private set; }
         public List<ItemCarrinho> Itens { get; private set; }
-
+        
         private Carrinho() { }
 
         public Carrinho(
