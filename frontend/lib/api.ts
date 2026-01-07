@@ -7,7 +7,8 @@ import type { Categoria, Produto, DadosRegisto, DadosLogin, Usuario, Colecao } f
 
 export default API_BASE_URL;*/
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5225/api"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL!
+console.log("API_BASE_URL =", API_BASE_URL)
 
 export function resolveImageUrl(url: string | undefined | null | any) {
   // Handle if it's an object with url property (legacy format or from API)
