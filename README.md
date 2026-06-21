@@ -1,54 +1,84 @@
-📌 Descrição do Projeto
+# Biscuit&Arte
 
-O Bijus é uma aplicação web desenvolvida em .NET, com base nos princípios de Domain-Driven Design (DDD), cujo objetivo é suportar a gestão de atividades, tarefas e outros elementos associados a projetos.
-O sistema foi pensado para facilitar a organização, acompanhamento e evolução do trabalho em contextos colaborativos, promovendo uma separação clara de responsabilidades e um domínio bem modelado.
+Aplicação web de e-commerce para catálogo, coleções, carrinho, checkout e área de cliente.
 
-A aplicação segue uma arquitetura em camadas, garantindo maior manutenibilidade, testabilidade e escalabilidade. O domínio é o centro da aplicação, sendo isolado de detalhes de infraestrutura como bases de dados, interfaces web ou frameworks específicos.
+## Stack
 
-🎯 Objetivos
+- Frontend: Next.js, React, Tailwind CSS
+- Backend: ASP.NET Core, Entity Framework Core, SQL Server
+- Autenticação local: JWT
+- Login social: Auth0 com ligações Google/Facebook
 
-Modelar corretamente o domínio do problema usando DDD
+## Configuração do frontend
 
-Garantir uma separação clara entre Domínio, Aplicação, Infraestrutura e Interface
+Crie um ficheiro `frontend/.env.local`:
 
-Facilitar a gestão e evolução de atividades e tarefas
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5225/api
 
-Promover boas práticas de desenvolvimento, como:
+# Opcional, necessário para Google/Facebook login
+NEXT_PUBLIC_AUTH0_DOMAIN=your-tenant.eu.auth0.com
+NEXT_PUBLIC_AUTH0_CLIENT_ID=your-auth0-client-id
+NEXT_PUBLIC_AUTH0_REDIRECT_URI=http://localhost:3000/auth/callback
+NEXT_PUBLIC_AUTH0_AUDIENCE=
+NEXT_PUBLIC_AUTH0_GOOGLE_CONNECTION=google-oauth2
+NEXT_PUBLIC_AUTH0_FACEBOOK_CONNECTION=facebook
+```
 
-Código limpo
+No Auth0:
 
-Testes automatizados
+1. Crie uma Application do tipo **Single Page Application**.
+2. Em **Allowed Callback URLs**, adicione:
 
-Padrões de projeto
+```txt
+http://localhost:3000/auth/callback
+```
 
-🛠️ Tecnologias Utilizadas
+3. Em **Allowed Web Origins**, adicione:
 
-.NET / ASP.NET Core
+```txt
+http://localhost:3000
+```
 
-C#
+4. Em **Authentication > Social**, ative Google e Facebook para a Application.
+5. Use as connection names standard `google-oauth2` e `facebook`, ou ajuste `NEXT_PUBLIC_AUTH0_GOOGLE_CONNECTION` / `NEXT_PUBLIC_AUTH0_FACEBOOK_CONNECTION`.
 
-Domain-Driven Design (DDD)
+## Comandos úteis
 
-REST APIs
+```bash
+cd frontend
+npm install
+npm run dev
+npm run build
+```
 
-Entity Framework Core
+```bash
+dotnet run --project dddnetcore
+```
 
-Testes Unitários
+## Produção self-hosted
 
-Git & GitHub
+O projeto inclui `docker-compose.yml`, `Caddyfile` e Dockerfiles para correr tudo num único servidor:
 
-🧱 Arquitetura
+- SQL Server
+- API ASP.NET Core
+- Frontend Next.js
+- Caddy com HTTPS automático
 
-O projeto encontra-se organizado segundo uma arquitetura em camadas:
+Segue o guia em [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
-Domain – Entidades, Value Objects, Aggregates e regras de negócio
+Para testar primeiro num computador local/servidor de casa, segue [docs/LOCAL_TESTING.md](docs/LOCAL_TESTING.md).
 
-Application – Serviços de aplicação e casos de uso
+Produção recomendada para este projeto:
 
-Infrastructure – Persistência de dados e integrações externas
+- Frontend em Cloudflare Pages
+- API + SQL Server no teu servidor
+- Cloudflare Tunnel para expor `api.teudominio.pt`
 
-Presentation (Controllers) – API REST para interação com o sistema
+Segue [docs/CLOUDFLARE_PRODUCTION.md](docs/CLOUDFLARE_PRODUCTION.md).
 
-🚀 Estado do Projeto
+## Notas de segurança
 
-O projeto encontra-se em desenvolvimento contínuo, com foco na melhoria do modelo de domínio, reforço da cobertura de testes e evolução das funcionalidades existentes.
+Não guarde passwords, client secrets, connection strings reais ou chaves JWT no repositório. Use variáveis de ambiente ou secrets do ambiente de deploy.
+
+Se alguma password real já esteve no repositório, troca-a antes de colocar o projeto online.

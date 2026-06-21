@@ -15,7 +15,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { CreditCard, Smartphone, Building2, Check } from 'lucide-react'
+import { criarVenda, criarVendaProduto } from "@/lib/api"
 import type { DadosEnvio, DadosPagamento } from "@/lib/types"
+
+const guidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -23,11 +26,13 @@ export default function CheckoutPage() {
   const { usuario } = useAuth()
   const [etapa, setEtapa] = useState<"envio" | "pagamento" | "confirmacao">("envio")
   const [metodoPagamento, setMetodoPagamento] = useState<"cartao" | "mbway" | "transferencia">("cartao")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [checkoutError, setCheckoutError] = useState("")
 
   const [dadosEnvioForm, setDadosEnvioForm] = useState<DadosEnvio>({
-    nome: usuario?.nome || "",
-    email: usuario?.email || "",
-    telefone: usuario?.telefone || "",
+    nome: usuario?.clienteDto?.nome || "",
+    email: usuario?.clienteDto?.email || "",
+    telefone: "",
     endereco: "",
     cidade: "",
     estado: "",
@@ -48,6 +53,17 @@ export default function CheckoutPage() {
       router.push("/carrinho")
     }
   }, [itens.length, isLoaded, router])
+
+  useEffect(() => {
+    if (!usuario?.clienteDto) return
+
+    setDadosEnvioForm((current) => ({
+      ...current,
+      nome: current.nome || usuario.clienteDto.nome || "",
+      email: current.email || usuario.clienteDto.email || "",
+      endereco: current.endereco || usuario.clienteDto.morada || "",
+    }))
+  }, [usuario])
 
   if (!isLoaded) {
     return (
@@ -81,15 +97,56 @@ export default function CheckoutPage() {
     setEtapa("confirmacao")
   }
 
-  const handleFinalizarPedido = () => {
-    console.log("[v0] Finalizando pedido com dados:", {
-      itens,
-      dadosEnvio: dadosEnvioForm,
-      dadosPagamento: { ...dadosPagamentoForm, metodo: metodoPagamento },
-      total: totalPreco,
-    })
-    limparCarrinho()
-    router.push("/pedido-confirmado")
+  const handleFinalizarPedido = async () => {
+    setIsSubmitting(true)
+    setCheckoutError("")
+
+    try {
+      const clienteId = usuario?.clienteDto?.id
+
+      if (!clienteId || !guidPattern.test(clienteId)) {
+        throw new Error("A conta ainda nao tem um cliente valido associado para criar encomendas.")
+      }
+
+      const venda = await criarVenda({
+        clienteId,
+        estado: "pendente",
+        total: totalPreco,
+      })
+
+      await Promise.all(
+        itens.map((item) =>
+          criarVendaProduto({
+            precoUnitario: item.produto.preco,
+            produtoId: item.produto.id,
+            quantidade: item.quantidade,
+            vendaId: venda.id,
+          }),
+        ),
+      )
+
+      sessionStorage.setItem(
+        "ultimo_pedido",
+        JSON.stringify({
+          data: venda.vendaData,
+          estado: venda.vendaEstado,
+          id: venda.id,
+          itens: itens.map((item) => ({
+            id: item.produto.id,
+            nome: item.produto.nome,
+            preco: item.produto.preco,
+            quantidade: item.quantidade,
+          })),
+          metodoPagamento,
+          total: totalPreco,
+        }),
+      )
+      limparCarrinho()
+      router.push("/pedido-confirmado")
+    } catch (err: any) {
+      setCheckoutError(err.message || "Nao foi possivel criar a encomenda.")
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -390,8 +447,14 @@ export default function CheckoutPage() {
                       </div>
                     </div>
 
-                    <Button size="lg" className="w-full" onClick={handleFinalizarPedido}>
-                      Confirmar e Finalizar Pedido
+                    {checkoutError && (
+                      <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+                        {checkoutError}
+                      </div>
+                    )}
+
+                    <Button size="lg" className="w-full" onClick={handleFinalizarPedido} disabled={isSubmitting}>
+                      {isSubmitting ? "A criar encomenda..." : "Confirmar encomenda"}
                     </Button>
                   </div>
                 </Card>

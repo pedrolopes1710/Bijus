@@ -32,6 +32,9 @@ using dddnetcore.Domain.FotoColecoes;
 using dddnetcore.Infraestructure.FotoColecoes;
 using dddnetcore.Domain.Colecoes;
 using dddnetcore.Infraestructure.Colecoes;
+using System;
+using System.Linq;
+using System.Threading;
 
 
 namespace DDDSample1
@@ -49,29 +52,43 @@ namespace DDDSample1
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING")!;
-            var allowedOrigins = new[]
-            {
-                "http://localhost:3000",
-                "https://monocyclic-endotrophic-emilie.ngrok-free.dev"
-            };  
+            var connectionString = Configuration.GetConnectionString("DefaultConnection")
+                ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+                ?? throw new InvalidOperationException("Connection string não configurada.");
+
+            var configuredOrigins = Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+            var envOrigins = (Environment.GetEnvironmentVariable("ALLOWED_ORIGINS") ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var allowedOrigins = configuredOrigins.Concat(envOrigins).Distinct().ToArray();
+
             services.AddDbContext<DDDSample1DbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING")));
+                options.UseSqlServer(connectionString));
 
             // CORS
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigin", policy =>
                 {
-                    policy.WithOrigins(allowedOrigins)
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
+                    if (allowedOrigins.Length > 0)
+                    {
+                        policy.WithOrigins(allowedOrigins)
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    }
+                    else
+                    {
+                        policy.AllowAnyOrigin()
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    }
                 });
             });
 
             // JWT CONFIG
-            var key = Encoding.ASCII.GetBytes("ef103f0c234ab2ae5807ac14c6c055f869a785fa06dfac00e96441703b5ca733"); // usa uma chave melhor depois
+            var jwtSecret = Configuration["JwtSettings:Secret"]
+                ?? Environment.GetEnvironmentVariable("JWT_SECRET")
+                ?? throw new InvalidOperationException("JWT secret não configurado.");
+            var key = Encoding.ASCII.GetBytes(jwtSecret);
 
             services.AddAuthentication(x =>
             {
@@ -100,6 +117,11 @@ namespace DDDSample1
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            if (string.Equals(Environment.GetEnvironmentVariable("APPLY_MIGRATIONS"), "true", StringComparison.OrdinalIgnoreCase))
+            {
+                ApplyDatabaseMigrations(app);
+            }
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -155,6 +177,26 @@ namespace DDDSample1
             services.AddTransient<CarrinhoService>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<UserService>();
+        }
+
+        private static void ApplyDatabaseMigrations(IApplicationBuilder app)
+        {
+            const int maxAttempts = 20;
+
+            for (var attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                try
+                {
+                    using var scope = app.ApplicationServices.CreateScope();
+                    var db = scope.ServiceProvider.GetRequiredService<DDDSample1DbContext>();
+                    db.Database.Migrate();
+                    return;
+                }
+                catch when (attempt < maxAttempts)
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                }
+            }
         }
     }
 }

@@ -1,14 +1,16 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import type { Usuario, DadosRegisto, DadosLogin } from "@/lib/types"
-import { registarUsuario, loginUsuario, fetchUsuario } from "@/lib/api"
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react"
+import type { DadosLogin, DadosRegisto, Usuario } from "@/lib/types"
+import { fetchUsuario, loginUsuario, registarUsuario } from "@/lib/api"
 
 interface AuthContextType {
+  authProvider: string | null
   usuario: Usuario | null
   isLoading: boolean
   isAuthenticated: boolean
   login: (dados: DadosLogin) => Promise<void>
+  loginExterno: (usuario: Usuario, token: string, provider: string) => void
   registo: (dados: DadosRegisto) => Promise<void>
   logout: () => void
   recarregarUsuario: () => Promise<void>
@@ -16,89 +18,85 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+const TOKEN_KEY = "auth_token"
+const USER_KEY = "auth_user"
+const PROVIDER_KEY = "auth_provider"
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<Usuario | null>(null)
+  const [authProvider, setAuthProvider] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem("auth_token")
-    const userStr = localStorage.getItem("auth_user")
-    
+    const token = localStorage.getItem(TOKEN_KEY)
+    const userStr = localStorage.getItem(USER_KEY)
+    const provider = localStorage.getItem(PROVIDER_KEY)
+
     if (token && userStr) {
       try {
-        const user = JSON.parse(userStr)
-        setUsuario(user)
+        setUsuario(JSON.parse(userStr))
+        setAuthProvider(provider)
       } catch (error) {
-        console.error("[v0] Erro ao carregar usuário:", error)
-        localStorage.removeItem("auth_token")
-        localStorage.removeItem("auth_user")
+        console.error("Erro ao carregar sessão:", error)
+        clearSession()
       }
     }
+
     setIsLoading(false)
   }, [])
 
-  const login = async (dados: DadosLogin) => {
-    try {
-      const resultado = await loginUsuario(dados)
-      console.log("[v0] Login resultado:", resultado)
+  const saveSession = useCallback((user: Usuario, token: string, provider: string) => {
+    setUsuario(user)
+    setAuthProvider(provider)
+    localStorage.setItem(TOKEN_KEY, token)
+    localStorage.setItem(USER_KEY, JSON.stringify(user))
+    localStorage.setItem(PROVIDER_KEY, provider)
+  }, [])
 
-      const tokenStr = resultado.token || ""
-      const userObj = resultado.usuario
+  const login = useCallback(async (dados: DadosLogin) => {
+    const resultado = await loginUsuario(dados)
 
-      if (!userObj) throw new Error("Resposta do servidor inválida")
-
-      setUsuario(userObj)
-      localStorage.setItem("auth_token", tokenStr)
-      localStorage.setItem("auth_user", JSON.stringify(userObj))
-    } catch (error) {
-      throw error
+    if (!resultado.usuario) {
+      throw new Error("Resposta do servidor inválida")
     }
-  }
 
-  const registo = async (dados: DadosRegisto) => {
-    try {
-      const resultado = await registarUsuario(dados)
+    saveSession(resultado.usuario, resultado.token || "", "password")
+  }, [saveSession])
 
-      // registarUsuario retorna: { usuario, token }
-      const user = resultado.usuario || resultado
-      const token = resultado.token || ""
+  const loginExterno = useCallback((user: Usuario, token: string, provider: string) => {
+    saveSession(user, token, provider)
+  }, [saveSession])
 
-      setUsuario(user)
-      localStorage.setItem("auth_token", token)
-      localStorage.setItem("auth_user", JSON.stringify(user))
-    } catch (error) {
-      throw error
-    }
-  }
+  const registo = useCallback(async (dados: DadosRegisto) => {
+    const resultado = await registarUsuario(dados)
+    saveSession(resultado.usuario, resultado.token || "", "password")
+  }, [saveSession])
 
-  const recarregarUsuario = async () => {
+  const recarregarUsuario = useCallback(async () => {
     if (!usuario?.userName) {
       throw new Error("Nenhum utilizador autenticado")
     }
-    
-    try {
-      const usuarioAtualizado = await fetchUsuario(usuario.userName)
-      setUsuario(usuarioAtualizado)
-      localStorage.setItem("auth_user", JSON.stringify(usuarioAtualizado))
-    } catch (error) {
-      console.error("[v0] Erro ao recarregar utilizador:", error)
-      throw error
-    }
-  }
 
-  const logout = () => {
+    const usuarioAtualizado = await fetchUsuario(usuario.userName)
+    setUsuario(usuarioAtualizado)
+    localStorage.setItem(USER_KEY, JSON.stringify(usuarioAtualizado))
+  }, [usuario?.userName])
+
+  const logout = useCallback(() => {
     setUsuario(null)
-    localStorage.removeItem("auth_token")
-    localStorage.removeItem("auth_user")
-  }
+    setAuthProvider(null)
+    clearSession()
+  }, [])
 
   return (
     <AuthContext.Provider
       value={{
+        authProvider,
         usuario,
         isLoading,
-        isAuthenticated: !!usuario,
+        isAuthenticated: Boolean(usuario),
         login,
+        loginExterno,
         registo,
         logout,
         recarregarUsuario,
@@ -109,10 +107,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   )
 }
 
+function clearSession() {
+  localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(USER_KEY)
+  localStorage.removeItem(PROVIDER_KEY)
+}
+
 export function useAuth() {
   const context = useContext(AuthContext)
+
   if (context === undefined) {
     throw new Error("useAuth deve ser usado dentro de um AuthProvider")
   }
+
   return context
 }

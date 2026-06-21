@@ -8,23 +8,27 @@ import type { Produto } from "@/lib/types"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ProductGrid } from "@/components/product-grid"
+import { useSearchParams } from "next/navigation"
 
 export default function CatalogoPage() {
   const [produtos, setProdutos] = useState<Produto[]>([])
   const [filteredProdutos, setFilteredProdutos] = useState<Produto[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    setSearchTerm(searchParams.get("q") || "")
+  }, [searchParams])
 
   useEffect(() => {
     async function loadProdutos() {
       try {
-        console.log("[v0] Carregando todos os produtos...")
         const produtosData = await fetchProdutos()
-        console.log("[v0] Produtos carregados:", produtosData.length)
         setProdutos(produtosData)
         setFilteredProdutos(produtosData)
       } catch (error) {
-        console.error("[v0] Erro ao carregar produtos:", error)
+        console.error("Erro ao carregar produtos:", error)
       } finally {
         setLoading(false)
       }

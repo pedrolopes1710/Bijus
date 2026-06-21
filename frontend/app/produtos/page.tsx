@@ -58,16 +58,6 @@ export default function ProdutosPage() {
     setFilteredProdutos(filtered)
   }, [produtos, selectedCategory, searchTerm])
 
-  const handleAddToCart = (produto: Produto) => {
-    console.log("[v0] Adding to cart:", produto.nome)
-    // TODO: Implementar lógica do carrinho
-  }
-
-  const handleToggleFavorite = (produto: Produto) => {
-    console.log("[v0] Toggling favorite:", produto.nome)
-    // TODO: Implementar lógica de favoritos
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -100,12 +90,7 @@ export default function ProdutosPage() {
           </Select>
         </div>
 
-        <ProductGrid
-          produtos={filteredProdutos}
-          loading={loading}
-          onAddToCart={handleAddToCart}
-          onToggleFavorite={handleToggleFavorite}
-        />
+        <ProductGrid produtos={filteredProdutos} loading={loading} />
 
         {!loading && filteredProdutos.length === 0 && (
           <div className="text-center py-12">

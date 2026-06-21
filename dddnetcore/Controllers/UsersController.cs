@@ -109,8 +109,8 @@ namespace DDDSample1.Controllers
         {
             try
             {
-                var token = await _service.LoginAsync(dto.UserOrEmail, dto.UserPassword);
-                return Ok(new { token = token });
+                var login = await _service.LoginAsync(dto.UserOrEmail, dto.UserPassword);
+                return Ok(login);
             }
             catch (BusinessRuleValidationException ex)
             {

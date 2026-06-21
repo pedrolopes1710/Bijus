@@ -17,9 +17,9 @@ namespace DDDSample1.Controllers
 
         // GET: api/Produtos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<VendaDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<VendaDto>>> GetAll([FromQuery] Guid? clienteId = null)
         {
-            return await _service.GetAllAsync();
+            return await _service.GetAllAsync(clienteId);
         }
 
         // GET: api/Produtos/5

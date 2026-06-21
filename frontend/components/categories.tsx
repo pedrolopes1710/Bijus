@@ -1,6 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { ArrowRight, LayoutGrid } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 import { fetchCategorias } from "@/lib/api"
 import type { Categoria } from "@/lib/types"
 import { CategoryGrid } from "./category-grid"
@@ -19,7 +22,7 @@ export function Categories() {
         setCategorias(data)
       } catch (err) {
         console.error("Erro ao carregar categorias:", err)
-        setError("Erro ao carregar categorias")
+        setError("Nao foi possivel carregar as categorias.")
         setCategorias([])
       } finally {
         setLoading(false)
@@ -29,21 +32,30 @@ export function Categories() {
   }, [])
 
   return (
-    <section className="py-16 bg-muted/20">
+    <section className="bg-muted/45 py-16 sm:py-20 lg:py-24">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-4">Nossas Categorias</h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Explore nossa ampla seleção de joias e bijuterias organizadas por categoria
-          </p>
+        <div className="mb-10 grid gap-6 lg:mb-14 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div className="max-w-3xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-background px-3 py-1 text-xs font-bold uppercase tracking-[0.24em] text-muted-foreground">
+              <LayoutGrid className="h-3.5 w-3.5 text-accent" />
+              Explorar por desejo
+            </div>
+            <h2 className="text-4xl font-black leading-[0.98] tracking-normal text-balance sm:text-5xl lg:text-6xl">
+              Entre pelo universo que combina consigo.
+            </h2>
+          </div>
+
+          <Button variant="outline" size="lg" className="h-12 border-foreground/15 bg-background" asChild>
+            <Link href="/categorias">
+              Todas as categorias
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
         </div>
 
         {error ? (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">{error}</p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Configure a variável NEXT_PUBLIC_API_URL nas configurações do projeto
-            </p>
+          <div className="rounded-lg border border-foreground/10 bg-background px-5 py-8 text-center">
+            <p className="font-medium text-foreground">{error}</p>
           </div>
         ) : (
           <CategoryGrid categorias={categorias} loading={loading} />

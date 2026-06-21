@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 
 interface ProtectedRouteProps {
@@ -14,7 +14,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push("/login")
+      const currentPath = `${window.location.pathname}${window.location.search}`
+      router.push(`/login?redirect=${encodeURIComponent(currentPath)}`)
     }
   }, [isAuthenticated, isLoading, router])
 
@@ -23,7 +24,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" />
-          <p className="mt-4 text-muted-foreground">Verificando autenticação...</p>
+          <p className="mt-4 text-muted-foreground">A verificar autenticação...</p>
         </div>
       </div>
     )

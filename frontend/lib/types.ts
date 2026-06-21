@@ -15,7 +15,7 @@ export interface Produto {
 
 export interface FotoProduto {
   id: string
-  urlProduto: string
+  urlProduto: string | { url?: string }
   produtoId: string
 }
 
@@ -76,9 +76,18 @@ export interface DadosLogin {
   username: string
   password: string
 }
+
+export interface Venda {
+  id: string
+  vendaData: string
+  vendaEstado: "pendente" | "paga" | "enviada" | "entregue" | "cancelada" | string
+  vendaTotal: number
+  cliente: Cliente
+}
+
 export interface FotoColecao {
   id: string
-  urlColecao: string
+  urlColecao: string | { url?: string }
   colecaoId: string
 }
 

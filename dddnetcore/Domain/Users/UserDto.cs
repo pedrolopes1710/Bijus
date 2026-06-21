@@ -6,7 +6,6 @@ namespace dddnetcore.Domain.Users
     {
         public Guid Id { get; set; }
         public string UserName { get; set; }
-        public string UserPassword { get; set; }
         public ClienteDto ClienteDto{ get; set; }
 
         public UserDto() { }
@@ -15,7 +14,6 @@ namespace dddnetcore.Domain.Users
         {
             this.Id = user.Id.AsGuid();
             this.UserName = user.UserName.Nome;
-            this.UserPassword = user.UserPassword.Password;
             this.ClienteDto = new ClienteDto(user.Cliente);
         }
     }

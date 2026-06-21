@@ -1,24 +1,15 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from 'next/font/google'
 import "./globals.css"
 import { CartProvider } from "@/contexts/cart-context"
 import { AuthProvider } from "@/contexts/auth-context"
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-})
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-})
+import { FavoritesProvider } from "@/contexts/favorites-context"
+import { ShopExperience } from "@/components/shop-experience"
 
 export const metadata: Metadata = {
   title: "Biscuit&Arte - Arte em Biscuit",
   description:
-    "Descubra nossa coleção exclusiva de joias e bijuterias. Peças únicas e elegantes para todas as ocasiões.",
+    "Descubra a nossa coleção exclusiva de peças em biscuit, joias e bijuterias para todas as ocasiões.",
 }
 
 export default function RootLayout({
@@ -27,10 +18,14 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="pt" className="antialiased">
       <body className="font-sans">
         <AuthProvider>
-          <CartProvider>{children}</CartProvider>
+          <FavoritesProvider>
+            <CartProvider>
+              <ShopExperience>{children}</ShopExperience>
+            </CartProvider>
+          </FavoritesProvider>
         </AuthProvider>
       </body>
     </html>

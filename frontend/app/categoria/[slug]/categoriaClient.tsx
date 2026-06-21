@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Search, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -19,8 +18,6 @@ interface CategoriaClientProps {
 
 export default function CategoriaClient({ slug }: CategoriaClientProps) {
   const categoriaSlug = slug
-  const params = useParams()
-
 
   const [produtos, setProdutos] = useState<Produto[]>([])
   const [categoria, setCategoria] = useState<Categoria | null>(null)
@@ -62,16 +59,6 @@ export default function CategoriaClient({ slug }: CategoriaClientProps) {
       setFilteredProdutos(produtos)
     }
   }, [produtos, searchTerm])
-
-  const handleAddToCart = (produto: Produto) => {
-    console.log("[v0] Adding to cart:", produto.nome)
-    // TODO: Implementar lógica do carrinho
-  }
-
-  const handleToggleFavorite = (produto: Produto) => {
-    console.log("[v0] Toggling favorite:", produto.nome)
-    // TODO: Implementar lógica de favoritos
-  }
 
   if (loading) {
     return (
@@ -170,12 +157,7 @@ export default function CategoriaClient({ slug }: CategoriaClientProps) {
           </div>
         )}
 
-        <ProductGrid
-          produtos={filteredProdutos}
-          loading={false}
-          onAddToCart={handleAddToCart}
-          onToggleFavorite={handleToggleFavorite}
-        />
+        <ProductGrid produtos={filteredProdutos} loading={false} />
 
         {produtos.length === 0 && !loading && categoria && (
           <div className="text-center py-12">

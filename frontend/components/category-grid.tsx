@@ -11,14 +11,13 @@ interface CategoryGridProps {
 export function CategoryGrid({ categorias, loading }: CategoryGridProps) {
   if (loading) {
     return (
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:auto-rows-[300px]">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="animate-pulse">
-            <div className="aspect-square bg-muted rounded-t-lg"></div>
-            <div className="p-4 text-center">
-              <div className="h-6 bg-muted rounded mb-2"></div>
-              <div className="h-4 bg-muted rounded w-20 mx-auto"></div>
-            </div>
+          <div
+            key={i}
+            className={`animate-pulse rounded-lg bg-muted ${i === 0 ? "lg:col-span-2 lg:row-span-2" : ""}`}
+          >
+            <div className="h-full min-h-[270px] rounded-lg bg-muted"></div>
           </div>
         ))}
       </div>
@@ -26,9 +25,11 @@ export function CategoryGrid({ categorias, loading }: CategoryGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-      {categorias.map((categoria) => (
-        <CategoryCard key={categoria.id} categoria={categoria} />
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:auto-rows-[300px]">
+      {categorias.map((categoria, index) => (
+        <div key={categoria.id} className={index === 0 ? "lg:col-span-2 lg:row-span-2" : ""}>
+          <CategoryCard categoria={categoria} featured={index === 0} />
+        </div>
       ))}
     </div>
   )

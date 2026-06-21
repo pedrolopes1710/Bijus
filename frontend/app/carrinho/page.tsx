@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card"
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { resolveImageUrl } from "@/lib/api"
 
 export default function CarrinhoPage() {
   const { itens, removerDoCarrinho, atualizarQuantidade, totalPreco, isLoaded } = useCart()
@@ -63,7 +64,7 @@ export default function CarrinhoPage() {
                   <div className="flex gap-6">
                     <div className="relative w-32 h-32 flex-shrink-0 bg-neutral-100 rounded-lg overflow-hidden">
                       <Image
-                        src={`/.jpg?key=qlgep&height=128&width=128&query=${encodeURIComponent(item.produto.nome)}`}
+                        src={resolveImageUrl(item.produto.fotos?.[0]?.urlProduto) || "/placeholder.svg"}
                         alt={item.produto.nome}
                         fill
                         className="object-cover"

@@ -4,22 +4,29 @@ import type React from "react"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Heart, ShoppingBag, Star } from "lucide-react"
+import { ArrowRight, Heart, ShoppingBag } from "lucide-react"
 import type { Produto } from "@/lib/types"
 import { resolveImageUrl } from "@/lib/api"
 import Link from "next/link"
 import { createSlug } from "@/lib/utils"
 import { useCart } from "@/contexts/cart-context"
+import { useFavorites } from "@/contexts/favorites-context"
 import { useState } from "react"
 
 interface ProductCardProps {
   produto: Produto
+  onAddToCart?: (produto: Produto) => void
   onToggleFavorite?: (produto: Produto) => void
 }
 
-export function ProductCard({ produto, onToggleFavorite }: ProductCardProps) {
+const FALLBACK_IMAGE = "/uploads/produtos/b804a353-49ba-431e-8263-927432215a9e.jpg"
+
+export function ProductCard({ produto, onAddToCart, onToggleFavorite }: ProductCardProps) {
   const { adicionarAoCarrinho } = useCart()
+  const { isFavorite, toggleFavorite } = useFavorites()
   const [adicionado, setAdicionado] = useState(false)
+  const isFavorito = isFavorite(produto.id)
+  const href = `/produto/${createSlug(produto.nome)}`
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("pt-PT", {
@@ -28,94 +35,96 @@ export function ProductCard({ produto, onToggleFavorite }: ProductCardProps) {
     }).format(price)
   }
 
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault()
+  const handleAddToCart = (event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
     if (produto.stock > 0) {
       adicionarAoCarrinho(produto)
+      onAddToCart?.(produto)
       setAdicionado(true)
-      setTimeout(() => setAdicionado(false), 2000)
+      setTimeout(() => setAdicionado(false), 1800)
     }
   }
 
+  const handleToggleFavorite = (event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    toggleFavorite(produto)
+    onToggleFavorite?.(produto)
+  }
+
+  const imageUrl = resolveImageUrl(produto.fotos?.[0]?.urlProduto) || FALLBACK_IMAGE
+  const stockLabel = produto.stock === 0 ? "Esgotado" : produto.stock < 10 ? "Ultimas unidades" : "Em stock"
+
   return (
-    <Link href={`/produto/${createSlug(produto.nome)}`}>
-      <Card className="group cursor-pointer hover:shadow-xl transition-all duration-300 border-0 bg-card">
-        <CardContent className="p-0">
-          <div className="relative aspect-square overflow-hidden rounded-t-lg">
-            {produto.stock < 10 && produto.stock > 0 && (
-              <div className="absolute top-3 left-3 z-10">
-                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-orange-500 text-white">
-                  Últimas unidades
-                </span>
-              </div>
-            )}
-            {produto.stock === 0 && (
-              <div className="absolute top-3 left-3 z-10">
-                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-500 text-white">Esgotado</span>
-              </div>
-            )}
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-3 right-3 z-10 bg-background/80 hover:bg-background"
-              onClick={(e) => {
-                e.preventDefault()
-                onToggleFavorite?.(produto)
-              }}
-            >
-              <Heart className="h-4 w-4" />
-            </Button>
-
+    <Card className="group overflow-hidden rounded-lg border border-foreground/10 bg-card shadow-sm transition duration-500 hover:-translate-y-1 hover:border-foreground/18 hover:shadow-2xl hover:shadow-foreground/10">
+      <CardContent className="p-0">
+        <div className="relative aspect-[4/5] overflow-hidden bg-muted">
+          <Link href={href} aria-label={`Ver ${produto.nome}`} className="block h-full">
             <img
-              src={
-                produto.fotos && produto.fotos.length > 0
-                  ? resolveImageUrl(produto.fotos[0].urlProduto?.url) || `/.jpg?key=zqczz&height=400&width=400&query=${encodeURIComponent(produto.nome + " jewelry")}`
-                  : `/.jpg?key=zqczz&height=400&width=400&query=${encodeURIComponent(produto.nome + " jewelry")}`
-              }
+              src={imageUrl}
               alt={produto.nome}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+              onError={(event) => {
+                event.currentTarget.src = FALLBACK_IMAGE
+              }}
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-foreground/46 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+          </Link>
 
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
-              <Button
-                size="sm"
-                disabled={produto.stock === 0}
-                className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-accent hover:bg-accent/90 disabled:opacity-50"
-                onClick={handleAddToCart}
-              >
-                <ShoppingBag className="h-4 w-4 mr-2" />
-                {produto.stock === 0 ? "Esgotado" : adicionado ? "Adicionado!" : "Adicionar"}
-              </Button>
-            </div>
+          <div className="absolute left-3 top-3 z-10 flex flex-wrap gap-2">
+            <span className="rounded-full bg-background/92 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-foreground shadow-sm backdrop-blur">
+              {stockLabel}
+            </span>
           </div>
 
-          <div className="p-4 space-y-3">
-            <div className="flex items-center space-x-1">
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className={`h-3 w-3 ${i < 4 ? "text-yellow-400 fill-current" : "text-gray-300"}`} />
-                ))}
-              </div>
-              <span className="text-xs text-muted-foreground">4.5 (12)</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-3 top-3 z-10 rounded-md bg-background/90 text-foreground shadow-sm backdrop-blur hover:bg-background"
+            onClick={handleToggleFavorite}
+            aria-label={isFavorito ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+          >
+            <Heart className={`h-4 w-4 ${isFavorito ? "fill-accent text-accent" : ""}`} />
+          </Button>
+
+          <Button
+            size="sm"
+            disabled={produto.stock === 0}
+            className="absolute bottom-3 left-3 right-3 z-10 h-10 translate-y-3 bg-background text-foreground opacity-0 shadow-xl transition duration-300 hover:bg-background/92 disabled:opacity-70 group-hover:translate-y-0 group-hover:opacity-100"
+            onClick={handleAddToCart}
+          >
+            <ShoppingBag className="h-4 w-4" />
+            {produto.stock === 0 ? "Esgotado" : adicionado ? "Adicionado" : "Adicionar"}
+          </Button>
+        </div>
+
+        <div className="space-y-4 p-4">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-3 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              <span className="truncate">{produto.categoria?.nome || "Produto"}</span>
+              <span>{produto.stock > 0 ? `${produto.stock} disp.` : "0 disp."}</span>
             </div>
 
-            <div>
-              <h3 className="font-semibold text-sm group-hover:text-accent transition-colors line-clamp-2">
+            <Link href={href} className="group/title block">
+              <h3 className="line-clamp-2 min-h-[2.5rem] text-base font-black leading-5 transition-colors group-hover/title:text-accent">
                 {produto.nome}
               </h3>
-              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{produto.descricao}</p>
-            </div>
+            </Link>
 
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-lg">{formatPrice(produto.preco)}</span>
-              <span className="text-xs text-muted-foreground">Stock: {produto.stock}</span>
-            </div>
-
-            <div className="text-xs text-muted-foreground">Categoria: {produto.categoria.nome}</div>
+            <p className="line-clamp-2 min-h-[2.5rem] text-sm leading-5 text-muted-foreground">{produto.descricao}</p>
           </div>
-        </CardContent>
-      </Card>
-    </Link>
+
+          <div className="flex items-center justify-between gap-3 border-t border-foreground/10 pt-4">
+            <span className="text-xl font-black tracking-tight">{formatPrice(produto.preco)}</span>
+            <Button variant="ghost" size="icon" className="rounded-md hover:bg-muted" asChild>
+              <Link href={href} aria-label={`Abrir ${produto.nome}`}>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

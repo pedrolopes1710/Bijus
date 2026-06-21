@@ -1,15 +1,16 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { notFound, useParams } from "next/navigation"
+import { notFound } from "next/navigation"
 import { fetchProdutos } from "@/lib/api"
 import { createSlug } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Heart, ShoppingBag, Star, ArrowLeft, Truck, Shield, RefreshCw, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react"
+import { Heart, ShoppingBag, ArrowLeft, Truck, Shield, RefreshCw, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react"
 import useEmblaCarousel from "embla-carousel-react"
 import { resolveImageUrl } from "@/lib/api"
 import Link from "next/link"
 import { useCart } from "@/contexts/cart-context"
+import { useFavorites } from "@/contexts/favorites-context"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 
@@ -18,12 +19,11 @@ interface ProdutoClientProps {
 }
 
 export default function ProdutoClient({ slug }: ProdutoClientProps) {
-  const produtoSlug = slug
-  const params = useParams()
   const [produto, setProduto] = useState<any>(null)
   const [produtosRelacionados, setProdutosRelacionados] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const { adicionarAoCarrinho } = useCart()
+  const { isFavorite, toggleFavorite } = useFavorites()
   const [quantidade, setQuantidade] = useState(1)
   const [adicionado, setAdicionado] = useState(false)
   
@@ -118,7 +118,7 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
                   <EmblaSlider fotos={produto.fotos} />
                 ) : (
                   <img
-                    src={`/.jpg?height=600&width=600&query=${encodeURIComponent(produto.nome + " jewelry")}`}
+                    src="/placeholder.svg"
                     alt={produto.nome}
                     className="w-full h-full object-cover"
                   />
@@ -136,15 +136,6 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
                   {produto.categoria.nome}
                 </Link>
                 <h1 className="text-3xl font-bold mt-2 text-balance">{produto.nome}</h1>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`h-5 w-5 ${i < 4 ? "text-yellow-400 fill-current" : "text-gray-300"}`} />
-                  ))}
-                </div>
-                <span className="text-sm text-muted-foreground">(12 avaliações)</span>
               </div>
 
               <div className="space-y-2">
@@ -184,8 +175,13 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
                   <ShoppingBag className="h-5 w-5 mr-2" />
                   {produto.stock === 0 ? "Esgotado" : adicionado ? "Adicionado ao carrinho!" : "Adicionar ao carrinho"}
                 </Button>
-                <Button size="lg" variant="outline">
-                  <Heart className="h-5 w-5" />
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => toggleFavorite(produto)}
+                  aria-label={isFavorite(produto.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                >
+                  <Heart className={`h-5 w-5 ${isFavorite(produto.id) ? "fill-accent text-accent" : ""}`} />
                 </Button>
               </div>
 
@@ -269,21 +265,25 @@ function EmblaSlider({ fotos }: { fotos: any[] }) {
         </div>
       </div>
 
-      <button
-        aria-label="previous"
-        onClick={scrollPrev}
-        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 p-2 rounded-full text-white"
-      >
-        <ChevronLeft className="h-5 w-5" />
-      </button>
+      {fotos.length > 1 && (
+        <>
+          <button
+            aria-label="Imagem anterior"
+            onClick={scrollPrev}
+            className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
 
-      <button
-        aria-label="next"
-        onClick={scrollNext}
-        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 p-2 rounded-full text-white"
-      >
-        <ChevronRight className="h-5 w-5" />
-      </button>
+          <button
+            aria-label="Imagem seguinte"
+            onClick={scrollNext}
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </>
+      )}
     </div>
   )
 }

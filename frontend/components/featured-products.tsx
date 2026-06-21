@@ -1,10 +1,12 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { ArrowRight, Sparkles } from "lucide-react"
 import { useEffect, useState } from "react"
 import { fetchProdutos } from "@/lib/api"
 import type { Produto } from "@/lib/types"
 import { ProductGrid } from "./product-grid"
+import Link from "next/link"
 
 export function FeaturedProducts() {
   const [produtos, setProdutos] = useState<Produto[]>([])
@@ -20,7 +22,7 @@ export function FeaturedProducts() {
         setProdutos(data.slice(0, 8))
       } catch (err) {
         console.error("Erro ao carregar produtos:", err)
-        setError("Erro ao carregar produtos")
+        setError("Nao foi possivel carregar os produtos em destaque.")
         setProdutos([])
       } finally {
         setLoading(false)
@@ -29,52 +31,35 @@ export function FeaturedProducts() {
     loadProdutos()
   }, [])
 
-  const handleAddToCart = (produto: Produto) => {
-    console.log("[v0] Adding to cart:", produto.nome)
-    // TODO: Implementar lógica do carrinho
-  }
-
-  const handleToggleFavorite = (produto: Produto) => {
-    console.log("[v0] Toggling favorite:", produto.nome)
-    // TODO: Implementar lógica de favoritos
-  }
-
   return (
-    <section className="py-16">
+    <section className="relative overflow-hidden bg-background py-16 sm:py-20 lg:py-24">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-4">Produtos em Destaque</h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Descubra as peças mais populares da nossa coleção, escolhidas especialmente para você
-          </p>
+        <div className="mb-10 flex flex-col gap-6 md:mb-14 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-muted px-3 py-1 text-xs font-bold uppercase tracking-[0.24em] text-muted-foreground">
+              <Sparkles className="h-3.5 w-3.5 text-accent" />
+              Editado para vender
+            </div>
+            <h2 className="text-4xl font-black leading-[0.98] tracking-normal text-balance sm:text-5xl lg:text-6xl">
+              Produtos que merecem o primeiro clique.
+            </h2>
+          </div>
+
+          <Button variant="outline" size="lg" className="h-12 border-foreground/15 bg-background" asChild>
+            <Link href="/catalogo">
+              Ver todos
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
         </div>
 
         {error ? (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">{error}</p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Configure a variável NEXT_PUBLIC_API_URL nas configurações do projeto
-            </p>
+          <div className="rounded-lg border border-foreground/10 bg-muted/60 px-5 py-8 text-center">
+            <p className="font-medium text-foreground">{error}</p>
+            <p className="mt-2 text-sm text-muted-foreground">Tente atualizar a página dentro de instantes.</p>
           </div>
         ) : (
-          <>
-            <ProductGrid
-              produtos={produtos}
-              loading={loading}
-              onAddToCart={handleAddToCart}
-              onToggleFavorite={handleToggleFavorite}
-            />
-
-            <div className="text-center mt-12">
-              <Button
-                variant="outline"
-                size="lg"
-                className="border-accent text-accent hover:bg-accent hover:text-accent-foreground bg-transparent"
-              >
-                Ver Todos os Produtos
-              </Button>
-            </div>
-          </>
+          <ProductGrid produtos={produtos} loading={loading} />
         )}
       </div>
     </section>

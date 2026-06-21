@@ -1,124 +1,118 @@
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from 'lucide-react'
+import { Facebook, Instagram, Mail, MapPin, Phone, ShieldCheck, Truck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
+const STORE_NAME = "Biscuit&Arte"
+
 export function Footer() {
   return (
-    <footer className="bg-primary text-primary-foreground">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Brand */}
-          <div className="space-y-4">
-            <h3 className="text-2xl font-bold">BijouxVera</h3>
-            <p className="text-primary-foreground/80 text-sm">
-              Criando momentos especiais através de joias únicas e atemporais. Qualidade e elegância em cada peça.
+    <footer className="border-t border-foreground/10 bg-background">
+      <div className="container mx-auto px-4 py-12 sm:py-14">
+        <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr_0.8fr_1fr]">
+          <div className="max-w-sm">
+            <Link href="/" className="flex items-center gap-3">
+              <span className="grid h-10 w-10 place-items-center rounded-md bg-foreground text-sm font-black text-background">
+                B
+              </span>
+              <span className="text-xl font-black tracking-tight">{STORE_NAME}</span>
+            </Link>
+            <p className="mt-4 text-sm leading-6 text-muted-foreground">
+              Uma loja online com curadoria, detalhes claros e uma experiência visual pensada para transformar descoberta
+              em compra.
             </p>
-            <div className="flex space-x-2">
-              <Button variant="ghost" size="icon" className="text-primary-foreground hover:text-accent">
+            <div className="mt-5 flex gap-2">
+              <Button variant="outline" size="icon" className="rounded-md" aria-label="Facebook">
                 <Facebook className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-primary-foreground hover:text-accent">
+              <Button variant="outline" size="icon" className="rounded-md" aria-label="Instagram">
                 <Instagram className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-primary-foreground hover:text-accent">
-                <Twitter className="h-4 w-4" />
+              <Button variant="outline" size="icon" className="rounded-md" aria-label="Email">
+                <Mail className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-4">
-            <h4 className="font-semibold">Links Rápidos</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/catalogo" className="text-primary-foreground/80 hover:text-accent transition-colors">
-                  Catálogo Completo
-                </Link>
-              </li>
-              <li>
-                <Link href="/categorias" className="text-primary-foreground/80 hover:text-accent transition-colors">
-                  Todas as Categorias
-                </Link>
-              </li>
-              <li>
-                <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
-                  Coleções
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
-                  Sobre Nós
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
-                  Contato
-                </a>
-              </li>
-            </ul>
-          </div>
+          <FooterColumn
+            title="Comprar"
+            links={[
+              { href: "/catalogo", label: "Catálogo" },
+              { href: "/categorias", label: "Categorias" },
+              { href: "/colecoes", label: "Coleções" },
+              { href: "/favoritos", label: "Favoritos" },
+            ]}
+          />
 
-          {/* Customer Service */}
-          <div className="space-y-4">
-            <h4 className="font-semibold">Atendimento</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
-                  Central de Ajuda
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
-                  Política de Troca
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
-                  Guia de Tamanhos
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
-                  Cuidados com Joias
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-primary-foreground/80 hover:text-accent transition-colors">
-                  Garantia
-                </a>
-              </li>
-            </ul>
-          </div>
+          <FooterColumn
+            title="Apoio"
+            links={[
+              { href: "#", label: "Trocas e devoluções" },
+              { href: "#", label: "Guia de tamanhos" },
+              { href: "#", label: "Cuidados" },
+              { href: "#", label: "Garantia" },
+            ]}
+          />
 
-          {/* Contact */}
-          <div className="space-y-4">
-            <h4 className="font-semibold">Contato</h4>
-            <div className="space-y-3 text-sm">
-              <div className="flex items-center space-x-2">
-                <MapPin className="h-4 w-4 text-accent" />
-                <span className="text-primary-foreground/80">
-                  Rua das Joias, 123
-                  <br />
-                  Lisboa, Portugal
-                </span>
-              </div>
-              <div className="flex items-center space-x-2">
+          <div>
+            <h4 className="text-sm font-black uppercase tracking-[0.2em]">Contacto</h4>
+            <div className="mt-4 grid gap-3 text-sm text-muted-foreground">
+              <span className="flex items-start gap-3">
+                <MapPin className="mt-0.5 h-4 w-4 text-accent" />
+                Lisboa, Portugal
+              </span>
+              <span className="flex items-center gap-3">
                 <Phone className="h-4 w-4 text-accent" />
-                <span className="text-primary-foreground/80">+351 21 123 4567</span>
-              </div>
-              <div className="flex items-center space-x-2">
+                +351 21 123 4567
+              </span>
+              <span className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-accent" />
-                <span className="text-primary-foreground/80">info@bijouxvera.pt</span>
-              </div>
+                info@biscuitarte.pt
+              </span>
+            </div>
+
+            <div className="mt-6 grid gap-2 text-xs font-bold uppercase tracking-[0.18em] text-foreground">
+              <span className="inline-flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-accent" />
+                Compra segura
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <Truck className="h-4 w-4 text-accent" />
+                Entrega cuidada
+              </span>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/20 mt-8 pt-8 text-center">
-          <p className="text-primary-foreground/60 text-sm">© 2024 BijouxVera. Todos os direitos reservados.</p>
+        <div className="mt-10 flex flex-col gap-3 border-t border-foreground/10 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p>© 2026 {STORE_NAME}. Todos os direitos reservados.</p>
+          <div className="flex gap-4">
+            <a href="#" className="hover:text-foreground">
+              Privacidade
+            </a>
+            <a href="#" className="hover:text-foreground">
+              Termos
+            </a>
+          </div>
         </div>
       </div>
     </footer>
+  )
+}
+
+function FooterColumn({ title, links }: { title: string; links: { href: string; label: string }[] }) {
+  return (
+    <div>
+      <h4 className="text-sm font-black uppercase tracking-[0.2em]">{title}</h4>
+      <ul className="mt-4 grid gap-2 text-sm">
+        {links.map((link) => (
+          <li key={link.label}>
+            <Link href={link.href} className="text-muted-foreground transition hover:text-foreground">
+              {link.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
 

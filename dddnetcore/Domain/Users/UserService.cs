@@ -1,10 +1,11 @@
+using BCrypt.Net;
 using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.Clientes;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
-using BCrypt.Net;
+using System.Security.Claims;
+using System.Text;
 
 namespace dddnetcore.Domain.Users
 {
@@ -14,97 +15,99 @@ namespace dddnetcore.Domain.Users
         private readonly IUserRepository _repo;
         private readonly IClienteRepository _clienteRepo;
         private readonly ILogger<UserService> _logger;
-         private readonly string _jwtSecret = "ef103f0c234ab2ae5807ac14c6c055f869a785fa06dfac00e96441703b5ca733";
+        private readonly string _jwtSecret;
 
-        public UserService(IUnitOfWork unitOfWork, IUserRepository repo, IClienteRepository clienteRepo,ILogger<UserService> logger)
+        public UserService(
+            IUnitOfWork unitOfWork,
+            IUserRepository repo,
+            IClienteRepository clienteRepo,
+            ILogger<UserService> logger,
+            IConfiguration configuration)
         {
-            this._unitOfWork = unitOfWork;
-            this._repo = repo;
-            this._clienteRepo = clienteRepo;
-            this._logger = logger;
+            _unitOfWork = unitOfWork;
+            _repo = repo;
+            _clienteRepo = clienteRepo;
+            _logger = logger;
+            _jwtSecret = configuration["JwtSettings:Secret"]
+                ?? Environment.GetEnvironmentVariable("JWT_SECRET")
+                ?? throw new InvalidOperationException("JWT secret não configurado.");
         }
 
-        public async Task<List<UserDto>> GetAllAsync(Guid? userId = null) {
-            if (userId != null) {
-                return (await this._repo.GetUserAsync(userId)).ConvertAll(user => new UserDto(user));
+        public async Task<List<UserDto>> GetAllAsync(Guid? userId = null)
+        {
+            if (userId != null)
+            {
+                return (await _repo.GetUserAsync(userId)).ConvertAll(user => new UserDto(user));
             }
-            return (await this._repo.GetAllAsync()).ConvertAll(produto => new UserDto(produto));
+
+            return (await _repo.GetAllAsync()).ConvertAll(user => new UserDto(user));
         }
+
         public async Task<UserDto> GetByIdAsync(UserId id)
         {
-            var user = await this._repo.GetByIdAsync(id);
+            var user = await _repo.GetByIdAsync(id);
             return user == null ? null : new UserDto(user);
         }
 
         public async Task<UserDto> AddAsync(CreatingUserDto dto)
         {
-            var cliente = await this._clienteRepo.GetByIdAsync(new ClienteId(dto.ClienteId));
+            var cliente = await _clienteRepo.GetByIdAsync(new ClienteId(dto.ClienteId));
             var user = new User(
                 new UserName(dto.UserName),
                 new UserPassword(dto.UserPassword),
                 cliente
             );
 
-            await this._repo.AddAsync(user);
-            await this._unitOfWork.CommitAsync();
+            await _repo.AddAsync(user);
+            await _unitOfWork.CommitAsync();
 
             return new UserDto(user);
         }
 
-       public async Task<UserDto> UpdateAsync(UserDto dto)
+        public async Task<UserDto> UpdateAsync(UserDto dto)
         {
-            var user = await this._repo.GetByIdAsync(new UserId(dto.Id));
+            var user = await _repo.GetByIdAsync(new UserId(dto.Id));
 
             if (user == null)
                 return null;
 
-            //produto.ChangeNomeProduto(new NomeProduto(dto.Nome));
-            //produto.ChangeDescricaoProduto(new DescricaoProduto(dto.Descricao));
-            //produto.ChangePrecoProduto(new PrecoProduto(dto.Preco));
-
-            await this._unitOfWork.CommitAsync();
+            await _unitOfWork.CommitAsync();
 
             return new UserDto(user);
         }
 
         public async Task<UserDto> DeleteAsync(UserId id)
         {
-            var user = await this._repo.GetByIdAsync(id);
+            var user = await _repo.GetByIdAsync(id);
 
             if (user == null)
                 return null;
 
-            this._repo.Remove(user);
-            await this._unitOfWork.CommitAsync();
+            _repo.Remove(user);
+            await _unitOfWork.CommitAsync();
 
             return new UserDto(user);
         }
+
         public async Task<LoginResponseDto> LoginAsync(string userOrEmail, string password)
         {
             if (string.IsNullOrEmpty(userOrEmail) || string.IsNullOrEmpty(password))
-                throw new BusinessRuleValidationException("Nome de usuário e senha são obrigatórios.");
+                throw new BusinessRuleValidationException("Nome de utilizador e password são obrigatórios.");
 
             var user = await _repo.GetByUsernameOrEmailAsync(userOrEmail);
             if (user == null)
-                throw new BusinessRuleValidationException("Usuário não encontrado.");
+                throw new BusinessRuleValidationException("Utilizador não encontrado.");
 
-             // LOG
-            _logger.LogInformation($"Tentativa de login para: {userOrEmail}");
-            _logger.LogInformation($"Senha fornecida: {password}");
-            _logger.LogInformation($"Hash armazenado: {user.UserPassword.Password}");
+            _logger.LogInformation("Tentativa de login para: {UserOrEmail}", userOrEmail);
 
-            var isValid = user.UserPassword.VerifyPassword(password);
-            _logger.LogInformation($"Verificação de senha: {isValid}");
+            if (!user.UserPassword.VerifyPassword(password))
+                throw new BusinessRuleValidationException("Password incorreta.");
 
-            if (!isValid)
-                throw new BusinessRuleValidationException("Senha incorreta.");
-            
             return new LoginResponseDto
             {
                 Token = GenerateJwtToken(user),
                 User = new UserDto(user)
             };
-           
         }
 
         private string GenerateJwtToken(User user)
@@ -116,7 +119,6 @@ namespace dddnetcore.Domain.Users
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.AsGuid().ToString()),
                 new Claim(ClaimTypes.Name, user.UserName.Nome),
-
             };
 
             var token = new JwtSecurityToken(

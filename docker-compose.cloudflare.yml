@@ -1,0 +1,49 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Express
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - bijus
+
+  api:
+    build:
+      context: ./dddnetcore
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      APPLY_MIGRATIONS: "true"
+      ConnectionStrings__DefaultConnection: "Server=db,1433;Database=${MSSQL_DATABASE};User Id=sa;Password=${MSSQL_SA_PASSWORD};Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=True"
+      JwtSettings__Secret: ${JWT_SECRET}
+      JwtSettings__Issuer: BijusAPI
+      JwtSettings__Audience: BijusUsers
+      ALLOWED_ORIGINS: ${FRONTEND_PUBLIC_URL}
+    volumes:
+      - api_uploads:/app/wwwroot/uploads
+    networks:
+      - bijus
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    depends_on:
+      - api
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - bijus
+
+volumes:
+  sqlserver_data:
+  api_uploads:
+
+networks:
+  bijus:
+    driver: bridge

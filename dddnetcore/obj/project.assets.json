@@ -9197,19 +9197,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\ASUS\\.nuget\\packages\\": {}
+    "C:\\Users\\diogo\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\DDDNetCore.csproj",
+      "projectUniqueName": "C:\\Users\\diogo\\Documents\\GitHub\\Bijus\\dddnetcore\\DDDNetCore.csproj",
       "projectName": "DDDNetCore",
-      "projectPath": "c:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\DDDNetCore.csproj",
-      "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\ASUS\\IdeaProjects\\Bijus\\dddnetcore\\obj\\",
+      "projectPath": "C:\\Users\\diogo\\Documents\\GitHub\\Bijus\\dddnetcore\\DDDNetCore.csproj",
+      "packagesPath": "C:\\Users\\diogo\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\diogo\\Documents\\GitHub\\Bijus\\dddnetcore\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\diogo\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
@@ -9233,7 +9233,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.200"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net9.0": {
@@ -9324,7 +9324,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.202/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

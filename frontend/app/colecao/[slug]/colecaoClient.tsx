@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { fetchColecoes, fetchProdutos, resolveImageUrl } from "@/lib/api"
-import type { Colecao, Produto } from "@/lib/types"
+import type { Colecao } from "@/lib/types"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ProductGrid } from "@/components/product-grid"
@@ -11,7 +11,6 @@ import { createSlug } from "@/lib/utils"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Calendar, Package, ChevronLeft, ChevronRight } from "lucide-react"
-import { useCart } from "@/contexts/cart-context"
 
 interface ColecaoClientProps {
   slug: string
@@ -19,9 +18,7 @@ interface ColecaoClientProps {
 
 export default function ColecaoClient({slug}:ColecaoClientProps): JSX.Element {
     const colecaoSlug = slug
-    const params = useParams()
     const router = useRouter()
-    const { adicionarAoCarrinho } = useCart() 
 
     const [colecao, setColecao] = useState<Colecao | null>(null)
     const [loading, setLoading] = useState(true)
@@ -46,9 +43,8 @@ export default function ColecaoClient({slug}:ColecaoClientProps): JSX.Element {
                 return detalhado ?? p
                 })
                 colecaoAtual.produto = produtosComFotos
-            } catch (err) {
-                // se falhar ao buscar produtos completos, continuamos com os dados originais
-                console.warn("[v0] Não foi possível obter produtos detalhados:", err)
+            } catch {
+                // Se falhar ao buscar produtos completos, continuamos com os dados originais.
             }
             }
 
@@ -69,12 +65,6 @@ export default function ColecaoClient({slug}:ColecaoClientProps): JSX.Element {
         }, 5000)
         return () => clearInterval(intervalo)
     }, [colecao?.fotos])
-
-    const handleAddToCart = (produto: Produto) => adicionarAoCarrinho(produto)
-
-    const handleToggleFavorite = (produto: Produto) => {
-        console.log("[v0] Toggling favorite:", produto.nome)
-    }
 
     const proximaImagem = () => {
         if (colecao?.fotos) setImagemAtual((prev) => (prev + 1) % colecao.fotos.length)
@@ -219,7 +209,7 @@ export default function ColecaoClient({slug}:ColecaoClientProps): JSX.Element {
             <div className="mb-8">
             <h2 className="text-3xl font-bold mb-6">Produtos desta Coleção</h2>
             {colecao.produto && colecao.produto.length > 0 ? (
-                <ProductGrid produtos={colecao.produto} loading={false} onAddToCart={handleAddToCart} onToggleFavorite={handleToggleFavorite} />
+                <ProductGrid produtos={colecao.produto} loading={false} />
             ) : (
                 <div className="text-center py-12 bg-muted rounded-lg"><p className="text-muted-foreground">Nenhum produto disponível nesta coleção no momento.</p></div>
             )}
