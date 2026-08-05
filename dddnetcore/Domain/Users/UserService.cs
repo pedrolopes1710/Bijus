@@ -55,7 +55,8 @@ namespace dddnetcore.Domain.Users
             var user = new User(
                 new UserName(dto.UserName),
                 new UserPassword(dto.UserPassword),
-                cliente
+                cliente,
+                dto.Role
             );
 
             await _repo.AddAsync(user);
@@ -64,12 +65,30 @@ namespace dddnetcore.Domain.Users
             return new UserDto(user);
         }
 
+        public Task<UserDto> AddClienteAsync(CreatingUserDto dto)
+        {
+            dto.Role = "cliente";
+            return AddAsync(dto);
+        }
+
         public async Task<UserDto> UpdateAsync(UserDto dto)
         {
             var user = await _repo.GetByIdAsync(new UserId(dto.Id));
 
             if (user == null)
                 return null;
+
+            var clienteId = dto.ClienteDto?.Id ?? Guid.Empty;
+            var cliente = await _clienteRepo.GetByIdAsync(new ClienteId(clienteId));
+
+            if (user.Role == "superadmin" && dto.Role != "superadmin")
+            {
+                var superadmins = (await _repo.GetAllAsync()).Count(item => item.Role == "superadmin");
+                if (superadmins <= 1)
+                    throw new BusinessRuleValidationException("A loja tem de manter pelo menos um superadministrador.");
+            }
+
+            user.AtualizarDados(new UserName(dto.UserName), cliente, dto.Role);
 
             await _unitOfWork.CommitAsync();
 
@@ -82,6 +101,13 @@ namespace dddnetcore.Domain.Users
 
             if (user == null)
                 return null;
+
+            if (user.Role == "superadmin")
+            {
+                var superadmins = (await _repo.GetAllAsync()).Count(item => item.Role == "superadmin");
+                if (superadmins <= 1)
+                    throw new BusinessRuleValidationException("Não é possível apagar o último superadministrador.");
+            }
 
             _repo.Remove(user);
             await _unitOfWork.CommitAsync();
@@ -119,6 +145,9 @@ namespace dddnetcore.Domain.Users
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.AsGuid().ToString()),
                 new Claim(ClaimTypes.Name, user.UserName.Nome),
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim("role", user.Role),
+                new Claim("cliente_id", user.Cliente.Id.AsGuid().ToString()),
             };
 
             var token = new JwtSecurityToken(

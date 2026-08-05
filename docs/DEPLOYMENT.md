@@ -88,7 +88,15 @@ docker compose up -d --build
 
 ## 6. Backups da base de dados
 
-Cria backups regulares do volume `sqlserver_data`. Para produção real, mantém cópias fora do servidor.
+Cria backups regulares do volume `bijus_sqlserver_data`. Para produção real, mantém cópias fora do servidor.
+
+Para parar os containers sem apagar dados, usa:
+
+```bash
+docker compose down
+```
+
+Nao uses `docker compose down -v` a menos que queiras apagar a base de dados e os uploads.
 
 Exemplo simples:
 

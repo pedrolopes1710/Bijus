@@ -26,6 +26,7 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
   const { isFavorite, toggleFavorite } = useFavorites()
   const [quantidade, setQuantidade] = useState(1)
   const [adicionado, setAdicionado] = useState(false)
+  const [selecoes, setSelecoes] = useState<Record<string, string>>({})
   
   useEffect(() => {
     async function loadProduto() {
@@ -38,6 +39,7 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
         }
 
         setProduto(produtoEncontrado)
+        setSelecoes(Object.fromEntries((produtoEncontrado.opcoes || []).map((opcao) => [opcao.nome, opcao.valores?.[0]?.valor || ""])))
 
         const relacionados = produtos
           .filter((p) => p.categoria.id === produtoEncontrado.categoria.id && p.id !== produtoEncontrado.id)
@@ -54,8 +56,8 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
   }, [slug])
 
   const handleAddToCart = () => {
-    if (produto && produto.stock > 0) {
-      adicionarAoCarrinho(produto, quantidade)
+    if (produto && stockDisponivel > 0) {
+      adicionarAoCarrinho(produto, quantidade, varianteSelecionada)
       setAdicionado(true)
       setTimeout(() => setAdicionado(false), 2000)
     }
@@ -84,6 +86,13 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
     }).format(price)
   }
 
+  const varianteSelecionada = (produto.variantes || []).find((variante: any) =>
+    variante.ativa !== false && Object.entries(selecoes).every(([nome, valor]) => variante.valores?.[nome] === valor),
+  )
+  const temVariantes = (produto.opcoes || []).length > 0
+  const stockDisponivel = temVariantes ? (varianteSelecionada?.stock ?? 0) : produto.stock
+  const precoAtual = varianteSelecionada?.preco ?? produto.preco
+
   return (
     <>
       <Header />
@@ -101,14 +110,14 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
             {/* Imagem do produto */}
             <div className="space-y-4">
               <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
-                {produto.stock < 10 && produto.stock > 0 && (
+                {stockDisponivel < 10 && stockDisponivel > 0 && (
                   <div className="absolute top-4 left-4 z-10">
                     <span className="px-3 py-1 text-sm font-semibold rounded-full bg-orange-500 text-white">
                       Últimas unidades
                     </span>
                   </div>
                 )}
-                {produto.stock === 0 && (
+                {stockDisponivel === 0 && (
                   <div className="absolute top-4 left-4 z-10">
                     <span className="px-3 py-1 text-sm font-semibold rounded-full bg-red-500 text-white">Esgotado</span>
                   </div>
@@ -139,13 +148,34 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
               </div>
 
               <div className="space-y-2">
-                <p className="text-4xl font-bold">{formatPrice(produto.preco)}</p>
-                <p className="text-sm text-muted-foreground">Stock disponível: {produto.stock} unidades</p>
+                <p className="text-4xl font-bold">{formatPrice(precoAtual)}</p>
+                <p className="text-sm text-muted-foreground">Stock disponível: {stockDisponivel} unidades</p>
               </div>
 
               <p className="text-muted-foreground leading-relaxed">{produto.descricao}</p>
 
-              {produto.stock > 0 && (
+              {(produto.opcoes || []).map((opcao: any) => (
+                <div key={opcao.nome} className="space-y-2">
+                  <p className="text-sm font-medium">{opcao.nome}: <span className="text-muted-foreground">{selecoes[opcao.nome]}</span></p>
+                  <div className="flex flex-wrap gap-2">
+                    {(opcao.valores || []).map((item: any) => {
+                      const active = selecoes[opcao.nome] === item.valor
+                      return (
+                        <button key={item.valor} type="button" aria-pressed={active}
+                          onClick={() => { setSelecoes((current) => ({ ...current, [opcao.nome]: item.valor })); setQuantidade(1) }}
+                          className={`flex min-h-10 items-center gap-2 rounded-md border px-3 text-sm transition-colors ${active ? "border-foreground bg-foreground text-background" : "hover:border-foreground/50"}`}>
+                          {item.corHex && <span className="h-5 w-5 rounded-full border border-black/10" style={{ backgroundColor: item.corHex }} />}
+                          {item.valor}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+
+              {temVariantes && !varianteSelecionada && <p className="text-sm text-destructive">Esta combinação não está disponível.</p>}
+
+              {stockDisponivel > 0 && (
                 <div className="flex items-center gap-4">
                   <span className="text-sm font-medium">Quantidade:</span>
                   <div className="flex items-center gap-2">
@@ -161,8 +191,8 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => setQuantidade(Math.min(produto.stock, quantidade + 1))}
-                      disabled={quantidade >= produto.stock}
+                      onClick={() => setQuantidade(Math.min(stockDisponivel, quantidade + 1))}
+                      disabled={quantidade >= stockDisponivel}
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
@@ -171,9 +201,9 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
               )}
 
               <div className="flex gap-3">
-                <Button size="lg" className="flex-1" disabled={produto.stock === 0} onClick={handleAddToCart}>
+                <Button size="lg" className="flex-1" disabled={stockDisponivel === 0 || (temVariantes && !varianteSelecionada)} onClick={handleAddToCart}>
                   <ShoppingBag className="h-5 w-5 mr-2" />
-                  {produto.stock === 0 ? "Esgotado" : adicionado ? "Adicionado ao carrinho!" : "Adicionar ao carrinho"}
+                  {stockDisponivel === 0 ? "Esgotado" : adicionado ? "Adicionado ao carrinho!" : "Adicionar ao carrinho"}
                 </Button>
                 <Button
                   size="lg"

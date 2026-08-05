@@ -8,7 +8,7 @@ import type { Colecao, Produto } from "@/lib/types"
 import Link from "next/link"
 import { createSlug } from "@/lib/utils"
 
-const FALLBACK_IMAGE = "/uploads/produtos/b804a353-49ba-431e-8263-927432215a9e.jpg"
+const FALLBACK_IMAGE = "/uploads/produtos/feira-caneca-02.jpeg"
 
 export function Hero() {
   const [colecao, setColecao] = useState<Colecao | null>(null)

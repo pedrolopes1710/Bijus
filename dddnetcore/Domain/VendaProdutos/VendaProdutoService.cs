@@ -11,64 +11,56 @@ namespace dddnetcore.Domain.VendaProdutos
         private readonly IVendaRepository _vendaRepo;
         private readonly IProdutoRepository _produtoRepo;
 
-        public VendaProdutoService(
-            IUnitOfWork unitOfWork, 
-            IVendaProdutoRepository repo,
-            IVendaRepository vendaRepo,
-            IProdutoRepository produtoRepo)
+        public VendaProdutoService(IUnitOfWork unitOfWork, IVendaProdutoRepository repo, IVendaRepository vendaRepo, IProdutoRepository produtoRepo)
         {
-            this._unitOfWork = unitOfWork;
-            this._repo = repo;
-            this._vendaRepo = vendaRepo;
-            this._produtoRepo = produtoRepo;
+            _unitOfWork = unitOfWork;
+            _repo = repo;
+            _vendaRepo = vendaRepo;
+            _produtoRepo = produtoRepo;
         }
 
         public async Task<List<VendaProdutoDto>> GetAllAsync(Guid? vendaId = null)
         {
-            if (vendaId != null)
-            {
-                return (await this._repo.GetVendaProdutosByVendaAsync(vendaId))
-                    .ConvertAll(vp => new VendaProdutoDto(vp));
-            }
-            return (await this._repo.GetAllAsync())
-                .ConvertAll(vp => new VendaProdutoDto(vp));
+            var items = vendaId != null
+                ? await _repo.GetVendaProdutosByVendaAsync(vendaId)
+                : await _repo.GetAllAsync();
+            return items.ConvertAll(item => new VendaProdutoDto(item));
         }
 
         public async Task<VendaProdutoDto> GetByIdAsync(VendaProdutoId id)
         {
-            var vendaProduto = await this._repo.GetByIdAsync(id);
-            return vendaProduto == null ? null : new VendaProdutoDto(vendaProduto);
+            var item = await _repo.GetByIdAsync(id);
+            return item == null ? null : new VendaProdutoDto(item);
         }
 
         public async Task<VendaProdutoDto> AddAsync(CreatingVendaProdutoDto dto)
         {
-            var venda = await this._vendaRepo.GetByIdAsync(new VendaId(dto.VendaId));
-            var produto = await this._produtoRepo.GetByIdAsync(new ProdutoId(dto.ProdutoId));
-
-            var vendaProduto = new VendaProduto(
-                venda,
-                produto,
-                new Quantidade(dto.Quantidade),
-                new PrecoUnitario(dto.PrecoUnitario)
-            );
-
-            await this._repo.AddAsync(vendaProduto);
-            await this._unitOfWork.CommitAsync();
-
-            return new VendaProdutoDto(vendaProduto);
+            var venda = await _vendaRepo.GetByIdAsync(new VendaId(dto.VendaId));
+            var produto = await _produtoRepo.GetByIdAsync(new ProdutoId(dto.ProdutoId));
+            var item = new VendaProduto(venda, produto, new Quantidade(dto.Quantidade), new PrecoUnitario(dto.PrecoUnitario), dto.DetalhesVariante);
+            await _repo.AddAsync(item);
+            await _unitOfWork.CommitAsync();
+            return new VendaProdutoDto(item);
         }
 
         public async Task<VendaProdutoDto> DeleteAsync(VendaProdutoId id)
         {
-            var vendaProduto = await this._repo.GetByIdAsync(id);
+            var item = await _repo.GetByIdAsync(id);
+            if (item == null) return null;
+            _repo.Remove(item);
+            await _unitOfWork.CommitAsync();
+            return new VendaProdutoDto(item);
+        }
 
-            if (vendaProduto == null)
-                return null;
-
-            this._repo.Remove(vendaProduto);
-            await this._unitOfWork.CommitAsync();
-
-            return new VendaProdutoDto(vendaProduto);
+        public async Task<VendaProdutoDto> UpdateAsync(VendaProdutoDto dto)
+        {
+            var item = await _repo.GetByIdAsync(new VendaProdutoId(dto.Id));
+            if (item == null) return null;
+            var venda = await _vendaRepo.GetByIdAsync(new VendaId(dto.VendaId));
+            var produto = await _produtoRepo.GetByIdAsync(new ProdutoId(dto.ProdutoId));
+            item.AtualizarDados(venda, produto, new Quantidade(dto.Quantidade), new PrecoUnitario(dto.PrecoUnitario), dto.DetalhesVariante);
+            await _unitOfWork.CommitAsync();
+            return new VendaProdutoDto(item);
         }
     }
 }

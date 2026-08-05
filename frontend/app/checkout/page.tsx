@@ -14,18 +14,18 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { CreditCard, Smartphone, Building2, Check } from 'lucide-react'
-import { criarVenda, criarVendaProduto } from "@/lib/api"
+import { Smartphone, Check } from 'lucide-react'
+import { criarVenda, criarVendaProduto, iniciarPagamentoMbWay } from "@/lib/api"
 import type { DadosEnvio, DadosPagamento } from "@/lib/types"
 
 const guidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { itens, totalPreco, setDadosEnvio, setDadosPagamento, limparCarrinho, isLoaded } = useCart()
+  const { itens, totalPreco, setDadosEnvio, setDadosPagamento, isLoaded } = useCart()
   const { usuario } = useAuth()
   const [etapa, setEtapa] = useState<"envio" | "pagamento" | "confirmacao">("envio")
-  const [metodoPagamento, setMetodoPagamento] = useState<"cartao" | "mbway" | "transferencia">("cartao")
+  const [metodoPagamento] = useState<"mbway">("mbway")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [checkoutError, setCheckoutError] = useState("")
 
@@ -40,7 +40,7 @@ export default function CheckoutPage() {
   })
 
   const [dadosPagamentoForm, setDadosPagamentoForm] = useState<DadosPagamento>({
-    metodo: "cartao",
+    metodo: "mbway",
     numeroCartao: "",
     nomeCartao: "",
     validadeCartao: "",
@@ -117,10 +117,11 @@ export default function CheckoutPage() {
       await Promise.all(
         itens.map((item) =>
           criarVendaProduto({
-            precoUnitario: item.produto.preco,
+            precoUnitario: item.precoUnitario ?? item.produto.preco,
             produtoId: item.produto.id,
             quantidade: item.quantidade,
             vendaId: venda.id,
+            detalhesVariante: item.variante ? JSON.stringify(item.variante.valores) : undefined,
           }),
         ),
       )
@@ -134,15 +135,16 @@ export default function CheckoutPage() {
           itens: itens.map((item) => ({
             id: item.produto.id,
             nome: item.produto.nome,
-            preco: item.produto.preco,
+            preco: item.precoUnitario ?? item.produto.preco,
             quantidade: item.quantidade,
+            variante: item.variante?.valores,
           })),
           metodoPagamento,
           total: totalPreco,
         }),
       )
-      limparCarrinho()
-      router.push("/pedido-confirmado")
+      const checkout = await iniciarPagamentoMbWay(venda.id)
+      window.location.assign(checkout.url)
     } catch (err: any) {
       setCheckoutError(err.message || "Nao foi possivel criar a encomenda.")
       setIsSubmitting(false)
@@ -281,106 +283,20 @@ export default function CheckoutPage() {
                 <Card className="p-6">
                   <h2 className="text-2xl font-bold mb-6">Método de Pagamento</h2>
                   <form onSubmit={handlePagamentoSubmit} className="space-y-6">
-                    <RadioGroup value={metodoPagamento} onValueChange={(value: any) => setMetodoPagamento(value)}>
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-neutral-50">
-                        <RadioGroupItem value="cartao" id="cartao" />
-                        <Label htmlFor="cartao" className="flex items-center gap-2 cursor-pointer flex-1">
-                          <CreditCard className="h-5 w-5" />
-                          <span>Cartão de Crédito/Débito</span>
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-neutral-50">
+                    <RadioGroup value={metodoPagamento}>
+                      <div className="flex items-center space-x-3 border rounded-lg p-4">
                         <RadioGroupItem value="mbway" id="mbway" />
-                        <Label htmlFor="mbway" className="flex items-center gap-2 cursor-pointer flex-1">
+                        <Label htmlFor="mbway" className="flex items-center gap-2 flex-1">
                           <Smartphone className="h-5 w-5" />
                           <span>MB WAY</span>
                         </Label>
                       </div>
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-neutral-50">
-                        <RadioGroupItem value="transferencia" id="transferencia" />
-                        <Label htmlFor="transferencia" className="flex items-center gap-2 cursor-pointer flex-1">
-                          <Building2 className="h-5 w-5" />
-                          <span>Transferência Bancária</span>
-                        </Label>
-                      </div>
                     </RadioGroup>
-
-                    {metodoPagamento === "cartao" && (
-                      <div className="space-y-4 pt-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="numeroCartao">Número do Cartão</Label>
-                          <Input
-                            id="numeroCartao"
-                            placeholder="1234 5678 9012 3456"
-                            required
-                            value={dadosPagamentoForm.numeroCartao}
-                            onChange={(e) =>
-                              setDadosPagamentoForm({ ...dadosPagamentoForm, numeroCartao: e.target.value })
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="nomeCartao">Nome no Cartão</Label>
-                          <Input
-                            id="nomeCartao"
-                            required
-                            value={dadosPagamentoForm.nomeCartao}
-                            onChange={(e) =>
-                              setDadosPagamentoForm({ ...dadosPagamentoForm, nomeCartao: e.target.value })
-                            }
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="validade">Validade</Label>
-                            <Input
-                              id="validade"
-                              placeholder="MM/AA"
-                              required
-                              value={dadosPagamentoForm.validadeCartao}
-                              onChange={(e) =>
-                                setDadosPagamentoForm({ ...dadosPagamentoForm, validadeCartao: e.target.value })
-                              }
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="cvv">CVV</Label>
-                            <Input
-                              id="cvv"
-                              placeholder="123"
-                              required
-                              value={dadosPagamentoForm.cvv}
-                              onChange={(e) => setDadosPagamentoForm({ ...dadosPagamentoForm, cvv: e.target.value })}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {metodoPagamento === "mbway" && (
-                      <div className="space-y-4 pt-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="numeroMbway">Número de Telemóvel</Label>
-                          <Input
-                            id="numeroMbway"
-                            placeholder="+351 912 345 678"
-                            required
-                            value={dadosPagamentoForm.numeroMbway}
-                            onChange={(e) =>
-                              setDadosPagamentoForm({ ...dadosPagamentoForm, numeroMbway: e.target.value })
-                            }
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {metodoPagamento === "transferencia" && (
-                      <div className="bg-neutral-100 p-4 rounded-lg">
-                        <p className="text-sm text-neutral-600">
-                          Após confirmar o pedido, receberá os dados bancários por email para efetuar a transferência.
-                        </p>
-                      </div>
-                    )}
+                    <div className="bg-neutral-100 p-4 rounded-lg">
+                      <p className="text-sm text-neutral-600">
+                        Será encaminhado para a página segura da Stripe. Introduza aí o número associado ao MB WAY e confirme o pagamento na aplicação.
+                      </p>
+                    </div>
 
                     <div className="flex gap-4">
                       <Button
@@ -423,11 +339,7 @@ export default function CheckoutPage() {
 
                     <div>
                       <h3 className="font-semibold mb-2">Método de Pagamento</h3>
-                      <p className="text-sm text-neutral-600">
-                        {metodoPagamento === "cartao" && "Cartão de Crédito/Débito"}
-                        {metodoPagamento === "mbway" && "MB WAY"}
-                        {metodoPagamento === "transferencia" && "Transferência Bancária"}
-                      </p>
+                      <p className="text-sm text-neutral-600">MB WAY através da Stripe</p>
                       <Button variant="link" className="p-0 h-auto" onClick={() => setEtapa("pagamento")}>
                         Editar
                       </Button>
@@ -437,7 +349,7 @@ export default function CheckoutPage() {
                       <h3 className="font-semibold mb-3">Produtos</h3>
                       <div className="space-y-2">
                         {itens.map((item) => (
-                          <div key={item.produto.id} className="flex justify-between text-sm">
+                          <div key={item.chave || item.produto.id} className="flex justify-between text-sm">
                             <span className="text-neutral-600">
                               {item.produto.nome} x {item.quantidade}
                             </span>
@@ -454,7 +366,7 @@ export default function CheckoutPage() {
                     )}
 
                     <Button size="lg" className="w-full" onClick={handleFinalizarPedido} disabled={isSubmitting}>
-                      {isSubmitting ? "A criar encomenda..." : "Confirmar encomenda"}
+                      {isSubmitting ? "A iniciar pagamento..." : "Pagar com MB WAY"}
                     </Button>
                   </div>
                 </Card>

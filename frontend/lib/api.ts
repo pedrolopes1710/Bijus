@@ -16,10 +16,12 @@ async function readErrorMessage(response: Response, fallback: string) {
 }
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null
   const response = await fetch(apiUrl(path), {
     ...init,
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(init?.headers || {}),
     },
   })
@@ -37,7 +39,6 @@ export function resolveImageUrl(url: string | undefined | null | { url?: string 
 
   if (!rawUrl || typeof rawUrl !== "string") return undefined
   if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) return rawUrl
-  if (rawUrl.startsWith("/uploads/")) return rawUrl
 
   const apiHost = API_BASE_URL.replace(/\/api\/?$/, "")
   if (rawUrl.startsWith("/")) return `${apiHost}${rawUrl}`
@@ -215,22 +216,33 @@ export async function fetchVendas(clienteId?: string): Promise<Venda[]> {
 
 export async function criarVenda(dados: {
   clienteId: string
+  codigoRastreio?: string
   data?: string
+  dataEnvio?: string
   estado?: string
+  notasInternas?: string
+  transportadora?: string
   total: number
+  urlRastreio?: string
 }): Promise<Venda> {
   return requestJson<Venda>("/vendas", {
     method: "POST",
     body: JSON.stringify({
       clienteId: dados.clienteId,
+      codigoRastreio: dados.codigoRastreio,
       data: dados.data || new Date().toISOString(),
+      dataEnvio: dados.dataEnvio,
       estado: dados.estado || "pendente",
+      notasInternas: dados.notasInternas,
+      transportadora: dados.transportadora,
       total: dados.total,
+      urlRastreio: dados.urlRastreio,
     }),
   })
 }
 
 export async function criarVendaProduto(dados: {
+  detalhesVariante?: string
   precoUnitario: number
   produtoId: string
   quantidade: number
@@ -243,6 +255,18 @@ export async function criarVendaProduto(dados: {
       produtoId: dados.produtoId,
       quantidade: dados.quantidade,
       vendaId: dados.vendaId,
+      detalhesVariante: dados.detalhesVariante,
     }),
   })
+}
+
+export async function iniciarPagamentoMbWay(vendaId: string): Promise<{ vendaId: string; sessionId: string; url: string }> {
+  return requestJson("/pagamentos/stripe/checkout", {
+    method: "POST",
+    body: JSON.stringify({ vendaId }),
+  })
+}
+
+export async function obterEstadoPagamentoStripe(sessionId: string): Promise<{ vendaId: string; estado: string; pago: boolean }> {
+  return requestJson(`/pagamentos/stripe/sessoes/${encodeURIComponent(sessionId)}`)
 }

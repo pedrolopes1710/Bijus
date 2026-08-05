@@ -14,14 +14,17 @@ interface CategoryCardProps {
 }
 
 const categoryImages: Record<string, string> = {
-  Aneis: "/uploads/produtos/2733f3aa-e31b-49f4-8444-17a51880f676.jpg",
-  Colares: "/uploads/produtos/4fd38bb5-da9a-48e6-a86a-b8f59b4e470f.jpeg",
-  Brincos: "/uploads/produtos/70eda05a-b11b-4a9b-af67-6d84c82d3171.jpg",
-  Pulseiras: "/uploads/produtos/7566d169-f805-4d34-92f2-97cf5d422259.jpg",
-  "Biscuit Artesanal": "/uploads/produtos/a990430f-662e-4720-b2c9-4364bbb9747d.jpeg",
+  "Quadros artesanais": "/uploads/produtos/feira-quadro-amigos.jpeg",
+  Canecas: "/uploads/produtos/feira-caneca-02.jpeg",
+  "Louça artesanal": "/uploads/produtos/feira-taca-uvas-01.jpeg",
+  Ímanes: "/uploads/produtos/feira-iman-placa-01.jpeg",
+  Brincos: "/uploads/produtos/feira-brincos-uvas-01.jpeg",
+  "Porta-chaves": "/uploads/produtos/feira-porta-chaves-01.jpeg",
+  "Acessórios de vinho": "/uploads/produtos/feira-saca-rolhas-cabo-01.jpeg",
+  Decoração: "/uploads/produtos/feira-garrafa-decorativa.jpeg",
 }
 
-const FALLBACK_IMAGE = "/uploads/produtos/b804a353-49ba-431e-8263-927432215a9e.jpg"
+const FALLBACK_IMAGE = "/uploads/produtos/feira-caneca-02.jpeg"
 
 export function CategoryCard({ categoria, featured = false, imageUrl }: CategoryCardProps) {
   const defaultImage = categoryImages[categoria.nome] || FALLBACK_IMAGE

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.Vendas;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace DDDSample1.Controllers
 {
@@ -38,8 +40,13 @@ namespace DDDSample1.Controllers
 
         // POST: api/Produtos
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<VendaDto>> Create(CreatingVendaDto dto)
         {
+            if (!User.IsInRole("admin") && !User.IsInRole("superadmin") &&
+                (!Guid.TryParse(User.FindFirstValue("cliente_id"), out var clienteId) || clienteId != dto.ClienteId))
+                return Forbid();
+
             try {
                 VendaDto venda = await _service.AddAsync(dto);
                 return CreatedAtAction(nameof(GetById), new { id = venda.Id }, venda);
@@ -56,6 +63,7 @@ namespace DDDSample1.Controllers
 
         // PUT: api/Produtos/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<VendaDto>> Update(Guid id, VendaDto dto)
         {
             if (id != dto.Id)
@@ -81,6 +89,7 @@ namespace DDDSample1.Controllers
 
         // DELETE: api/Produtos/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<VendaDto>> HardDelete(Guid id)
         {
             try

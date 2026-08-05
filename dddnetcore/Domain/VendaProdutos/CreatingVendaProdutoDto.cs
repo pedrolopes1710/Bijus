@@ -6,5 +6,6 @@ namespace dddnetcore.Domain.VendaProdutos
         public Guid ProdutoId { get; set; }
         public int Quantidade { get; set; }
         public decimal PrecoUnitario { get; set; }
+        public string? DetalhesVariante { get; set; }
     }
 }

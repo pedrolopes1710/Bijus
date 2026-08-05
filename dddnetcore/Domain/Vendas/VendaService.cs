@@ -28,6 +28,12 @@ namespace dddnetcore.Domain.Vendas
             return venda == null ? null : new VendaDto(venda);
         }
 
+        public async Task<bool> PertenceAoClienteAsync(Guid vendaId, Guid clienteId)
+        {
+            var venda = await _repo.GetDetalheAsync(new VendaId(vendaId));
+            return venda != null && venda.Cliente.Id.AsGuid() == clienteId;
+        }
+
         public async Task<VendaDto> AddAsync(CreatingVendaDto dto)
         {
             if (!Enum.TryParse<VendaEstado>(dto.Estado, out var status))
@@ -40,7 +46,12 @@ namespace dddnetcore.Domain.Vendas
                 new VendaData(dto.Data),
                 status,
                 new VendaTotal(dto.Total),
-                cliente
+                cliente,
+                dto.Transportadora,
+                dto.CodigoRastreio,
+                dto.UrlRastreio,
+                dto.DataEnvio,
+                dto.NotasInternas
             );
 
             await this._repo.AddAsync(venda);
@@ -56,9 +67,24 @@ namespace dddnetcore.Domain.Vendas
             if (venda == null)
                 return null;
 
-            //produto.ChangeNomeProduto(new NomeProduto(dto.Nome));
-            //produto.ChangeDescricaoProduto(new DescricaoProduto(dto.Descricao));
-            //produto.ChangePrecoProduto(new PrecoProduto(dto.Preco));
+            if (!Enum.TryParse<VendaEstado>(dto.VendaEstado, out var status))
+            {
+                throw new BusinessRuleValidationException($"Status invÃ¡lido: {dto.VendaEstado}");
+            }
+
+            venda.AtualizarDados(
+                new VendaData(dto.VendaData),
+                status,
+                new VendaTotal(dto.VendaTotal)
+            );
+
+            venda.AtualizarRastreio(
+                dto.Transportadora,
+                dto.CodigoRastreio,
+                dto.UrlRastreio,
+                dto.DataEnvio,
+                dto.NotasInternas
+            );
 
             await this._unitOfWork.CommitAsync();
 

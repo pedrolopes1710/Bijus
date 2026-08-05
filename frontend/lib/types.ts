@@ -11,6 +11,29 @@ export interface Produto {
   stock: number
   categoria: Categoria
   fotos?: FotoProduto[]
+  opcoes?: ProdutoOpcao[]
+  variantes?: ProdutoVariante[]
+  grupoVariantesId?: string | null
+  grupoVariantes?: { id: string; nome: string } | null
+}
+
+export interface ProdutoOpcaoValor {
+  valor: string
+  corHex?: string | null
+}
+
+export interface ProdutoOpcao {
+  nome: string
+  valores: ProdutoOpcaoValor[]
+}
+
+export interface ProdutoVariante {
+  id: string
+  sku?: string
+  valores: Record<string, string>
+  preco?: number | null
+  stock: number
+  ativa: boolean
 }
 
 export interface FotoProduto {
@@ -27,6 +50,9 @@ export interface ApiResponse<T> {
 export interface ItemCarrinho {
   produto: Produto
   quantidade: number
+  chave: string
+  variante?: ProdutoVariante
+  precoUnitario: number
 }
 
 export interface DadosEnvio {
@@ -60,6 +86,7 @@ export interface Usuario {
   userName: string
   userPassword?: string // Opcional, não deve ser exposto no frontend
   clienteDto: Cliente
+  role?: "superadmin" | "admin" | "cliente" | string
 }
 
 export interface DadosRegisto {
@@ -83,6 +110,15 @@ export interface Venda {
   vendaEstado: "pendente" | "paga" | "enviada" | "entregue" | "cancelada" | string
   vendaTotal: number
   cliente: Cliente
+  transportadora?: string | null
+  codigoRastreio?: string | null
+  urlRastreio?: string | null
+  dataEnvio?: string | null
+  notasInternas?: string | null
+  metodoPagamento?: string | null
+  pagamentoProvider?: string | null
+  pagamentoReferencia?: string | null
+  pagamentoEstado?: string | null
 }
 
 export interface FotoColecao {

@@ -1534,6 +1534,23 @@
           }
         }
       },
+      "Stripe.net/52.2.0": {
+        "type": "package",
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.3",
+          "System.Configuration.ConfigurationManager": "9.0.0"
+        },
+        "compile": {
+          "lib/net9.0/Stripe.net.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net9.0/Stripe.net.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "System.AppContext/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -1766,7 +1783,7 @@
           "System.Security.Cryptography.ProtectedData": "9.0.4"
         },
         "compile": {
-          "lib/net9.0/_._": {
+          "lib/net9.0/System.Configuration.ConfigurationManager.dll": {
             "related": ".xml"
           }
         },
@@ -5569,6 +5586,30 @@
         "sprache.nuspec"
       ]
     },
+    "Stripe.net/52.2.0": {
+      "sha512": "kStsQTsxalKPyLXVP5ep+t5NL49NNOKmKh+X+I6Fexb2LJUQ2ZUvtj52bkJFJJDaCJJrbeM47y0qvOXqKFwExA==",
+      "type": "package",
+      "path": "stripe.net/52.2.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "README.md",
+        "icon.png",
+        "lib/net462/Stripe.net.dll",
+        "lib/net462/Stripe.net.xml",
+        "lib/net6.0/Stripe.net.dll",
+        "lib/net6.0/Stripe.net.xml",
+        "lib/net8.0/Stripe.net.dll",
+        "lib/net8.0/Stripe.net.xml",
+        "lib/net9.0/Stripe.net.dll",
+        "lib/net9.0/Stripe.net.xml",
+        "lib/netstandard2.0/Stripe.net.dll",
+        "lib/netstandard2.0/Stripe.net.xml",
+        "stripe.net.52.2.0.nupkg.sha512",
+        "stripe.net.nuspec"
+      ]
+    },
     "System.AppContext/4.3.0": {
       "sha512": "fKC+rmaLfeIzUhagxY17Q9siv/sPrjjKcfNg1Ic8IlQkZLipo8ljcaZQu4VtI4Jqbzjc2VTjzGLF6WmsRXAEgA==",
       "type": "package",
@@ -9193,7 +9234,8 @@
       "Microsoft.EntityFrameworkCore.SqlServer >= 9.0.3",
       "Microsoft.VisualStudio.Azure.Containers.Tools.Targets >= 1.18.1",
       "Newtonsoft.Json >= 13.0.3",
-      "RestSharp >= 106.15.0"
+      "RestSharp >= 106.15.0",
+      "Stripe.net >= 52.2.0"
     ]
   },
   "packageFolders": {
@@ -9303,6 +9345,10 @@
           "RestSharp": {
             "target": "Package",
             "version": "[106.15.0, )"
+          },
+          "Stripe.net": {
+            "target": "Package",
+            "version": "[52.2.0, )"
           }
         },
         "imports": [

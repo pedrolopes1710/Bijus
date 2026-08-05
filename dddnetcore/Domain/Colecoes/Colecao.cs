@@ -45,5 +45,26 @@ namespace dddnetcore.Domain.Colecoes
             this.DataAtualizacaoColecao = dataAtualizacaoColecao;
             this.EstadoColecao = estadoColecao;
         }
+
+        public void AtualizarDados(
+            NomeColecao nomeColecao,
+            DescricaoColecao descricaoColecao,
+            DataAtualizacaoColecao dataAtualizacaoColecao,
+            EstadoColecao estadoColecao)
+        {
+            if (nomeColecao == null)
+                throw new BusinessRuleValidationException("NomeColecao cannot be null.");
+
+            if (descricaoColecao == null)
+                throw new BusinessRuleValidationException("DescricaoColecao cannot be null.");
+
+            if (dataAtualizacaoColecao == null)
+                throw new BusinessRuleValidationException("DataAtualizacaoColecao cannot be null.");
+
+            this.NomeColecao = nomeColecao;
+            this.DescricaoColecao = descricaoColecao;
+            this.DataAtualizacaoColecao = dataAtualizacaoColecao;
+            this.EstadoColecao = estadoColecao;
+        }
     }
 }

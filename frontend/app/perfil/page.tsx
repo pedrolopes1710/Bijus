@@ -4,7 +4,7 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Heart, Loader2, LogOut, Package, RefreshCw, User } from "lucide-react"
+import { Heart, Loader2, LogOut, Package, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
@@ -15,10 +15,9 @@ import { useFavorites } from "@/contexts/favorites-context"
 type PerfilTab = "dados" | "encomendas" | "favoritos"
 
 export default function PerfilPage() {
-  const { authProvider, usuario, isAuthenticated, isLoading, logout, recarregarUsuario } = useAuth()
+  const { usuario, isAuthenticated, isLoading, logout } = useAuth()
   const { favoritos } = useFavorites()
   const router = useRouter()
-  const [isRefreshing, setIsRefreshing] = useState(false)
   const [erro, setErro] = useState("")
   const [active, setActive] = useState<PerfilTab>("dados")
 
@@ -27,20 +26,6 @@ export default function PerfilPage() {
       router.push("/login")
     }
   }, [isLoading, isAuthenticated, router])
-
-  const handleRecarregar = async () => {
-    setIsRefreshing(true)
-    setErro("")
-
-    try {
-      await recarregarUsuario()
-    } catch (err) {
-      console.error("Erro ao recarregar perfil:", err)
-      setErro("Não foi possível recarregar os dados da conta.")
-    } finally {
-      setIsRefreshing(false)
-    }
-  }
 
   const handleLogout = () => {
     logout()
@@ -97,9 +82,7 @@ export default function PerfilPage() {
                   </div>
                   <div>
                     <h2 className="text-xl font-semibold">{usuario.userName}</h2>
-                    <p className="text-sm text-muted-foreground">
-                      Sessão iniciada com {authProvider === "password" ? "email/password" : authProvider || "conta"}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{cliente?.email || "Conta de cliente"}</p>
                   </div>
                 </div>
 
@@ -107,15 +90,7 @@ export default function PerfilPage() {
                   <InfoItem label="Nome" value={cliente?.nome || usuario.userName} />
                   <InfoItem label="Email" value={cliente?.email || "Sem email associado"} />
                   <InfoItem label="Morada" value={cliente?.morada || "Sem morada guardada"} />
-                  <InfoItem label="ID da conta" value={usuario.id} mono />
                 </div>
-
-                {authProvider === "password" && (
-                  <Button variant="outline" className="mt-6" onClick={handleRecarregar} disabled={isRefreshing}>
-                    {isRefreshing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-                    Recarregar dados
-                  </Button>
-                )}
               </div>
             )}
 
@@ -162,11 +137,11 @@ function TabButton({
   )
 }
 
-function InfoItem({ label, mono, value }: { label: string; mono?: boolean; value: string }) {
+function InfoItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border bg-background p-4">
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className={`mt-2 break-words text-sm font-medium ${mono ? "font-mono text-muted-foreground" : ""}`}>{value}</p>
+      <p className="mt-2 break-words text-sm font-medium">{value}</p>
     </div>
   )
 }

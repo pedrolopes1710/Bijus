@@ -569,3 +569,4 @@ C:\Users\diogo\Documents\GitHub\Bijus\dddnetcore\obj\Debug\net9.0\refint\DDDNetC
 C:\Users\diogo\Documents\GitHub\Bijus\dddnetcore\obj\Debug\net9.0\DDDNetCore.pdb
 C:\Users\diogo\Documents\GitHub\Bijus\dddnetcore\obj\Debug\net9.0\DDDNetCore.genruntimeconfig.cache
 C:\Users\diogo\Documents\GitHub\Bijus\dddnetcore\obj\Debug\net9.0\ref\DDDNetCore.dll
+C:\Users\diogo\Documents\GitHub\Bijus\dddnetcore\bin\Debug\net9.0\Stripe.net.dll

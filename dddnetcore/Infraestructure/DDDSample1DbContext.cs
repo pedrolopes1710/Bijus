@@ -21,6 +21,8 @@ using dddnetcore.Domain.FotoColecoes;
 using dddnetcore.Infraestructure.FotoColecoes;
 using dddnetcore.Domain.Colecoes;
 using dddnetcore.Infraestructure.Colecoes;
+using dddnetcore.Domain.GruposVariantes;
+using dddnetcore.Infraestructure.GruposVariantes;
 
 namespace DDDSample1.Infrastructure
 {
@@ -39,6 +41,11 @@ namespace DDDSample1.Infrastructure
         public DbSet<User> Users { get; set; }
         public DbSet<FotoColecao> FotoColecoes { get; set; }
         public DbSet<Colecao> Colecoes { get; set; }
+        public DbSet<GrupoVariantes> GruposVariantes { get; set; }
+        public DbSet<OpcaoProduto> OpcoesProduto { get; set; }
+        public DbSet<ValorOpcaoProduto> ValoresOpcaoProduto { get; set; }
+        public DbSet<VarianteProduto> VariantesProduto { get; set; }
+        public DbSet<VarianteProdutoValor> VariantesProdutoValores { get; set; }
         public DDDSample1DbContext(DbContextOptions options) : base(options)
         {
 
@@ -58,6 +65,11 @@ namespace DDDSample1.Infrastructure
             modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new FotoColecaoEntityTypeConfiguration());  
             modelBuilder.ApplyConfiguration(new ColecaoEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new GrupoVariantesEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new OpcaoProdutoEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new ValorOpcaoProdutoEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new VarianteProdutoEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new VarianteProdutoValorEntityTypeConfiguration());
         }
     }
 }

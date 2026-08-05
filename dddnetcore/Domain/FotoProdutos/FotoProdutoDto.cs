@@ -5,9 +5,9 @@ namespace dddnetcore.Domain.FotoProdutos
     public class FotoProdutoDto
     {
         public Guid Id { get; set; }
-        public string UrlProduto { get; private set; } 
+        public string UrlProduto { get; set; }
 
-        public Guid ProdutoId { get; private set; }
+        public Guid ProdutoId { get; set; }
 
         public FotoProdutoDto() { }
 

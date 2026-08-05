@@ -164,6 +164,7 @@ export async function completeSocialLogin(code: string, state: string) {
 
   const usuario: Usuario = {
     id: userInfo.sub,
+    role: "cliente",
     userName: name,
     clienteDto: {
       id: userInfo.sub,

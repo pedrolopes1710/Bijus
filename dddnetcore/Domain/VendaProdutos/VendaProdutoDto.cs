@@ -7,6 +7,7 @@ namespace dddnetcore.Domain.VendaProdutos
         public Guid ProdutoId { get; set; }
         public int Quantidade { get; set; }
         public decimal PrecoUnitario { get; set; }
+        public string? DetalhesVariante { get; set; }
 
         public VendaProdutoDto() { }
 
@@ -17,6 +18,7 @@ namespace dddnetcore.Domain.VendaProdutos
             this.ProdutoId = vendaProduto.Produto.Id.AsGuid();
             this.Quantidade = vendaProduto.Quantidade.Value;
             this.PrecoUnitario = vendaProduto.PrecoUnitario.Value;
+            this.DetalhesVariante = vendaProduto.DetalhesVariante;
         }
     }
 }

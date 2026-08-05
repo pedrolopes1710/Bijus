@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.Clientes;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DDDSample1.Controllers
 {
@@ -17,6 +18,7 @@ namespace DDDSample1.Controllers
 
         // GET: api/Clientes
         [HttpGet]
+        [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<IEnumerable<ClienteDto>>> GetAll()
         {
             return await _service.GetAllAsync();
@@ -24,6 +26,7 @@ namespace DDDSample1.Controllers
 
         // GET: api/Clientes/5
         [HttpGet("{id}")]
+        [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<ClienteDto>> GetById(Guid id)
         {
             var cliente = await _service.GetByIdAsync(new ClienteId(id));
@@ -56,6 +59,7 @@ namespace DDDSample1.Controllers
 
         // PUT: api/Categorias/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<ClienteDto>> Update(Guid id, ClienteDto dto)
         {
             if (id != dto.Id)
@@ -81,6 +85,7 @@ namespace DDDSample1.Controllers
 
         // DELETE: api/Categorias/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<ClienteDto>> HardDelete(Guid id)
         {
             try

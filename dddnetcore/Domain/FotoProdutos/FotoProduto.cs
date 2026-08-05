@@ -24,5 +24,14 @@ namespace dddnetcore.Domain.FotoProdutos
             this.UrlProduto = urlProduto;
             this.ProdutoId = produtoId;
         }
+
+        public void AtualizarDados(UrlProduto urlProduto, ProdutoId produtoId)
+        {
+            if (urlProduto == null)
+                throw new BusinessRuleValidationException("UrlProduto cannot be null.");
+
+            this.UrlProduto = urlProduto;
+            this.ProdutoId = produtoId;
+        }
     }
 }

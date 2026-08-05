@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.Users;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DDDSample1.Controllers
 {
@@ -16,6 +17,7 @@ namespace DDDSample1.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "superadmin")]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
         {
             try
@@ -30,6 +32,7 @@ namespace DDDSample1.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "superadmin")]
         public async Task<ActionResult<UserDto>> GetById(Guid id)
         {
             try
@@ -52,7 +55,7 @@ namespace DDDSample1.Controllers
         {
             try
             {
-                var user = await _service.AddAsync(dto);
+                var user = await _service.AddClienteAsync(dto);
                 return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
             }
             catch (BusinessRuleValidationException ex)
@@ -65,7 +68,23 @@ namespace DDDSample1.Controllers
             }
         }
 
+        [HttpPost("admin")]
+        [Authorize(Roles = "superadmin")]
+        public async Task<ActionResult<UserDto>> CreateBackofficeUser(CreatingUserDto dto)
+        {
+            try
+            {
+                var user = await _service.AddAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
+            }
+            catch (BusinessRuleValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpPut("{id}")]
+        [Authorize(Roles = "superadmin")]
         public async Task<ActionResult<UserDto>> Update(Guid id, UserDto dto)
         {
             if (id != dto.Id)
@@ -87,6 +106,7 @@ namespace DDDSample1.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "superadmin")]
         public async Task<ActionResult> Delete(Guid id)
         {
             try

@@ -15,6 +15,12 @@ namespace dddnetcore.Infraestructure.Users
                 .HasConversion(
                     id => id.AsGuid(), 
                     guid => new UserId(guid));
+
+            builder.Property(b => b.Role)
+                .HasMaxLength(40)
+                .HasDefaultValue("cliente")
+                .IsRequired();
+
             builder.OwnsOne(b => b.UserName, un =>
             {
                 un.Property(p => p.Nome)

@@ -86,6 +86,14 @@ Ver logs:
 docker compose logs -f
 ```
 
+Para parar sem perder dados:
+
+```bash
+docker compose down
+```
+
+Nao uses `docker compose down -v` a menos que queiras apagar a base de dados e os uploads. Os volumes tem nomes fixos (`bijus_sqlserver_data`, `bijus_api_uploads`) para continuarem a ser reutilizados mesmo que mudes a pasta do projeto.
+
 ## 6. Aceder ao site
 
 No teu PC ou telemóvel, abre:

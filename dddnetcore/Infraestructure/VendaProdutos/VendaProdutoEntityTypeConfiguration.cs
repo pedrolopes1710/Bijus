@@ -27,6 +27,10 @@ namespace dddnetcore.Infraestructure.VendaProdutos
                     v => new PrecoUnitario(v))
                 .IsRequired();
 
+            builder.Property(b => b.DetalhesVariante)
+                .HasMaxLength(1000)
+                .IsRequired(false);
+
             builder.HasOne(b => b.Venda)
                 .WithMany()
                 .HasForeignKey("VendaId")

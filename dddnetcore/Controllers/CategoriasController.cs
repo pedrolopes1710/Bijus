@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.Categorias;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DDDSample1.Controllers
 {
@@ -38,6 +39,7 @@ namespace DDDSample1.Controllers
 
         // POST: api/Categorias
         [HttpPost]
+        [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<CategoriaDto>> Create(CreatingCategoriaDto dto)
         {
             try {
@@ -56,6 +58,7 @@ namespace DDDSample1.Controllers
 
         // PUT: api/Categorias/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<CategoriaDto>> Update(Guid id, CategoriaDto dto)
         {
             if (id != dto.Id)
@@ -81,6 +84,7 @@ namespace DDDSample1.Controllers
 
         // DELETE: api/Categorias/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<CategoriaDto>> HardDelete(Guid id)
         {
             try

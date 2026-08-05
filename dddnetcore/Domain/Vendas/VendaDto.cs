@@ -9,6 +9,15 @@ namespace dddnetcore.Domain.Vendas
         public string VendaEstado { get; set; }
         public double VendaTotal { get; set; }
         public ClienteDto Cliente { get; set; }
+        public string? Transportadora { get; set; }
+        public string? CodigoRastreio { get; set; }
+        public string? UrlRastreio { get; set; }
+        public DateTime? DataEnvio { get; set; }
+        public string? NotasInternas { get; set; }
+        public string? MetodoPagamento { get; set; }
+        public string? PagamentoProvider { get; set; }
+        public string? PagamentoReferencia { get; set; }
+        public string? PagamentoEstado { get; set; }
 
         public VendaDto() { }
 
@@ -19,6 +28,15 @@ namespace dddnetcore.Domain.Vendas
             this.VendaEstado = venda.VendaEstado.ToString();
             this.VendaTotal = venda.VendaTotal.Total;
             this.Cliente = new ClienteDto(venda.Cliente);
+            this.Transportadora = venda.Transportadora;
+            this.CodigoRastreio = venda.CodigoRastreio;
+            this.UrlRastreio = venda.UrlRastreio;
+            this.DataEnvio = venda.DataEnvio;
+            this.NotasInternas = venda.NotasInternas;
+            this.MetodoPagamento = venda.MetodoPagamento;
+            this.PagamentoProvider = venda.PagamentoProvider;
+            this.PagamentoReferencia = venda.PagamentoReferencia;
+            this.PagamentoEstado = venda.PagamentoEstado;
         }
     }
 }

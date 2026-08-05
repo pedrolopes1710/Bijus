@@ -3,8 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import type React from "react"
 import Link from "next/link"
-import { CheckCircle2, Clock3, Loader2, PackageCheck, RefreshCw, ShieldCheck, Truck, XCircle } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { CheckCircle2, Clock3, ExternalLink, Loader2, PackageCheck, RefreshCw, ShieldCheck, Truck, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { fetchVendas } from "@/lib/api"
@@ -76,13 +75,8 @@ export function OrderTracker({ clienteId }: { clienteId?: string }) {
     <div className="space-y-5">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-xl font-semibold">Rastreador de encomendas</h2>
-            <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-800">
-              Dados reais
-            </Badge>
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">Estados confirmados pela loja, sem estimativas inventadas.</p>
+          <h2 className="text-xl font-semibold">Encomendas</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Acompanhe o estado das suas compras.</p>
         </div>
         <Button variant="outline" onClick={loadOrders} disabled={isLoading}>
           {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
@@ -127,7 +121,7 @@ function OrderCard({ order }: { order: Venda }) {
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-semibold">Encomenda #{order.id.slice(0, 8).toUpperCase()}</h3>
+            <h3 className="font-semibold">Encomenda</h3>
             <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium ${meta.tone}`}>
               {meta.icon}
               {meta.label}
@@ -149,10 +143,19 @@ function OrderCard({ order }: { order: Venda }) {
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 border-t pt-4 text-sm sm:grid-cols-2">
-        <Info label="Origem" value="Estado confirmado pela loja" />
-        <Info label="Tracking externo" value={status === "enviada" || status === "entregue" ? "Sem codigo de transportadora configurado" : "Ainda nao aplicavel"} />
-      </div>
+      {(order.transportadora || order.urlRastreio) && (
+        <div className="mt-5 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+          {order.transportadora && <Info label="Transportadora" value={order.transportadora} />}
+          {order.urlRastreio && (
+            <Button asChild variant="outline">
+              <a href={order.urlRastreio} target="_blank" rel="noreferrer">
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Rastrear encomenda
+              </a>
+            </Button>
+          )}
+        </div>
+      )}
     </article>
   )
 }

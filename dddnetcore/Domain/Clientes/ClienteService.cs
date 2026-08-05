@@ -46,9 +46,11 @@ namespace dddnetcore.Domain.Clientes
             if (cliente == null)
                 return null;
 
-            //produto.ChangeNomeProduto(new NomeProduto(dto.Nome));
-            //produto.ChangeDescricaoProduto(new DescricaoProduto(dto.Descricao));
-            //produto.ChangePrecoProduto(new PrecoProduto(dto.Preco));
+            cliente.AtualizarDados(
+                new NomeCliente(dto.Nome),
+                new EmailCliente(dto.Email),
+                new MoradaCliente(dto.Morada)
+            );
 
             await this._unitOfWork.CommitAsync();
 

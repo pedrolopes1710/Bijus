@@ -21,9 +21,22 @@ namespace dddnetcore.Infraestructure.Produtos
             var query = _context.Produtos.AsQueryable();
 
             query = query.Where(produto => produto.Categoria.Id.Equals(new CategoriaId(categoriaId.Value)))
-                .Include(o => o.Categoria);
+                .Include(o => o.Categoria)
+                .Include(o => o.FotoProduto)
+                .Include(o => o.GrupoVariantes).ThenInclude(g => g.Opcoes).ThenInclude(o => o.Valores)
+                .Include(o => o.GrupoVariantes).ThenInclude(g => g.Variantes).ThenInclude(v => v.Valores).ThenInclude(v => v.ValorOpcao).ThenInclude(v => v.Opcao);
 
             return await query.ToListAsync();
+        }
+        public async Task<Produto> GetDetalheAsync(ProdutoId id)
+        {
+            return await _context.Produtos
+                .Include(o => o.Categoria)
+                .Include(o => o.FotoProduto)
+                .Include(o => o.GrupoVariantes).ThenInclude(g => g.Opcoes).ThenInclude(o => o.Valores)
+                .Include(o => o.GrupoVariantes).ThenInclude(g => g.Variantes).ThenInclude(v => v.Valores).ThenInclude(v => v.ValorOpcao).ThenInclude(v => v.Opcao)
+                .AsSplitQuery()
+                .FirstOrDefaultAsync(o => o.Id == id);
         }
         public async Task<Produto> UpdateAsync(Produto produto)
         {
@@ -35,6 +48,9 @@ namespace dddnetcore.Infraestructure.Produtos
             return await _context.Produtos
                 .Include(o => o.Categoria)
                 .Include(o=> o.FotoProduto)
+                .Include(o => o.GrupoVariantes).ThenInclude(g => g.Opcoes).ThenInclude(o => o.Valores)
+                .Include(o => o.GrupoVariantes).ThenInclude(g => g.Variantes).ThenInclude(v => v.Valores).ThenInclude(v => v.ValorOpcao).ThenInclude(v => v.Opcao)
+                .AsSplitQuery()
                 .ToListAsync();
         }
     }

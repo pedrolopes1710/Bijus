@@ -60,7 +60,7 @@ export default function CarrinhoPage() {
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-4">
               {itens.map((item) => (
-                <Card key={item.produto.id} className="p-6">
+                <Card key={item.chave || item.produto.id} className="p-6">
                   <div className="flex gap-6">
                     <div className="relative w-32 h-32 flex-shrink-0 bg-neutral-100 rounded-lg overflow-hidden">
                       <Image
@@ -76,11 +76,12 @@ export default function CarrinhoPage() {
                         <div>
                           <h3 className="font-semibold text-lg">{item.produto.nome}</h3>
                           <p className="text-sm text-neutral-600">{item.produto.categoria.nome}</p>
+                          {item.variante && <p className="mt-1 text-xs text-neutral-500">{Object.entries(item.variante.valores).map(([nome, valor]) => `${nome}: ${valor}`).join(" · ")}</p>}
                         </div>
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => removerDoCarrinho(item.produto.id)}
+                          onClick={() => removerDoCarrinho(item.chave || item.produto.id)}
                           className="text-red-600 hover:text-red-700 hover:bg-red-50"
                         >
                           <Trash2 className="h-5 w-5" />
@@ -92,7 +93,7 @@ export default function CarrinhoPage() {
                           <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => atualizarQuantidade(item.produto.id, item.quantidade - 1)}
+                            onClick={() => atualizarQuantidade(item.chave || item.produto.id, item.quantidade - 1)}
                             disabled={item.quantidade <= 1}
                           >
                             <Minus className="h-4 w-4" />
@@ -101,19 +102,19 @@ export default function CarrinhoPage() {
                           <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => atualizarQuantidade(item.produto.id, item.quantidade + 1)}
-                            disabled={item.quantidade >= item.produto.stock}
+                            onClick={() => atualizarQuantidade(item.chave || item.produto.id, item.quantidade + 1)}
+                            disabled={item.quantidade >= (item.variante?.stock ?? item.produto.stock)}
                           >
                             <Plus className="h-4 w-4" />
                           </Button>
                         </div>
 
                         <div className="text-right">
-                          <p className="text-2xl font-bold">{(item.produto.preco * item.quantidade).toFixed(2)}€</p>
-                          <p className="text-sm text-neutral-600">{item.produto.preco.toFixed(2)}€ cada</p>
+                          <p className="text-2xl font-bold">{((item.precoUnitario ?? item.produto.preco) * item.quantidade).toFixed(2)}€</p>
+                          <p className="text-sm text-neutral-600">{(item.precoUnitario ?? item.produto.preco).toFixed(2)}€ cada</p>
                         </div>
                       </div>
-                      {item.quantidade >= item.produto.stock && (
+                      {item.quantidade >= (item.variante?.stock ?? item.produto.stock) && (
                         <p className="text-xs text-orange-600 mt-2">Stock máximo atingido</p>
                       )}
                     </div>

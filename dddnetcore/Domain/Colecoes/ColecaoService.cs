@@ -103,9 +103,17 @@ namespace dddnetcore.Domain.Colecoes
             if (colecao == null)
                 return null;
 
-            //produto.ChangeNomeProduto(new NomeProduto(dto.Nome));
-            //produto.ChangeDescricaoProduto(new DescricaoProduto(dto.Descricao));
-            //produto.ChangePrecoProduto(new PrecoProduto(dto.Preco));
+            if (!Enum.TryParse<EstadoColecao>(dto.EstadoColecao, out var status))
+            {
+                throw new BusinessRuleValidationException($"Status invÃ¡lido: {dto.EstadoColecao}");
+            }
+
+            colecao.AtualizarDados(
+                new NomeColecao(dto.NomeColecao),
+                new DescricaoColecao(dto.DescricaoColecao),
+                new DataAtualizacaoColecao(DateTime.UtcNow),
+                status
+            );
 
             await this._unitOfWork.CommitAsync();
 

@@ -39,6 +39,7 @@
 
     <!-- Docker / Azure -->
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
+    <PackageReference Include="Stripe.net" Version="52.2.0" />
   </ItemGroup>
 
   <!-- (Opcional) se ainda tens referências antigas de migrations -->

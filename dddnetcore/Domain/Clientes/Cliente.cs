@@ -29,5 +29,24 @@ namespace dddnetcore.Domain.Clientes
             this.EmailCliente = emailCliente;
             this.MoradaCliente = moradaCliente;
         }
+
+        public void AtualizarDados(
+            NomeCliente nomeCliente,
+            EmailCliente emailCliente,
+            MoradaCliente moradaCliente)
+        {
+            if (nomeCliente == null)
+                throw new BusinessRuleValidationException("NomeCliente cannot be null.");
+
+            if (emailCliente == null)
+                throw new BusinessRuleValidationException("EmailCliente cannot be null.");
+
+            if (moradaCliente == null)
+                throw new BusinessRuleValidationException("MoradaCliente cannot be null.");
+
+            this.NomeCliente = nomeCliente;
+            this.EmailCliente = emailCliente;
+            this.MoradaCliente = moradaCliente;
+        }
     }
 }

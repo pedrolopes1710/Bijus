@@ -19,7 +19,7 @@ interface ProductCardProps {
   onToggleFavorite?: (produto: Produto) => void
 }
 
-const FALLBACK_IMAGE = "/uploads/produtos/b804a353-49ba-431e-8263-927432215a9e.jpg"
+const FALLBACK_IMAGE = "/uploads/produtos/feira-caneca-02.jpeg"
 
 export function ProductCard({ produto, onAddToCart, onToggleFavorite }: ProductCardProps) {
   const { adicionarAoCarrinho } = useCart()
@@ -38,6 +38,10 @@ export function ProductCard({ produto, onAddToCart, onToggleFavorite }: ProductC
   const handleAddToCart = (event: React.MouseEvent) => {
     event.preventDefault()
     event.stopPropagation()
+    if ((produto.opcoes || []).length > 0) {
+      window.location.href = href
+      return
+    }
     if (produto.stock > 0) {
       adicionarAoCarrinho(produto)
       onAddToCart?.(produto)
@@ -95,7 +99,7 @@ export function ProductCard({ produto, onAddToCart, onToggleFavorite }: ProductC
             onClick={handleAddToCart}
           >
             <ShoppingBag className="h-4 w-4" />
-            {produto.stock === 0 ? "Esgotado" : adicionado ? "Adicionado" : "Adicionar"}
+            {produto.stock === 0 ? "Esgotado" : (produto.opcoes || []).length > 0 ? "Escolher opções" : adicionado ? "Adicionado" : "Adicionar"}
           </Button>
         </div>
 

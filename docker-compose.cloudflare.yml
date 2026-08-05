@@ -26,6 +26,9 @@ services:
       JwtSettings__Issuer: BijusAPI
       JwtSettings__Audience: BijusUsers
       ALLOWED_ORIGINS: ${FRONTEND_PUBLIC_URL}
+      PublicSiteUrl: ${FRONTEND_PUBLIC_URL}
+      Stripe__SecretKey: ${STRIPE_SECRET_KEY:-}
+      Stripe__WebhookSecret: ${STRIPE_WEBHOOK_SECRET:-}
     volumes:
       - api_uploads:/app/wwwroot/uploads
     networks:
@@ -42,7 +45,9 @@ services:
 
 volumes:
   sqlserver_data:
+    name: bijus_sqlserver_data
   api_uploads:
+    name: bijus_api_uploads
 
 networks:
   bijus:

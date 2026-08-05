@@ -4,7 +4,7 @@ import type React from "react"
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ChevronDown, Heart, LogOut, Menu, PackageSearch, Search, ShieldCheck, ShoppingBag, Sparkles, Truck, User } from "lucide-react"
+import { ChevronDown, Heart, LayoutDashboard, LogOut, Menu, PackageSearch, Search, ShoppingBag, User } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -65,25 +65,6 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-foreground/10 bg-background/92 backdrop-blur-xl supports-[backdrop-filter]:bg-background/78">
-      <div className="border-b border-white/10 bg-foreground text-background">
-        <div className="container mx-auto flex h-9 items-center justify-between gap-4 px-4 text-[11px] font-medium uppercase tracking-[0.22em]">
-          <span className="inline-flex min-w-0 items-center gap-2 truncate">
-            <Sparkles className="h-3.5 w-3.5 text-accent" />
-            Nova montra online
-          </span>
-          <div className="hidden items-center gap-5 text-background/72 md:flex">
-            <span className="inline-flex items-center gap-2">
-              <Truck className="h-3.5 w-3.5" />
-              Entrega cuidada
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Compra segura
-            </span>
-          </div>
-        </div>
-      </div>
-
       <div className="container mx-auto px-4">
         <div className="flex h-[72px] items-center justify-between gap-3">
           <Link href="/" className="group flex shrink-0 items-center gap-3" aria-label={`${STORE_NAME} - inicio`}>
@@ -161,9 +142,6 @@ export function Header() {
                             </p>
                           </div>
                         </div>
-                        <div className="mt-3 inline-flex items-center rounded-md border bg-muted/45 px-2 py-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                          Cliente autenticado
-                        </div>
                       </div>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild className="cursor-pointer">
@@ -190,6 +168,14 @@ export function Header() {
                           Carrinho
                         </Link>
                       </DropdownMenuItem>
+                      {["admin", "superadmin"].includes(usuario?.role?.toLowerCase() || "") && (
+                        <DropdownMenuItem asChild className="cursor-pointer">
+                          <Link href="/backoffice">
+                            <LayoutDashboard className="mr-2 h-4 w-4" />
+                            Abrir backoffice
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={logout} className="cursor-pointer text-destructive">
                         <LogOut className="mr-2 h-4 w-4" />

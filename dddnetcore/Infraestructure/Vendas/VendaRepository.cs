@@ -32,6 +32,12 @@ namespace dddnetcore.Infraestructure.Vendas
             await _context.SaveChangesAsync();
             return venda;
         }
+        public async Task<Venda> GetDetalheAsync(VendaId id)
+        {
+            return await _context.Vendas
+                .Include(venda => venda.Cliente)
+                .FirstOrDefaultAsync(venda => venda.Id == id);
+        }
         public new async Task<List<Venda>> GetAllAsync() {
             return await _context.Vendas
                 .Include(o => o.Cliente)

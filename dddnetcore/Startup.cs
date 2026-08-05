@@ -32,6 +32,9 @@ using dddnetcore.Domain.FotoColecoes;
 using dddnetcore.Infraestructure.FotoColecoes;
 using dddnetcore.Domain.Colecoes;
 using dddnetcore.Infraestructure.Colecoes;
+using dddnetcore.Domain.GruposVariantes;
+using dddnetcore.Infraestructure.GruposVariantes;
+using dddnetcore.Domain.Pagamentos;
 using System;
 using System.Linq;
 using System.Threading;
@@ -177,6 +180,9 @@ namespace DDDSample1
             services.AddTransient<CarrinhoService>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<UserService>();
+            services.AddTransient<IGrupoVariantesRepository, GrupoVariantesRepository>();
+            services.AddTransient<GrupoVariantesService>();
+            services.AddTransient<StripePagamentoService>();
         }
 
         private static void ApplyDatabaseMigrations(IApplicationBuilder app)

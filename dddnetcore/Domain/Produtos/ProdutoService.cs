@@ -2,6 +2,7 @@ using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.Categorias;
 using dddnetcore.Domain.FotoProdutos;
 using Microsoft.AspNetCore.Hosting;
+using dddnetcore.Domain.GruposVariantes;
 
 namespace dddnetcore.Domain.Produtos
 {
@@ -12,14 +13,16 @@ namespace dddnetcore.Domain.Produtos
         private readonly ICategoriaRepository _categoriaRepo;
         private readonly IFotoProdutosRepository _fotoProdutoRepo;
         private readonly IWebHostEnvironment _env;
+        private readonly IGrupoVariantesRepository _grupoVariantesRepo;
 
-        public ProdutoService(IUnitOfWork unitOfWork, IProdutoRepository repo, ICategoriaRepository categoriaRepo, IFotoProdutosRepository fotoProdutoRepo, IWebHostEnvironment env)
+        public ProdutoService(IUnitOfWork unitOfWork, IProdutoRepository repo, ICategoriaRepository categoriaRepo, IFotoProdutosRepository fotoProdutoRepo, IWebHostEnvironment env, IGrupoVariantesRepository grupoVariantesRepo)
         {
             this._unitOfWork = unitOfWork;
             this._repo = repo;
             this._categoriaRepo = categoriaRepo;
             this._fotoProdutoRepo = fotoProdutoRepo;
             this._env = env;
+            this._grupoVariantesRepo = grupoVariantesRepo;
         }
 
         public async Task<List<ProdutoDto>> GetAllAsync(Guid? categoriaId = null) {
@@ -30,7 +33,7 @@ namespace dddnetcore.Domain.Produtos
         }
         public async Task<ProdutoDto> GetByIdAsync(ProdutoId id)
         {
-            var produto = await this._repo.GetByIdAsync(id);
+            var produto = await this._repo.GetDetalheAsync(id);
             return produto == null ? null : new ProdutoDto(produto);
         }
 
@@ -45,7 +48,14 @@ namespace dddnetcore.Domain.Produtos
                 categoria
             );
 
-            // Guarda primeiro o carrinho
+            if (dto.GrupoVariantesId.HasValue)
+            {
+                var grupo = await _grupoVariantesRepo.GetByIdAsync(new GrupoVariantesId(dto.GrupoVariantesId.Value));
+                if (grupo == null) throw new BusinessRuleValidationException("O grupo de variantes selecionado não existe.");
+                produto.DefinirGrupoVariantes(grupo);
+            }
+
+            // Guarda primeiro o produto
             await this._repo.AddAsync(produto);
             await this._unitOfWork.CommitAsync();
 
@@ -82,14 +92,28 @@ namespace dddnetcore.Domain.Produtos
 
        public async Task<ProdutoDto> UpdateAsync(ProdutoDto dto)
         {
-            var produto = await this._repo.GetByIdAsync(new ProdutoId(dto.Id));
+            var produto = await this._repo.GetDetalheAsync(new ProdutoId(dto.Id));
 
             if (produto == null)
                 return null;
 
-            //produto.ChangeNomeProduto(new NomeProduto(dto.Nome));
-            //produto.ChangeDescricaoProduto(new DescricaoProduto(dto.Descricao));
-            //produto.ChangePrecoProduto(new PrecoProduto(dto.Preco));
+            var categoriaId = dto.Categoria?.Id ?? Guid.Empty;
+            var categoria = await this._categoriaRepo.GetByIdAsync(new CategoriaId(categoriaId));
+
+            produto.AtualizarDados(
+                new NomeProduto(dto.Nome),
+                new DescricaoProduto(dto.Descricao),
+                new PrecoProduto(dto.Preco),
+                new StockProduto(dto.Stock),
+                categoria
+            );
+            GrupoVariantes grupo = null;
+            if (dto.GrupoVariantesId.HasValue)
+            {
+                grupo = await _grupoVariantesRepo.GetByIdAsync(new GrupoVariantesId(dto.GrupoVariantesId.Value));
+                if (grupo == null) throw new BusinessRuleValidationException("O grupo de variantes selecionado não existe.");
+            }
+            produto.DefinirGrupoVariantes(grupo);
 
             await this._unitOfWork.CommitAsync();
 

@@ -24,5 +24,14 @@ namespace dddnetcore.Domain.FotoColecoes
             this.UrlColecao = urlColecao;
             this.ColecaoId = colecaoId;
         }
+
+        public void AtualizarDados(UrlColecao urlColecao, ColecaoId colecaoId)
+        {
+            if (urlColecao == null)
+                throw new BusinessRuleValidationException("UrlColecao cannot be null.");
+
+            this.UrlColecao = urlColecao;
+            this.ColecaoId = colecaoId;
+        }
     }
 }

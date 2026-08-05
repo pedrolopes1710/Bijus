@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.FotoProdutos;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DDDSample1.Controllers
 {
@@ -36,8 +37,25 @@ namespace DDDSample1.Controllers
             return foto;
         }
 
+        // POST: api/FotoProdutos
+        [HttpPost]
+        [Authorize(Roles = "admin,superadmin")]
+        public async Task<ActionResult<FotoProdutoDto>> Create([FromForm] CreatingFotoProdutoUploadDto dto)
+        {
+            try
+            {
+                var foto = await _service.AddUploadAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = foto.Id }, foto);
+            }
+            catch (BusinessRuleValidationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
         // PUT: api/FotoProdutos/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<FotoProdutoDto>> Update(Guid id, FotoProdutoDto dto)
         {
             if (id != dto.Id)
@@ -61,8 +79,31 @@ namespace DDDSample1.Controllers
             }
         }
 
+        // PUT: api/FotoProdutos/5/upload
+        [HttpPut("{id}/upload")]
+        [Authorize(Roles = "admin,superadmin")]
+        public async Task<ActionResult<FotoProdutoDto>> ReplaceUpload(Guid id, [FromForm] CreatingFotoProdutoUploadDto dto)
+        {
+            try
+            {
+                var foto = await _service.ReplaceUploadAsync(new FotoProdutoId(id), dto.ProdutoId, dto.Foto);
+
+                if (foto == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(foto);
+            }
+            catch (BusinessRuleValidationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
         // DELETE: api/FotoProdutos/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<FotoProdutoDto>> HardDelete(Guid id)
         {
             try

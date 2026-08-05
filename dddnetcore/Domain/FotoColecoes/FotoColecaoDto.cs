@@ -5,9 +5,9 @@ namespace dddnetcore.Domain.FotoColecoes
     public class FotoColecaoDto
     {
         public Guid Id { get; set; }
-        public string UrlColecao { get; private set; } 
+        public string UrlColecao { get; set; }
 
-        public Guid ColecaoId { get; private set; }
+        public Guid ColecaoId { get; set; }
 
         public FotoColecaoDto() { }
 

@@ -8,5 +8,6 @@ namespace dddnetcore.Domain.Produtos
         public int Stock { get; set; } 
         public Guid CategoriaId { get; set; }
        public List<IFormFile> Fotos { get; set; }
+       public Guid? GrupoVariantesId { get; set; }
     }
 }

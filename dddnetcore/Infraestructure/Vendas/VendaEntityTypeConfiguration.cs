@@ -27,6 +27,26 @@ namespace dddnetcore.Infraestructure.Vendas
                 .HasConversion(
                     b => b.Total,
                     b => new VendaTotal(b)).IsRequired();
+
+            builder.Property(b => b.Transportadora)
+                .HasMaxLength(80);
+
+            builder.Property(b => b.CodigoRastreio)
+                .HasMaxLength(120);
+
+            builder.Property(b => b.UrlRastreio)
+                .HasMaxLength(600);
+
+            builder.Property(b => b.DataEnvio);
+
+            builder.Property(b => b.NotasInternas)
+                .HasMaxLength(1000);
+
+            builder.Property(b => b.MetodoPagamento).HasMaxLength(40);
+            builder.Property(b => b.PagamentoProvider).HasMaxLength(40);
+            builder.Property(b => b.PagamentoReferencia).HasMaxLength(255);
+            builder.Property(b => b.PagamentoEstado).HasMaxLength(80);
+
             builder.HasOne(b => b.Cliente)
                 .WithMany()
                 .HasForeignKey("ClienteId")

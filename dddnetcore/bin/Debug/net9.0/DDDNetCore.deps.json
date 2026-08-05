@@ -23,7 +23,8 @@
           "Microsoft.EntityFrameworkCore.SqlServer": "9.0.3",
           "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.18.1",
           "Newtonsoft.Json": "13.0.3",
-          "RestSharp": "106.15.0"
+          "RestSharp": "106.15.0",
+          "Stripe.net": "52.2.0"
         },
         "runtime": {
           "DDDNetCore.dll": {}
@@ -1066,6 +1067,18 @@
           }
         }
       },
+      "Stripe.net/52.2.0": {
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.3",
+          "System.Configuration.ConfigurationManager": "9.0.4"
+        },
+        "runtime": {
+          "lib/net9.0/Stripe.net.dll": {
+            "assemblyVersion": "52.2.0.0",
+            "fileVersion": "52.2.0.0"
+          }
+        }
+      },
       "System.AppContext/4.3.0": {
         "dependencies": {
           "System.Runtime": "4.3.1"
@@ -1725,14 +1738,7 @@
         }
       },
       "System.Text.Encodings.Web/4.7.2": {},
-      "System.Text.Json/9.0.5": {
-        "runtime": {
-          "lib/net9.0/System.Text.Json.dll": {
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.525.21509"
-          }
-        }
-      },
+      "System.Text.Json/9.0.5": {},
       "System.Text.RegularExpressions/4.3.1": {
         "dependencies": {
           "System.Runtime": "4.3.1"
@@ -2375,6 +2381,13 @@
       "sha512": "sha512-Q+mXeiTxiUYG3lKYF6TS82/SyB4F2613Q1yXTMwg4jWGHEEVC3yrzHtNcI4B3qnDI0+eJsezGJ0V+cToUytHWw==",
       "path": "sprache/2.3.1",
       "hashPath": "sprache.2.3.1.nupkg.sha512"
+    },
+    "Stripe.net/52.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-kStsQTsxalKPyLXVP5ep+t5NL49NNOKmKh+X+I6Fexb2LJUQ2ZUvtj52bkJFJJDaCJJrbeM47y0qvOXqKFwExA==",
+      "path": "stripe.net/52.2.0",
+      "hashPath": "stripe.net.52.2.0.nupkg.sha512"
     },
     "System.AppContext/4.3.0": {
       "type": "package",

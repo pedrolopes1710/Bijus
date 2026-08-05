@@ -14,5 +14,6 @@ ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
 COPY --from=build /app/publish ./
+RUN cp -a /app/wwwroot/uploads /app/seed-uploads
 
-ENTRYPOINT ["dotnet", "DDDNetCore.dll"]
+ENTRYPOINT ["sh", "-c", "mkdir -p /app/wwwroot/uploads && cp -rn /app/seed-uploads/. /app/wwwroot/uploads/ 2>/dev/null || true; exec dotnet DDDNetCore.dll"]

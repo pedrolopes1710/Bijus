@@ -140,6 +140,123 @@ namespace DDDNetCore.Migrations
                     b.ToTable("FotoProdutos");
                 });
 
+            modelBuilder.Entity("dddnetcore.Domain.GruposVariantes.GrupoVariantes", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GruposVariantes");
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.GruposVariantes.OpcaoProduto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("GrupoVariantesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<int>("Ordem")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GrupoVariantesId", "Nome")
+                        .IsUnique();
+
+                    b.ToTable("OpcoesProduto", (string)null);
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.GruposVariantes.ValorOpcaoProduto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CorHex")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("OpcaoProdutoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Ordem")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Valor")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OpcaoProdutoId", "Valor")
+                        .IsUnique();
+
+                    b.ToTable("ValoresOpcaoProduto", (string)null);
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.GruposVariantes.VarianteProduto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Ativa")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("GrupoVariantesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Ordem")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("Preco")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Sku")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GrupoVariantesId");
+
+                    b.ToTable("VariantesProduto", (string)null);
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.GruposVariantes.VarianteProdutoValor", b =>
+                {
+                    b.Property<Guid>("VarianteProdutoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ValorOpcaoProdutoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("VarianteProdutoId", "ValorOpcaoProdutoId");
+
+                    b.HasIndex("ValorOpcaoProdutoId");
+
+                    b.ToTable("VariantesProdutoValores", (string)null);
+                });
+
             modelBuilder.Entity("dddnetcore.Domain.ItensCarrinho.ItemCarrinho", b =>
                 {
                     b.Property<Guid>("Id")
@@ -178,6 +295,9 @@ namespace DDDNetCore.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("GrupoVariantesId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("NomeProduto")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -194,6 +314,8 @@ namespace DDDNetCore.Migrations
 
                     b.HasIndex("ColecaoId");
 
+                    b.HasIndex("GrupoVariantesId");
+
                     b.ToTable("Produtos");
                 });
 
@@ -204,6 +326,13 @@ namespace DDDNetCore.Migrations
 
                     b.Property<Guid>("ClienteId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)")
+                        .HasDefaultValue("cliente");
 
                     b.HasKey("Id");
 
@@ -216,6 +345,10 @@ namespace DDDNetCore.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DetalhesVariante")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<decimal>("PrecoUnitario")
                         .HasColumnType("decimal(18,2)");
@@ -245,6 +378,41 @@ namespace DDDNetCore.Migrations
 
                     b.Property<Guid>("ClienteId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CodigoRastreio")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<DateTime?>("DataEnvio")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MetodoPagamento")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("NotasInternas")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("PagamentoEstado")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("PagamentoProvider")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("PagamentoReferencia")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Transportadora")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("UrlRastreio")
+                        .HasMaxLength(600)
+                        .HasColumnType("nvarchar(600)");
 
                     b.Property<DateTime>("VendaData")
                         .HasColumnType("datetime2");
@@ -317,6 +485,58 @@ namespace DDDNetCore.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("dddnetcore.Domain.GruposVariantes.OpcaoProduto", b =>
+                {
+                    b.HasOne("dddnetcore.Domain.GruposVariantes.GrupoVariantes", "GrupoVariantes")
+                        .WithMany("Opcoes")
+                        .HasForeignKey("GrupoVariantesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GrupoVariantes");
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.GruposVariantes.ValorOpcaoProduto", b =>
+                {
+                    b.HasOne("dddnetcore.Domain.GruposVariantes.OpcaoProduto", "Opcao")
+                        .WithMany("Valores")
+                        .HasForeignKey("OpcaoProdutoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Opcao");
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.GruposVariantes.VarianteProduto", b =>
+                {
+                    b.HasOne("dddnetcore.Domain.GruposVariantes.GrupoVariantes", "GrupoVariantes")
+                        .WithMany("Variantes")
+                        .HasForeignKey("GrupoVariantesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GrupoVariantes");
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.GruposVariantes.VarianteProdutoValor", b =>
+                {
+                    b.HasOne("dddnetcore.Domain.GruposVariantes.ValorOpcaoProduto", "ValorOpcao")
+                        .WithMany()
+                        .HasForeignKey("ValorOpcaoProdutoId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("dddnetcore.Domain.GruposVariantes.VarianteProduto", "Variante")
+                        .WithMany("Valores")
+                        .HasForeignKey("VarianteProdutoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ValorOpcao");
+
+                    b.Navigation("Variante");
+                });
+
             modelBuilder.Entity("dddnetcore.Domain.ItensCarrinho.ItemCarrinho", b =>
                 {
                     b.HasOne("dddnetcore.Domain.Carrinhos.Carrinho", null)
@@ -344,7 +564,14 @@ namespace DDDNetCore.Migrations
                         .WithMany("Produto")
                         .HasForeignKey("ColecaoId");
 
+                    b.HasOne("dddnetcore.Domain.GruposVariantes.GrupoVariantes", "GrupoVariantes")
+                        .WithMany()
+                        .HasForeignKey("GrupoVariantesId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Categoria");
+
+                    b.Navigation("GrupoVariantes");
                 });
 
             modelBuilder.Entity("dddnetcore.Domain.Users.User", b =>
@@ -441,6 +668,23 @@ namespace DDDNetCore.Migrations
                     b.Navigation("FotoColecao");
 
                     b.Navigation("Produto");
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.GruposVariantes.GrupoVariantes", b =>
+                {
+                    b.Navigation("Opcoes");
+
+                    b.Navigation("Variantes");
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.GruposVariantes.OpcaoProduto", b =>
+                {
+                    b.Navigation("Valores");
+                });
+
+            modelBuilder.Entity("dddnetcore.Domain.GruposVariantes.VarianteProduto", b =>
+                {
+                    b.Navigation("Valores");
                 });
 
             modelBuilder.Entity("dddnetcore.Domain.Produtos.Produto", b =>

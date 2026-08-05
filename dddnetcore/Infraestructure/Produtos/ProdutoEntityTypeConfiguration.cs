@@ -2,6 +2,7 @@ using dddnetcore.Domain.Colecoes;
 using dddnetcore.Domain.Produtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using dddnetcore.Domain.GruposVariantes;
 
 namespace dddnetcore.Infraestructure.Produtos
 {
@@ -44,6 +45,12 @@ namespace dddnetcore.Infraestructure.Produtos
                 .WithMany(p => p.Produto)
                 .HasForeignKey("ColecaoId")
                 .IsRequired(false);
+
+            builder.HasOne(b => b.GrupoVariantes)
+                .WithMany()
+                .HasForeignKey("GrupoVariantesId")
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

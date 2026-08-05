@@ -14,13 +14,14 @@ namespace dddnetcore.Infraestructure.FotoProdutos
             _context = context;
         }
 
-        public async Task<List<FotoProduto>> GetFotoProdutoAsync(Guid? fotoProdutoId = null)
+        public async Task<List<FotoProduto>> GetFotoProdutoAsync(Guid? produtoId = null)
         {
             var query = _context.FotoProdutos.AsQueryable();
 
-            if (fotoProdutoId.HasValue)
+            if (produtoId.HasValue)
             {
-                query = query.Where(c => c.Id.AsGuid() == fotoProdutoId.Value);
+                var produtoVo = new dddnetcore.Domain.Produtos.ProdutoId(produtoId.Value);
+                query = query.Where(c => c.ProdutoId.Equals(produtoVo));
             }
 
             return await query.ToListAsync();

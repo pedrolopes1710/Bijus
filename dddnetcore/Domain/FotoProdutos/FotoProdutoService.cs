@@ -1,5 +1,6 @@
 using DDDSample1.Domain.Shared;
-
+using dddnetcore.Domain.Produtos;
+using Microsoft.AspNetCore.Hosting;
 
 namespace dddnetcore.Domain.FotoProdutos
 {
@@ -7,69 +8,72 @@ namespace dddnetcore.Domain.FotoProdutos
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFotoProdutosRepository _repo;
+        private readonly IWebHostEnvironment _env;
 
-        public FotoProdutoService(IUnitOfWork unitOfWork, IFotoProdutosRepository repo)
+        public FotoProdutoService(IUnitOfWork unitOfWork, IFotoProdutosRepository repo, IWebHostEnvironment env)
         {
             this._unitOfWork = unitOfWork;
             this._repo = repo;
+            this._env = env;
         }
 
-        public async Task<List<FotoProdutoDto>> GetAllAsync(Guid? produtoId = null) {
-            if (produtoId != null) {
+        public async Task<List<FotoProdutoDto>> GetAllAsync(Guid? produtoId = null)
+        {
+            if (produtoId != null)
+            {
                 return (await this._repo.GetFotoProdutoAsync(produtoId)).ConvertAll(fotoProduto => new FotoProdutoDto(fotoProduto));
             }
+
             return (await this._repo.GetAllAsync()).ConvertAll(fotoProduto => new FotoProdutoDto(fotoProduto));
         }
+
         public async Task<FotoProdutoDto> GetByIdAsync(FotoProdutoId id)
         {
             var fotoProduto = await this._repo.GetByIdAsync(id);
             return fotoProduto == null ? null : new FotoProdutoDto(fotoProduto);
         }
 
-        /*public async Task<CarrinhoDto> AddAsync(CreatingCarrinhoDto dto)
+        public async Task<FotoProdutoDto> AddUploadAsync(CreatingFotoProdutoUploadDto dto)
         {
-            var cliente = await this._clienteRepo.GetByIdAsync(new ClienteId(dto.ClienteId));
+            var url = await SaveImageAsync(dto.Foto);
+            var fotoProduto = new FotoProduto(new UrlProduto(url), new ProdutoId(dto.ProdutoId));
 
-            var carrinho = new Carrinho(
-                cliente,
-                new DataCriacaoCarrinho(dto.DataCriacao),
-                new DataUltimaAtualizacaoCarrinho(dto.DataAtualizacao)
-            );
-
-            // Guarda primeiro o carrinho
-            await this._repo.AddAsync(carrinho);
+            await this._repo.AddAsync(fotoProduto);
             await this._unitOfWork.CommitAsync();
 
-            // Agora associa os itens (já existe FK válida)
-            if (dto.Items != null)
-            {
-                foreach (var itemCarrinhoId in dto.Items)
-                {
-                    var itemCarrinho = await _itemCarrinhoRepo.GetByIdAsync(new ItemCarrinhoId(itemCarrinhoId));
-                    if (itemCarrinho != null)
-                    {
-                        itemCarrinho.SetCarrinhoId(carrinho.Id);
-                        await _itemCarrinhoRepo.UpdateAsync(itemCarrinho);
-                    }
-                }
+            return new FotoProdutoDto(fotoProduto);
+        }
 
-                await _unitOfWork.CommitAsync();
-            }
-
-            return new CarrinhoDto(carrinho);
-        }*/
-
-
-       public async Task<FotoProdutoDto> UpdateAsync(FotoProdutoDto dto)
+        public async Task<FotoProdutoDto> UpdateAsync(FotoProdutoDto dto)
         {
             var fotoProduto = await this._repo.GetByIdAsync(new FotoProdutoId(dto.Id));
 
             if (fotoProduto == null)
                 return null;
 
-            //produto.ChangeNomeProduto(new NomeProduto(dto.Nome));
-            //produto.ChangeDescricaoProduto(new DescricaoProduto(dto.Descricao));
-            //produto.ChangePrecoProduto(new PrecoProduto(dto.Preco));
+            fotoProduto.AtualizarDados(new UrlProduto(dto.UrlProduto), new ProdutoId(dto.ProdutoId));
+
+            await this._unitOfWork.CommitAsync();
+
+            return new FotoProdutoDto(fotoProduto);
+        }
+
+        public async Task<FotoProdutoDto> ReplaceUploadAsync(FotoProdutoId id, Guid produtoId, IFormFile foto)
+        {
+            var fotoProduto = await this._repo.GetByIdAsync(id);
+
+            if (fotoProduto == null)
+                return null;
+
+            var nextUrl = fotoProduto.UrlProduto.Url;
+
+            if (foto != null && foto.Length > 0)
+            {
+                nextUrl = await SaveImageAsync(foto);
+                DeleteLocalImage(fotoProduto.UrlProduto.Url);
+            }
+
+            fotoProduto.AtualizarDados(new UrlProduto(nextUrl), new ProdutoId(produtoId));
 
             await this._unitOfWork.CommitAsync();
 
@@ -84,9 +88,52 @@ namespace dddnetcore.Domain.FotoProdutos
                 return null;
 
             this._repo.Remove(fotoProduto);
+            DeleteLocalImage(fotoProduto.UrlProduto.Url);
             await this._unitOfWork.CommitAsync();
 
             return new FotoProdutoDto(fotoProduto);
+        }
+
+        private async Task<string> SaveImageAsync(IFormFile foto)
+        {
+            if (foto == null || foto.Length == 0)
+                throw new BusinessRuleValidationException("A imagem e obrigatoria.");
+
+            if (!string.IsNullOrWhiteSpace(foto.ContentType) && !foto.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+                throw new BusinessRuleValidationException("O ficheiro tem de ser uma imagem.");
+
+            var extension = Path.GetExtension(foto.FileName);
+            if (string.IsNullOrWhiteSpace(extension))
+                extension = ".jpg";
+
+            var fileName = $"{Guid.NewGuid()}{extension}";
+            var folderPath = Path.Combine(GetWebRootPath(), "uploads", "produtos");
+
+            Directory.CreateDirectory(folderPath);
+
+            var filePath = Path.Combine(folderPath, fileName);
+
+            using var stream = new FileStream(filePath, FileMode.Create);
+            await foto.CopyToAsync(stream);
+
+            return $"/uploads/produtos/{fileName}";
+        }
+
+        private void DeleteLocalImage(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url) || !url.StartsWith("/uploads/produtos/", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            var fileName = Path.GetFileName(url);
+            var filePath = Path.Combine(GetWebRootPath(), "uploads", "produtos", fileName);
+
+            if (File.Exists(filePath))
+                File.Delete(filePath);
+        }
+
+        private string GetWebRootPath()
+        {
+            return _env.WebRootPath ?? Path.Combine(AppContext.BaseDirectory, "wwwroot");
         }
     }
 }

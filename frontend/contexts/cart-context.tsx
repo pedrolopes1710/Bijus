@@ -2,13 +2,13 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
-import type { ItemCarrinho, Produto, DadosEnvio, DadosPagamento } from "@/lib/types"
+import type { ItemCarrinho, Produto, ProdutoVariante, DadosEnvio, DadosPagamento } from "@/lib/types"
 
 interface CartContextType {
   itens: ItemCarrinho[]
-  adicionarAoCarrinho: (produto: Produto, quantidade?: number) => void
-  removerDoCarrinho: (produtoId: string) => void
-  atualizarQuantidade: (produtoId: string, quantidade: number) => void
+  adicionarAoCarrinho: (produto: Produto, quantidade?: number, variante?: ProdutoVariante) => void
+  removerDoCarrinho: (chave: string) => void
+  atualizarQuantidade: (chave: string, quantidade: number) => void
   limparCarrinho: () => void
   totalItens: number
   totalPreco: number
@@ -51,44 +51,46 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [itens, isLoaded])
 
-  const adicionarAoCarrinho = (produto: Produto, quantidade = 1) => {
+  const adicionarAoCarrinho = (produto: Produto, quantidade = 1, variante?: ProdutoVariante) => {
     setItens((itensAtuais) => {
-      const itemExistente = itensAtuais.find((item) => item.produto.id === produto.id)
+      const chave = variante ? `${produto.id}:${variante.id}` : produto.id
+      const stockDisponivel = variante?.stock ?? produto.stock
+      const itemExistente = itensAtuais.find((item) => (item.chave || item.produto.id) === chave)
 
       if (itemExistente) {
         const novaQuantidade = itemExistente.quantidade + quantidade
-        if (novaQuantidade > produto.stock) {
+        if (novaQuantidade > stockDisponivel) {
           console.warn("Quantidade excede o stock disponível")
           return itensAtuais
         }
         return itensAtuais.map((item) =>
-          item.produto.id === produto.id ? { ...item, quantidade: novaQuantidade } : item,
+          (item.chave || item.produto.id) === chave ? { ...item, quantidade: novaQuantidade } : item,
         )
       }
 
-      if (quantidade > produto.stock) {
+      if (quantidade > stockDisponivel) {
         console.warn("Quantidade excede o stock disponível")
         return itensAtuais
       }
 
-      return [...itensAtuais, { produto, quantidade }]
+      return [...itensAtuais, { produto, quantidade, chave, variante, precoUnitario: variante?.preco ?? produto.preco }]
     })
   }
 
-  const removerDoCarrinho = (produtoId: string) => {
-    setItens((itensAtuais) => itensAtuais.filter((item) => item.produto.id !== produtoId))
+  const removerDoCarrinho = (chave: string) => {
+    setItens((itensAtuais) => itensAtuais.filter((item) => (item.chave || item.produto.id) !== chave))
   }
 
-  const atualizarQuantidade = (produtoId: string, quantidade: number) => {
+  const atualizarQuantidade = (chave: string, quantidade: number) => {
     if (quantidade <= 0) {
-      removerDoCarrinho(produtoId)
+      removerDoCarrinho(chave)
       return
     }
 
     setItens((itensAtuais) =>
       itensAtuais.map((item) => {
-        if (item.produto.id === produtoId) {
-          const novaQuantidade = Math.min(quantidade, item.produto.stock)
+        if ((item.chave || item.produto.id) === chave) {
+          const novaQuantidade = Math.min(quantidade, item.variante?.stock ?? item.produto.stock)
           return { ...item, quantidade: novaQuantidade }
         }
         return item
@@ -103,7 +105,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }
 
   const totalItens = itens.reduce((total, item) => total + item.quantidade, 0)
-  const totalPreco = itens.reduce((total, item) => total + item.produto.preco * item.quantidade, 0)
+  const totalPreco = itens.reduce((total, item) => total + (item.precoUnitario ?? item.produto.preco) * item.quantidade, 0)
 
   return (
     <CartContext.Provider
