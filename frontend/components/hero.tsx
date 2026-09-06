@@ -112,24 +112,24 @@ export function Hero() {
         <div className="container relative mx-auto px-4">
           <div className="flex min-h-[calc(100svh-12rem)] flex-col justify-end pb-7 pt-16 sm:min-h-[calc(100svh-10rem)] lg:pt-20">
             <div className="max-w-4xl pb-8">
-              <div className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-background/18 bg-background/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-background/86 backdrop-blur-md">
+              <div className="animate-fade-up eyebrow eyebrow-plain rounded-full border border-background/18 bg-background/10 px-3.5 py-1.5 text-background/86 backdrop-blur-md">
                 <Sparkles className="h-3.5 w-3.5 text-accent" />
                 Nova montra
               </div>
 
-              <h1 className="animate-fade-up-delay-1 text-shadow-hero mt-5 max-w-[22rem] break-words text-4xl font-black leading-[0.95] tracking-normal text-balance sm:max-w-4xl sm:text-6xl lg:text-8xl">
+              <h1 className="animate-fade-up-delay-1 text-shadow-hero mt-6 max-w-[22rem] break-words font-display text-5xl font-semibold leading-[0.94] tracking-[-0.02em] text-balance sm:max-w-4xl sm:text-7xl lg:text-[6.5rem]">
                 {heroTitle}
               </h1>
 
-              <p className="animate-fade-up-delay-2 mt-6 max-w-[21rem] text-base leading-7 text-background/78 sm:max-w-2xl sm:text-lg lg:text-xl">
-                Uma seleção visual, rápida e pensada para transformar descoberta em desejo: produtos fortes, detalhes
-                claros e um percurso até ao carrinho sem fricção.
+              <p className="animate-fade-up-delay-2 mt-6 max-w-[21rem] text-base leading-7 text-background/76 sm:max-w-2xl sm:text-lg">
+                Peças com curadoria e feitas à mão. Uma montra pensada para transformar descoberta em desejo — do
+                detalhe ao carrinho, sem fricção.
               </p>
 
-              <div className="animate-fade-up-delay-2 mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="animate-fade-up-delay-3 mt-9 flex flex-col gap-3 sm:flex-row">
                 <Button
                   size="lg"
-                  className="commerce-sheen relative h-12 w-full overflow-hidden bg-background text-foreground hover:bg-background/92 sm:w-auto"
+                  className="commerce-sheen relative h-13 w-full overflow-hidden rounded-full bg-background px-7 text-[0.95rem] font-semibold text-foreground shadow-lift transition hover:-translate-y-0.5 hover:bg-background/94 sm:w-auto"
                   asChild
                 >
                   <Link href={collectionHref}>
@@ -140,7 +140,7 @@ export function Hero() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="h-12 border-background/40 bg-background/8 text-background backdrop-blur-md hover:bg-background hover:text-foreground"
+                  className="h-13 rounded-full border-background/35 bg-background/8 px-7 text-[0.95rem] text-background backdrop-blur-md transition hover:bg-background hover:text-foreground"
                   asChild
                 >
                   <Link href="/catalogo">
@@ -210,18 +210,18 @@ export function Hero() {
         )}
       </section>
 
-      <div className="overflow-hidden border-y border-foreground/10 bg-background">
-        <div className="animate-marquee-left flex w-max gap-8 py-3 text-[11px] font-bold uppercase tracking-[0.26em] text-muted-foreground">
+      <div className="overflow-hidden border-y border-foreground/10 bg-card">
+        <div className="animate-marquee-left flex w-max gap-10 py-3.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
           {[...Array(2)].map((_, group) => (
-            <div key={group} className="flex items-center gap-8">
-              <span>Produto em foco</span>
-              <span className="h-1 w-1 rounded-full bg-accent" />
-              <span>Compra sem ruído</span>
-              <span className="h-1 w-1 rounded-full bg-accent" />
-              <span>Categorias em movimento</span>
-              <span className="h-1 w-1 rounded-full bg-accent" />
-              <span>Achados que surpreendem</span>
-              <span className="h-1 w-1 rounded-full bg-accent" />
+            <div key={group} className="flex items-center gap-10">
+              <span>Feito à mão</span>
+              <span className="text-gold">✦</span>
+              <span>Curadoria semanal</span>
+              <span className="text-gold">✦</span>
+              <span>Peças únicas</span>
+              <span className="text-gold">✦</span>
+              <span>Envio cuidado</span>
+              <span className="text-gold">✦</span>
             </div>
           ))}
         </div>
@@ -232,12 +232,12 @@ export function Hero() {
 
 function HeroSignal({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
   return (
-    <div className="rounded-lg border border-background/14 bg-background/10 p-4 text-background backdrop-blur-md">
-      <div className="flex items-center gap-2 text-sm font-bold">
-        <span className="grid h-8 w-8 place-items-center rounded-md bg-background text-foreground">{icon}</span>
+    <div className="rounded-2xl border border-background/14 bg-background/[0.07] p-4 text-background backdrop-blur-md transition duration-300 hover:bg-background/12">
+      <div className="flex items-center gap-2.5 text-sm font-semibold">
+        <span className="grid h-9 w-9 place-items-center rounded-full bg-background text-accent">{icon}</span>
         {title}
       </div>
-      <p className="mt-2 text-xs leading-5 text-background/68">{text}</p>
+      <p className="mt-2.5 text-xs leading-5 text-background/64">{text}</p>
     </div>
   )
 }

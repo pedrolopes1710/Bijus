@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { BorderBeam } from "./border-beam"
 import type { Categoria } from "@/lib/types"
 import { createSlug } from "@/lib/utils"
 import { fetchProdutosPorCategoria, resolveImageUrl } from "@/lib/api"
@@ -58,29 +59,35 @@ export function CategoryCard({ categoria, featured = false, imageUrl }: Category
   return (
     <Link
       href={`/categoria/${createSlug(categoria.nome)}`}
-      className="group relative block h-full min-h-[270px] overflow-hidden rounded-lg bg-foreground text-background shadow-sm transition duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-foreground/12"
+      className="group relative block h-full min-h-[280px] overflow-hidden rounded-2xl bg-foreground text-background shadow-soft ring-1 ring-foreground/5 transition duration-500 hover:-translate-y-1.5 hover:shadow-lift"
     >
       <img
         src={photoUrl || defaultImage}
         alt={categoria.nome}
-        className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.06]"
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 h-full w-full object-cover transition duration-[900ms] ease-out group-hover:scale-[1.08]"
         onError={(event) => {
           event.currentTarget.src = defaultImage
         }}
       />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(0_0_0/.12)_0%,rgb(0_0_0/.18)_38%,rgb(0_0_0/.78)_100%)] transition duration-500 group-hover:bg-[linear-gradient(180deg,rgb(0_0_0/.02)_0%,rgb(0_0_0/.12)_36%,rgb(0_0_0/.82)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(0_0_0/.05)_0%,rgb(0_0_0/.14)_42%,rgb(0_0_0/.8)_100%)] transition duration-500 group-hover:bg-[linear-gradient(180deg,rgb(0_0_0/0)_0%,rgb(0_0_0/.1)_38%,rgb(0_0_0/.86)_100%)]" />
       <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-        <div className="mb-3 inline-flex rounded-full bg-background/14 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-background/82 backdrop-blur-md">
-          {productCount === null ? "Seleção" : `${productCount} produtos`}
+        <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-background/20 bg-background/12 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-background/88 backdrop-blur-md">
+          <span className="text-gold">✦</span>
+          {productCount === null ? "Seleção" : `${productCount} peças`}
         </div>
-        <h3 className={`${featured ? "text-4xl sm:text-5xl" : "text-2xl"} font-black leading-none tracking-normal`}>
+        <h3
+          className={`${featured ? "text-4xl sm:text-5xl" : "text-2xl sm:text-3xl"} font-display font-semibold leading-[0.98] tracking-[-0.01em]`}
+        >
           {categoria.nome}
         </h3>
-        <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-background/86 transition group-hover:text-background">
+        <span className="mt-4 inline-flex translate-y-1 items-center gap-2 text-sm font-semibold text-background/80 opacity-90 transition group-hover:translate-y-0 group-hover:text-background">
           Ver seleção
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1.5" />
         </span>
       </div>
+      {featured && <BorderBeam />}
     </Link>
   )
 }

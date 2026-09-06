@@ -10,15 +10,40 @@ export function Footer() {
         <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr_1fr]">
           <div className="max-w-sm">
             <Link href="/" className="flex items-center gap-3">
-              <span className="grid h-10 w-10 place-items-center rounded-md bg-foreground text-sm font-black text-background">
+              <span className="relative grid h-11 w-11 place-items-center rounded-full bg-foreground font-display text-lg font-semibold italic text-background">
+                <span className="absolute inset-[3px] rounded-full border border-background/25" />
                 B
               </span>
-              <span className="text-xl font-black tracking-tight">{STORE_NAME}</span>
+              <span className="font-display text-2xl font-semibold tracking-tight">{STORE_NAME}</span>
             </Link>
+<<<<<<< Updated upstream
             <p className="mt-4 text-sm leading-6 text-muted-foreground">
               Uma loja online com curadoria, detalhes claros e uma experi&ecirc;ncia visual pensada para transformar descoberta
               em compra.
             </p>
+=======
+            <p className="mt-5 text-sm leading-6 text-muted-foreground">
+              Peças feitas à mão, com curadoria e detalhe. Uma experiência de compra pensada para transformar
+              descoberta em desejo.
+            </p>
+            <div className="mt-6 flex gap-2">
+              <Button variant="outline" size="icon" className="rounded-full transition hover:border-accent/40 hover:text-accent" aria-label="Facebook" asChild>
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                  <Facebook className="h-4 w-4" />
+                </a>
+              </Button>
+              <Button variant="outline" size="icon" className="rounded-full transition hover:border-accent/40 hover:text-accent" aria-label="Instagram" asChild>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                  <Instagram className="h-4 w-4" />
+                </a>
+              </Button>
+              <Button variant="outline" size="icon" className="rounded-full transition hover:border-accent/40 hover:text-accent" aria-label="Email" asChild>
+                <a href="mailto:info@biscuitarte.pt">
+                  <Mail className="h-4 w-4" />
+                </a>
+              </Button>
+            </div>
+>>>>>>> Stashed changes
           </div>
 
           <FooterColumn
@@ -31,8 +56,21 @@ export function Footer() {
             ]}
           />
 
+<<<<<<< Updated upstream
+=======
+          <FooterColumn
+            title="Apoio"
+            links={[
+              { href: "/ajuda#trocas", label: "Trocas e devoluções" },
+              { href: "/ajuda#tamanhos", label: "Guia de tamanhos" },
+              { href: "/ajuda#cuidados", label: "Cuidados" },
+              { href: "/ajuda#garantia", label: "Garantia" },
+            ]}
+          />
+
+>>>>>>> Stashed changes
           <div>
-            <h4 className="text-sm font-black uppercase tracking-[0.2em]">Contacto</h4>
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.26em] text-muted-foreground">Contacto</h4>
             <div className="mt-4 grid gap-3 text-sm text-muted-foreground">
               <span className="flex items-start gap-3">
                 <MapPin className="mt-0.5 h-4 w-4 text-accent" />
@@ -61,8 +99,21 @@ export function Footer() {
           </div>
         </div>
 
+<<<<<<< Updated upstream
         <div className="mt-10 border-t border-foreground/10 pt-6 text-sm text-muted-foreground">
           <p>&copy; 2026 {STORE_NAME}. Todos os direitos reservados.</p>
+=======
+        <div className="mt-10 flex flex-col gap-3 border-t border-foreground/10 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p>© 2026 {STORE_NAME}. Todos os direitos reservados.</p>
+          <div className="flex gap-4">
+            <Link href="/ajuda#privacidade" className="hover:text-foreground">
+              Privacidade
+            </Link>
+            <Link href="/ajuda#termos" className="hover:text-foreground">
+              Termos
+            </Link>
+          </div>
+>>>>>>> Stashed changes
         </div>
       </div>
     </footer>
@@ -72,7 +123,7 @@ export function Footer() {
 function FooterColumn({ title, links }: { title: string; links: { href: string; label: string }[] }) {
   return (
     <div>
-      <h4 className="text-sm font-black uppercase tracking-[0.2em]">{title}</h4>
+      <h4 className="text-[11px] font-bold uppercase tracking-[0.26em] text-muted-foreground">{title}</h4>
       <ul className="mt-4 grid gap-2 text-sm">
         {links.map((link) => (
           <li key={link.label}>

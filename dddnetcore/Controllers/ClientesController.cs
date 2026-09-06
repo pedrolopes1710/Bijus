@@ -84,6 +84,7 @@ namespace DDDSample1.Controllers
         }
 
         // DELETE: api/Categorias/5
+        [Microsoft.AspNetCore.Authorization.Authorize(Roles = "super_admin")]
         [HttpDelete("{id}")]
         [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<ClienteDto>> HardDelete(Guid id)

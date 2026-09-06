@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { fetchCategorias } from "@/lib/api"
 import type { Categoria } from "@/lib/types"
 import { CategoryGrid } from "./category-grid"
+import { Reveal } from "./reveal"
 
 export function Categories() {
   const [categorias, setCategorias] = useState<Categoria[]>([])
@@ -34,31 +35,38 @@ export function Categories() {
   return (
     <section className="bg-muted/45 py-16 sm:py-20 lg:py-24">
       <div className="container mx-auto px-4">
-        <div className="mb-10 grid gap-6 lg:mb-14 lg:grid-cols-[1fr_auto] lg:items-end">
+        <Reveal className="mb-10 grid gap-6 lg:mb-14 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="max-w-3xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-background px-3 py-1 text-xs font-bold uppercase tracking-[0.24em] text-muted-foreground">
-              <LayoutGrid className="h-3.5 w-3.5 text-accent" />
+            <span className="eyebrow mb-5 text-accent">
+              <LayoutGrid className="h-3.5 w-3.5" />
               Explorar por desejo
-            </div>
-            <h2 className="text-4xl font-black leading-[0.98] tracking-normal text-balance sm:text-5xl lg:text-6xl">
-              Entre pelo universo que combina consigo.
+            </span>
+            <h2 className="font-display text-4xl font-semibold leading-[1.02] tracking-[-0.02em] text-balance sm:text-5xl lg:text-6xl">
+              Entre no <span className="accent-italic text-shimmer">universo</span> que é a sua cara.
             </h2>
           </div>
 
-          <Button variant="outline" size="lg" className="h-12 border-foreground/15 bg-background" asChild>
+          <Button
+            variant="outline"
+            size="lg"
+            className="h-12 shrink-0 rounded-full border-foreground/15 bg-card px-6 transition hover:border-accent/40 hover:text-accent"
+            asChild
+          >
             <Link href="/categorias">
               Todas as categorias
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
-        </div>
+        </Reveal>
 
         {error ? (
-          <div className="rounded-lg border border-foreground/10 bg-background px-5 py-8 text-center">
-            <p className="font-medium text-foreground">{error}</p>
+          <div className="rounded-2xl border border-foreground/[0.08] bg-card px-5 py-12 text-center shadow-soft">
+            <p className="font-display text-lg font-semibold text-foreground">{error}</p>
           </div>
         ) : (
-          <CategoryGrid categorias={categorias} loading={loading} />
+          <Reveal delay={120}>
+            <CategoryGrid categorias={categorias} loading={loading} />
+          </Reveal>
         )}
       </div>
     </section>

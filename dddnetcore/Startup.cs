@@ -111,6 +111,8 @@ namespace DDDSample1
                 };
             });
 
+            services.AddAuthorization();
+
             // Serviços da aplicação
             ConfigureMyServices(services);
 

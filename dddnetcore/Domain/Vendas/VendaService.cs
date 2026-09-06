@@ -67,6 +67,7 @@ namespace dddnetcore.Domain.Vendas
             if (venda == null)
                 return null;
 
+<<<<<<< Updated upstream
             if (!Enum.TryParse<VendaEstado>(dto.VendaEstado, out var status))
             {
                 throw new BusinessRuleValidationException($"Status invÃ¡lido: {dto.VendaEstado}");
@@ -85,6 +86,14 @@ namespace dddnetcore.Domain.Vendas
                 dto.DataEnvio,
                 dto.NotasInternas
             );
+=======
+            if (!string.IsNullOrWhiteSpace(dto.VendaEstado))
+            {
+                if (!Enum.TryParse<VendaEstado>(dto.VendaEstado, ignoreCase: true, out var estado))
+                    throw new BusinessRuleValidationException($"Estado inválido: {dto.VendaEstado}");
+                venda.AtualizarEstado(estado);
+            }
+>>>>>>> Stashed changes
 
             await this._unitOfWork.CommitAsync();
 

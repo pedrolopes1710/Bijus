@@ -69,10 +69,10 @@ export default function CheckoutPage() {
     return (
       <ProtectedRoute>
         <Header />
-        <main className="min-h-screen bg-neutral-50 py-12">
+        <main className="min-h-screen bg-muted/30 py-12">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-center py-16">
-              <p className="text-neutral-600">Carregando...</p>
+              <p className="text-muted-foreground">Carregando...</p>
             </div>
           </div>
         </main>
@@ -114,6 +114,7 @@ export default function CheckoutPage() {
         total: totalPreco,
       })
 
+      // Cria as linhas da venda. O backend decrementa o stock de cada produto automaticamente.
       await Promise.all(
         itens.map((item) =>
           criarVendaProduto({
@@ -154,37 +155,37 @@ export default function CheckoutPage() {
   return (
     <ProtectedRoute>
       <Header />
-      <main className="min-h-screen bg-neutral-50 py-12">
+      <main className="min-h-screen bg-muted/30 py-12">
         <div className="container mx-auto px-4 max-w-6xl">
-          <h1 className="text-4xl font-bold mb-8">Finalizar Compra</h1>
+          <h1 className="mb-8 font-display text-4xl font-semibold tracking-[-0.02em] sm:text-5xl">Finalizar compra</h1>
 
           <div className="flex items-center justify-center mb-12">
             <div className="flex items-center gap-4">
-              <div className={`flex items-center gap-2 ${etapa === "envio" ? "text-neutral-900" : "text-neutral-400"}`}>
+              <div className={`flex items-center gap-2 ${etapa === "envio" ? "text-foreground" : "text-muted-foreground"}`}>
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${etapa !== "envio" ? "bg-green-600 text-white" : "bg-neutral-900 text-white"}`}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center ${etapa !== "envio" ? "bg-accent text-white" : "bg-foreground text-white"}`}
                 >
                   {etapa !== "envio" ? <Check className="h-5 w-5" /> : "1"}
                 </div>
                 <span className="font-medium hidden sm:inline">Envio</span>
               </div>
-              <div className="w-16 h-0.5 bg-neutral-300" />
+              <div className="w-16 h-0.5 bg-border" />
               <div
-                className={`flex items-center gap-2 ${etapa === "pagamento" ? "text-neutral-900" : "text-neutral-400"}`}
+                className={`flex items-center gap-2 ${etapa === "pagamento" ? "text-foreground" : "text-muted-foreground"}`}
               >
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${etapa === "confirmacao" ? "bg-green-600 text-white" : etapa === "pagamento" ? "bg-neutral-900 text-white" : "bg-neutral-300"}`}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center ${etapa === "confirmacao" ? "bg-accent text-white" : etapa === "pagamento" ? "bg-foreground text-white" : "bg-border"}`}
                 >
                   {etapa === "confirmacao" ? <Check className="h-5 w-5" /> : "2"}
                 </div>
                 <span className="font-medium hidden sm:inline">Pagamento</span>
               </div>
-              <div className="w-16 h-0.5 bg-neutral-300" />
+              <div className="w-16 h-0.5 bg-border" />
               <div
-                className={`flex items-center gap-2 ${etapa === "confirmacao" ? "text-neutral-900" : "text-neutral-400"}`}
+                className={`flex items-center gap-2 ${etapa === "confirmacao" ? "text-foreground" : "text-muted-foreground"}`}
               >
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${etapa === "confirmacao" ? "bg-neutral-900 text-white" : "bg-neutral-300"}`}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center ${etapa === "confirmacao" ? "bg-foreground text-white" : "bg-border"}`}
                 >
                   3
                 </div>
@@ -283,20 +284,120 @@ export default function CheckoutPage() {
                 <Card className="p-6">
                   <h2 className="text-2xl font-bold mb-6">Método de Pagamento</h2>
                   <form onSubmit={handlePagamentoSubmit} className="space-y-6">
+<<<<<<< Updated upstream
                     <RadioGroup value={metodoPagamento}>
                       <div className="flex items-center space-x-3 border rounded-lg p-4">
+=======
+                    <RadioGroup value={metodoPagamento} onValueChange={(value: any) => setMetodoPagamento(value)}>
+                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/30">
+                        <RadioGroupItem value="cartao" id="cartao" />
+                        <Label htmlFor="cartao" className="flex items-center gap-2 cursor-pointer flex-1">
+                          <CreditCard className="h-5 w-5" />
+                          <span>Cartão de Crédito/Débito</span>
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/30">
+>>>>>>> Stashed changes
                         <RadioGroupItem value="mbway" id="mbway" />
                         <Label htmlFor="mbway" className="flex items-center gap-2 flex-1">
                           <Smartphone className="h-5 w-5" />
                           <span>MB WAY</span>
                         </Label>
                       </div>
+<<<<<<< Updated upstream
                     </RadioGroup>
                     <div className="bg-neutral-100 p-4 rounded-lg">
                       <p className="text-sm text-neutral-600">
                         Será encaminhado para a página segura da Stripe. Introduza aí o número associado ao MB WAY e confirme o pagamento na aplicação.
                       </p>
                     </div>
+=======
+                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/30">
+                        <RadioGroupItem value="transferencia" id="transferencia" />
+                        <Label htmlFor="transferencia" className="flex items-center gap-2 cursor-pointer flex-1">
+                          <Building2 className="h-5 w-5" />
+                          <span>Transferência Bancária</span>
+                        </Label>
+                      </div>
+                    </RadioGroup>
+
+                    {metodoPagamento === "cartao" && (
+                      <div className="space-y-4 pt-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="numeroCartao">Número do Cartão</Label>
+                          <Input
+                            id="numeroCartao"
+                            placeholder="1234 5678 9012 3456"
+                            required
+                            value={dadosPagamentoForm.numeroCartao}
+                            onChange={(e) =>
+                              setDadosPagamentoForm({ ...dadosPagamentoForm, numeroCartao: e.target.value })
+                            }
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="nomeCartao">Nome no Cartão</Label>
+                          <Input
+                            id="nomeCartao"
+                            required
+                            value={dadosPagamentoForm.nomeCartao}
+                            onChange={(e) =>
+                              setDadosPagamentoForm({ ...dadosPagamentoForm, nomeCartao: e.target.value })
+                            }
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="validade">Validade</Label>
+                            <Input
+                              id="validade"
+                              placeholder="MM/AA"
+                              required
+                              value={dadosPagamentoForm.validadeCartao}
+                              onChange={(e) =>
+                                setDadosPagamentoForm({ ...dadosPagamentoForm, validadeCartao: e.target.value })
+                              }
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="cvv">CVV</Label>
+                            <Input
+                              id="cvv"
+                              placeholder="123"
+                              required
+                              value={dadosPagamentoForm.cvv}
+                              onChange={(e) => setDadosPagamentoForm({ ...dadosPagamentoForm, cvv: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {metodoPagamento === "mbway" && (
+                      <div className="space-y-4 pt-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="numeroMbway">Número de Telemóvel</Label>
+                          <Input
+                            id="numeroMbway"
+                            placeholder="+351 912 345 678"
+                            required
+                            value={dadosPagamentoForm.numeroMbway}
+                            onChange={(e) =>
+                              setDadosPagamentoForm({ ...dadosPagamentoForm, numeroMbway: e.target.value })
+                            }
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {metodoPagamento === "transferencia" && (
+                      <div className="bg-muted p-4 rounded-lg">
+                        <p className="text-sm text-muted-foreground">
+                          Após confirmar o pedido, receberá os dados bancários por email para efetuar a transferência.
+                        </p>
+                      </div>
+                    )}
+>>>>>>> Stashed changes
 
                     <div className="flex gap-4">
                       <Button
@@ -323,7 +424,7 @@ export default function CheckoutPage() {
                   <div className="space-y-6">
                     <div>
                       <h3 className="font-semibold mb-2">Dados de Envio</h3>
-                      <div className="text-sm text-neutral-600 space-y-1">
+                      <div className="text-sm text-muted-foreground space-y-1">
                         <p>{dadosEnvioForm.nome}</p>
                         <p>{dadosEnvioForm.email}</p>
                         <p>{dadosEnvioForm.telefone}</p>
@@ -339,7 +440,15 @@ export default function CheckoutPage() {
 
                     <div>
                       <h3 className="font-semibold mb-2">Método de Pagamento</h3>
+<<<<<<< Updated upstream
                       <p className="text-sm text-neutral-600">MB WAY através da Stripe</p>
+=======
+                      <p className="text-sm text-muted-foreground">
+                        {metodoPagamento === "cartao" && "Cartão de Crédito/Débito"}
+                        {metodoPagamento === "mbway" && "MB WAY"}
+                        {metodoPagamento === "transferencia" && "Transferência Bancária"}
+                      </p>
+>>>>>>> Stashed changes
                       <Button variant="link" className="p-0 h-auto" onClick={() => setEtapa("pagamento")}>
                         Editar
                       </Button>
@@ -349,8 +458,13 @@ export default function CheckoutPage() {
                       <h3 className="font-semibold mb-3">Produtos</h3>
                       <div className="space-y-2">
                         {itens.map((item) => (
+<<<<<<< Updated upstream
                           <div key={item.chave || item.produto.id} className="flex justify-between text-sm">
                             <span className="text-neutral-600">
+=======
+                          <div key={item.produto.id} className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">
+>>>>>>> Stashed changes
                               {item.produto.nome} x {item.quantidade}
                             </span>
                             <span className="font-medium">{(item.produto.preco * item.quantidade).toFixed(2)}€</span>
@@ -377,13 +491,13 @@ export default function CheckoutPage() {
               <Card className="p-6 sticky top-4">
                 <h2 className="text-xl font-bold mb-4">Resumo</h2>
                 <div className="space-y-3 mb-4">
-                  <div className="flex justify-between text-neutral-600">
+                  <div className="flex justify-between text-muted-foreground">
                     <span>Subtotal</span>
                     <span>{totalPreco.toFixed(2)}€</span>
                   </div>
-                  <div className="flex justify-between text-neutral-600">
+                  <div className="flex justify-between text-muted-foreground">
                     <span>Envio</span>
-                    <span className="text-green-600 font-medium">Grátis</span>
+                    <span className="text-accent font-medium">Grátis</span>
                   </div>
                   <div className="border-t pt-3 flex justify-between text-xl font-bold">
                     <span>Total</span>

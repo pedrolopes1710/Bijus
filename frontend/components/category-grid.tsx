@@ -15,9 +15,9 @@ export function CategoryGrid({ categorias, loading }: CategoryGridProps) {
         {[...Array(4)].map((_, i) => (
           <div
             key={i}
-            className={`animate-pulse rounded-lg bg-muted ${i === 0 ? "lg:col-span-2 lg:row-span-2" : ""}`}
+            className={`animate-pulse rounded-2xl bg-muted ${i === 0 ? "lg:col-span-2 lg:row-span-2" : ""}`}
           >
-            <div className="h-full min-h-[270px] rounded-lg bg-muted"></div>
+            <div className="h-full min-h-[280px] rounded-2xl bg-muted"></div>
           </div>
         ))}
       </div>

@@ -4,13 +4,20 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+<<<<<<< Updated upstream
 import { Heart, Loader2, LogOut, Package, User } from "lucide-react"
+=======
+import { Check, Heart, Loader2, LogOut, Package, Pencil, RefreshCw, User, X } from "lucide-react"
+>>>>>>> Stashed changes
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
 import { OrderTracker } from "@/components/order-tracker"
 import { useAuth } from "@/contexts/auth-context"
 import { useFavorites } from "@/contexts/favorites-context"
+import { atualizarCliente } from "@/lib/api"
 
 type PerfilTab = "dados" | "encomendas" | "favoritos"
 
@@ -20,6 +27,11 @@ export default function PerfilPage() {
   const router = useRouter()
   const [erro, setErro] = useState("")
   const [active, setActive] = useState<PerfilTab>("dados")
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [form, setForm] = useState({ nome: "", email: "", morada: "" })
+
+  const guidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -31,6 +43,36 @@ export default function PerfilPage() {
     logout()
     router.push("/")
   }
+
+  const iniciarEdicao = () => {
+    setErro("")
+    setForm({
+      nome: usuario?.clienteDto?.nome || "",
+      email: usuario?.clienteDto?.email || "",
+      morada: usuario?.clienteDto?.morada || "",
+    })
+    setEditing(true)
+  }
+
+  const guardarDados = async (event: React.FormEvent) => {
+    event.preventDefault()
+    const clienteId = usuario?.clienteDto?.id
+    if (!clienteId) return
+    setSaving(true)
+    setErro("")
+    try {
+      await atualizarCliente({ id: clienteId, nome: form.nome, email: form.email, morada: form.morada })
+      await recarregarUsuario()
+      setEditing(false)
+    } catch (err) {
+      console.error("Erro ao guardar dados:", err)
+      setErro("Não foi possível guardar as alterações.")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const podeEditar = Boolean(usuario?.clienteDto?.id && guidPattern.test(usuario.clienteDto.id))
 
   if (isLoading) {
     return (
@@ -86,11 +128,79 @@ export default function PerfilPage() {
                   </div>
                 </div>
 
+<<<<<<< Updated upstream
                 <div className="grid gap-4 sm:grid-cols-2">
                   <InfoItem label="Nome" value={cliente?.nome || usuario.userName} />
                   <InfoItem label="Email" value={cliente?.email || "Sem email associado"} />
                   <InfoItem label="Morada" value={cliente?.morada || "Sem morada guardada"} />
                 </div>
+=======
+                {editing ? (
+                  <form onSubmit={guardarDados} className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="perfil-nome">Nome</Label>
+                      <Input
+                        id="perfil-nome"
+                        required
+                        value={form.nome}
+                        onChange={(e) => setForm({ ...form, nome: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="perfil-email">Email</Label>
+                      <Input
+                        id="perfil-email"
+                        type="email"
+                        required
+                        value={form.email}
+                        onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2 sm:col-span-2">
+                      <Label htmlFor="perfil-morada">Morada</Label>
+                      <Input
+                        id="perfil-morada"
+                        value={form.morada}
+                        onChange={(e) => setForm({ ...form, morada: e.target.value })}
+                      />
+                    </div>
+                    <div className="flex gap-3 sm:col-span-2">
+                      <Button type="submit" disabled={saving}>
+                        {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
+                        Guardar
+                      </Button>
+                      <Button type="button" variant="outline" onClick={() => setEditing(false)} disabled={saving}>
+                        <X className="mr-2 h-4 w-4" />
+                        Cancelar
+                      </Button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <InfoItem label="Nome" value={cliente?.nome || usuario.userName} />
+                      <InfoItem label="Email" value={cliente?.email || "Sem email associado"} />
+                      <InfoItem label="Morada" value={cliente?.morada || "Sem morada guardada"} />
+                      <InfoItem label="ID da conta" value={usuario.id} mono />
+                    </div>
+
+                    <div className="mt-6 flex flex-wrap gap-3">
+                      {podeEditar && (
+                        <Button onClick={iniciarEdicao}>
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Editar dados
+                        </Button>
+                      )}
+                      {authProvider === "password" && (
+                        <Button variant="outline" onClick={handleRecarregar} disabled={isRefreshing}>
+                          {isRefreshing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                          Recarregar dados
+                        </Button>
+                      )}
+                    </div>
+                  </>
+                )}
+>>>>>>> Stashed changes
               </div>
             )}
 

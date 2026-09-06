@@ -28,9 +28,14 @@ services:
       JwtSettings__Issuer: BijusAPI
       JwtSettings__Audience: BijusUsers
       ALLOWED_ORIGINS: ${PUBLIC_SITE_URL}
+<<<<<<< Updated upstream
       PublicSiteUrl: ${PUBLIC_SITE_URL}
       Stripe__SecretKey: ${STRIPE_SECRET_KEY:-}
       Stripe__WebhookSecret: ${STRIPE_WEBHOOK_SECRET:-}
+=======
+      ADMIN_USERS: ${ADMIN_USERS}
+      SUPER_ADMIN_USERS: ${SUPER_ADMIN_USERS}
+>>>>>>> Stashed changes
     volumes:
       - api_uploads:/app/wwwroot/uploads
     networks:
@@ -61,8 +66,8 @@ services:
       DOMAIN: ${DOMAIN}
       ACME_EMAIL: ${ACME_EMAIL}
     ports:
-      - "80:80"
-      - "443:443"
+      - "8090:80"
+      - "8453:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data

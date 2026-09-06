@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.Vendas;
 using Microsoft.AspNetCore.Authorization;
@@ -61,7 +62,8 @@ namespace DDDSample1.Controllers
             }
         }
 
-        // PUT: api/Produtos/5
+        // PUT: api/Vendas/5  -> mudar estado da encomenda (logística)
+        [Authorize(Roles = "admin,super_admin")]
         [HttpPut("{id}")]
         [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<VendaDto>> Update(Guid id, VendaDto dto)
@@ -87,7 +89,8 @@ namespace DDDSample1.Controllers
             }
         }
 
-        // DELETE: api/Produtos/5
+        // DELETE: api/Vendas/5
+        [Authorize(Roles = "admin,super_admin")]
         [HttpDelete("{id}")]
         [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<VendaDto>> HardDelete(Guid id)

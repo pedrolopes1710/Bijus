@@ -107,5 +107,11 @@ namespace dddnetcore.Domain.Vendas
             PagamentoEstado = estado;
             if (pago) VendaEstado = VendaEstado.paga;
         }
+
+        /// <summary>Muda o estado da encomenda (gestão de logística).</summary>
+        public void AtualizarEstado(VendaEstado estado)
+        {
+            this.VendaEstado = estado;
+        }
     }
 }

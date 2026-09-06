@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.Produtos;
 using Microsoft.AspNetCore.Authorization;
@@ -17,6 +18,7 @@ namespace DDDSample1.Controllers
         }
 
         // GET: api/Produtos
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProdutoDto>>> GetAll()
         {
@@ -24,6 +26,7 @@ namespace DDDSample1.Controllers
         }
 
         // GET: api/Produtos/5
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<ProdutoDto>> GetById(Guid id)
         {
@@ -38,6 +41,7 @@ namespace DDDSample1.Controllers
         }
 
         // POST: api/Produtos
+        [Authorize(Roles = "super_admin")]
         [HttpPost]
         [Authorize(Roles = "admin,superadmin")]
         public async Task<IActionResult> Create([FromForm] CreatingProdutoDto dto)
@@ -56,7 +60,25 @@ namespace DDDSample1.Controllers
             }
         }
 
+        // PUT: api/Produtos/5/stock  -> gestão de logística (admin) ou super_admin
+        [Authorize(Roles = "admin,super_admin")]
+        [HttpPut("{id}/stock")]
+        public async Task<ActionResult<ProdutoDto>> UpdateStock(Guid id, [FromBody] AtualizarStockDto dto)
+        {
+            try
+            {
+                var produto = await _service.AtualizarStockAsync(id, dto.Stock);
+                if (produto == null) return NotFound();
+                return Ok(produto);
+            }
+            catch (BusinessRuleValidationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
         // PUT: api/Produtos/5
+        [Authorize(Roles = "super_admin")]
         [HttpPut("{id}")]
         [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<ProdutoDto>> Update(Guid id, ProdutoDto dto)
@@ -83,6 +105,7 @@ namespace DDDSample1.Controllers
         }
 
         // DELETE: api/Produtos/5
+        [Authorize(Roles = "super_admin")]
         [HttpDelete("{id}")]
         [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<ProdutoDto>> HardDelete(Guid id)

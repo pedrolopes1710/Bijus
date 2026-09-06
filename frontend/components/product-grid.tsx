@@ -28,14 +28,14 @@ export function ProductGrid({
     return (
       <div className={gridClasses}>
         {[...Array(8)].map((_, i) => (
-          <Card key={i} className="animate-pulse overflow-hidden rounded-lg border-foreground/10 bg-card">
+          <Card key={i} className="animate-pulse overflow-hidden rounded-2xl border-foreground/[0.08] bg-card shadow-soft">
             <CardContent className="p-0">
               <div className="aspect-[4/5] bg-muted"></div>
-              <div className="p-4 space-y-3">
-                <div className="h-3 w-20 rounded bg-muted"></div>
-                <div className="h-5 rounded bg-muted"></div>
-                <div className="h-4 w-28 rounded bg-muted"></div>
-                <div className="h-9 rounded bg-muted"></div>
+              <div className="space-y-3 p-5">
+                <div className="h-3 w-20 rounded-full bg-muted"></div>
+                <div className="h-5 rounded-full bg-muted"></div>
+                <div className="h-4 w-28 rounded-full bg-muted"></div>
+                <div className="h-9 rounded-full bg-muted"></div>
               </div>
             </CardContent>
           </Card>

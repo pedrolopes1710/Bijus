@@ -120,6 +120,19 @@ namespace dddnetcore.Domain.Produtos
             return new ProdutoDto(produto);
         }
 
+        public async Task<ProdutoDto> AtualizarStockAsync(Guid id, int stock)
+        {
+            var produto = await this._repo.GetByIdAsync(new ProdutoId(id));
+
+            if (produto == null)
+                return null;
+
+            produto.DefinirStock(stock);
+            await this._unitOfWork.CommitAsync();
+
+            return new ProdutoDto(produto);
+        }
+
         public async Task<ProdutoDto> DeleteAsync(ProdutoId id)
         {
             var produto = await this._repo.GetByIdAsync(id);

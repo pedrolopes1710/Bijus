@@ -6,8 +6,8 @@ import Link from "next/link"
 import { CheckCircle2, Clock3, ExternalLink, Loader2, PackageCheck, RefreshCw, ShieldCheck, Truck, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { fetchVendas } from "@/lib/api"
-import type { Venda } from "@/lib/types"
+import { fetchProdutos, fetchVendaProdutos, fetchVendas } from "@/lib/api"
+import type { Produto, Venda } from "@/lib/types"
 
 const guidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const trackedSteps = ["pendente", "paga", "enviada", "entregue"]
@@ -22,6 +22,7 @@ const statusMeta: Record<string, { icon: React.ReactNode; label: string; tone: s
 
 export function OrderTracker({ clienteId }: { clienteId?: string }) {
   const [orders, setOrders] = useState<Venda[]>([])
+  const [produtoMap, setProdutoMap] = useState<Record<string, Produto>>({})
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const canLoadOrders = Boolean(clienteId && guidPattern.test(clienteId))
@@ -38,7 +39,9 @@ export function OrderTracker({ clienteId }: { clienteId?: string }) {
     setError("")
 
     try {
-      setOrders(await fetchVendas(clienteId))
+      const [vendas, produtos] = await Promise.all([fetchVendas(clienteId), fetchProdutos().catch(() => [] as Produto[])])
+      setOrders(vendas)
+      setProdutoMap(Object.fromEntries(produtos.map((p) => [p.id, p])))
     } catch (err: any) {
       setError(err.message || "Nao foi possivel carregar encomendas.")
     } finally {
@@ -102,7 +105,7 @@ export function OrderTracker({ clienteId }: { clienteId?: string }) {
       ) : (
         <div className="grid gap-4">
           {sortedOrders.map((order) => (
-            <OrderCard key={order.id} order={order} />
+            <OrderCard key={order.id} order={order} produtoMap={produtoMap} />
           ))}
         </div>
       )}
@@ -110,11 +113,23 @@ export function OrderTracker({ clienteId }: { clienteId?: string }) {
   )
 }
 
-function OrderCard({ order }: { order: Venda }) {
+function OrderCard({ order, produtoMap }: { order: Venda; produtoMap: Record<string, Produto> }) {
   const status = order.vendaEstado?.toLowerCase() || "pendente"
   const meta = statusMeta[status] || statusMeta.pendente
   const currentIndex = trackedSteps.indexOf(status)
   const progress = status === "cancelada" ? 100 : currentIndex >= 0 ? (currentIndex / (trackedSteps.length - 1)) * 100 : 0
+
+  const [linhas, setLinhas] = useState<{ produtoId: string; quantidade: number; precoUnitario: number }[]>([])
+
+  useEffect(() => {
+    let ativo = true
+    fetchVendaProdutos(order.id).then((items) => {
+      if (ativo) setLinhas(items)
+    })
+    return () => {
+      ativo = false
+    }
+  }, [order.id])
 
   return (
     <article className="rounded-lg border bg-background p-5">
@@ -143,6 +158,7 @@ function OrderCard({ order }: { order: Venda }) {
         </div>
       </div>
 
+<<<<<<< Updated upstream
       {(order.transportadora || order.urlRastreio) && (
         <div className="mt-5 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
           {order.transportadora && <Info label="Transportadora" value={order.transportadora} />}
@@ -156,6 +172,29 @@ function OrderCard({ order }: { order: Venda }) {
           )}
         </div>
       )}
+=======
+      {linhas.length > 0 && (
+        <div className="mt-5 border-t pt-4">
+          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Produtos</p>
+          <ul className="grid gap-1.5 text-sm">
+            {linhas.map((linha, i) => (
+              <li key={i} className="flex items-center justify-between gap-3">
+                <span className="truncate text-muted-foreground">
+                  {produtoMap[linha.produtoId]?.nome || `Produto ${linha.produtoId.slice(0, 8)}`}
+                  <span className="text-foreground"> × {linha.quantidade}</span>
+                </span>
+                <span className="font-medium">{formatCurrency(linha.precoUnitario * linha.quantidade)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="mt-5 grid gap-3 border-t pt-4 text-sm sm:grid-cols-2">
+        <Info label="Origem" value="Estado confirmado pela loja" />
+        <Info label="Tracking externo" value={status === "enviada" || status === "entregue" ? "Sem codigo de transportadora configurado" : "Ainda nao aplicavel"} />
+      </div>
+>>>>>>> Stashed changes
     </article>
   )
 }

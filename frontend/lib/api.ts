@@ -1,6 +1,21 @@
-import type { Categoria, Colecao, DadosLogin, DadosRegisto, Produto, Usuario, Venda } from "./types"
+import type { Categoria, Cliente, Colecao, DadosLogin, DadosRegisto, Produto, Usuario, Venda } from "./types"
+import {
+  MOCK_ENABLED,
+  mockCategorias,
+  mockColecao,
+  mockColecoes,
+  mockProdutos,
+  mockProdutosPorCategoria,
+} from "./mock-data"
 
 export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5225/api").replace(/\/$/, "")
+
+/** Cabeçalho Authorization com o JWT guardado (para endpoints protegidos por admin). */
+function authHeaders(): Record<string, string> {
+  if (typeof window === "undefined") return {}
+  const token = window.localStorage.getItem("auth_token")
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
 
 function apiUrl(path: string) {
   if (!API_BASE_URL) {
@@ -41,12 +56,17 @@ export function resolveImageUrl(url: string | undefined | null | { url?: string 
   if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) return rawUrl
 
   const apiHost = API_BASE_URL.replace(/\/api\/?$/, "")
+
+  // Em demo (mocks) as imagens vivem em /public do frontend; com backend real são servidas pela API.
+  if (rawUrl.startsWith("/uploads/")) return MOCK_ENABLED ? rawUrl : `${apiHost}${rawUrl}`
+
   if (rawUrl.startsWith("/")) return `${apiHost}${rawUrl}`
 
   return `${apiHost}/${rawUrl}`
 }
 
 export async function fetchCategorias(): Promise<Categoria[]> {
+  if (MOCK_ENABLED) return mockCategorias
   try {
     return await requestJson<Categoria[]>("/categorias")
   } catch (error) {
@@ -56,6 +76,7 @@ export async function fetchCategorias(): Promise<Categoria[]> {
 }
 
 export async function fetchProdutos(): Promise<Produto[]> {
+  if (MOCK_ENABLED) return mockProdutos
   try {
     return await requestJson<Produto[]>("/produtos")
   } catch (error) {
@@ -65,11 +86,159 @@ export async function fetchProdutos(): Promise<Produto[]> {
 }
 
 export async function fetchProdutosPorCategoria(categoriaId: string): Promise<Produto[]> {
+  if (MOCK_ENABLED) return mockProdutosPorCategoria(categoriaId)
   try {
-    return await requestJson<Produto[]>(`/produtos?categoria=${encodeURIComponent(categoriaId)}`)
+    // O backend não filtra por query, por isso filtramos aqui para a contagem/listagem ficar correta.
+    const todos = await requestJson<Produto[]>("/produtos")
+    return todos.filter((produto) => produto.categoria?.id === categoriaId)
   } catch (error) {
     console.error("Erro ao buscar produtos por categoria:", error)
     throw new Error("Falha ao carregar produtos da categoria. Verifique se a API está a funcionar.")
+  }
+}
+
+/**
+ * Atualiza um produto (usado para decrementar stock após uma venda).
+ * O PUT do backend espera o ProdutoDto completo com o mesmo Id.
+ */
+export async function atualizarProduto(produto: Produto): Promise<void> {
+  if (MOCK_ENABLED) return
+  await requestJson(`/produtos/${produto.id}`, {
+    method: "PUT",
+    body: JSON.stringify(produto),
+  })
+}
+
+// ---------- Gestão de conteúdo (admin) ----------
+
+export async function criarCategoria(nome: string): Promise<Categoria> {
+  return requestJson<Categoria>("/categorias", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ nome }),
+  })
+}
+
+export async function apagarCategoria(id: string): Promise<void> {
+  const response = await fetch(apiUrl(`/categorias/${id}`), { method: "DELETE", headers: authHeaders() })
+  if (!response.ok) throw new Error(await readErrorMessage(response, "Não foi possível apagar a categoria."))
+}
+
+export async function apagarProduto(id: string): Promise<void> {
+  const response = await fetch(apiUrl(`/produtos/${id}`), { method: "DELETE", headers: authHeaders() })
+  if (!response.ok) throw new Error(await readErrorMessage(response, "Não foi possível apagar o produto."))
+}
+
+/** Ajusta o stock de um produto (logística — admin ou super_admin). */
+export async function atualizarStockProduto(id: string, stock: number): Promise<void> {
+  await requestJson(`/produtos/${id}/stock`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify({ stock }),
+  })
+}
+
+/** Lista todos os utilizadores (gestão — super_admin). */
+export async function fetchUsers(): Promise<Usuario[]> {
+  try {
+    return await requestJson<Usuario[]>("/users")
+  } catch (error) {
+    console.error("Erro ao buscar utilizadores:", error)
+    return []
+  }
+}
+
+/** Apaga um utilizador (super_admin). */
+export async function apagarUser(id: string): Promise<void> {
+  const response = await fetch(apiUrl(`/users/${id}`), { method: "DELETE", headers: authHeaders() })
+  if (!response.ok) throw new Error(await readErrorMessage(response, "Não foi possível apagar o utilizador."))
+}
+
+/** Apaga uma coleção (super_admin). */
+export async function apagarColecao(id: string): Promise<void> {
+  const response = await fetch(apiUrl(`/colecoes/${id}`), { method: "DELETE", headers: authHeaders() })
+  if (!response.ok) throw new Error(await readErrorMessage(response, "Não foi possível apagar a coleção."))
+}
+
+/** Cria uma coleção (super_admin) — multipart com produtos e fotos. */
+export async function criarColecao(dados: {
+  nome: string
+  descricao: string
+  estado: string
+  produtoIds: string[]
+  fotos: File[]
+}): Promise<Colecao> {
+  const now = new Date().toISOString()
+  const form = new FormData()
+  form.append("NomeColecao", dados.nome)
+  form.append("DescricaoColecao", dados.descricao)
+  form.append("EstadoColecao", dados.estado)
+  form.append("DataCriacao", now)
+  form.append("DataAtualizacao", now)
+  dados.produtoIds.forEach((id) => form.append("Produtos", id))
+  dados.fotos.forEach((foto) => form.append("Fotos", foto))
+
+  const response = await fetch(apiUrl("/colecoes"), { method: "POST", headers: authHeaders(), body: form })
+  if (!response.ok) throw new Error(await readErrorMessage(response, "Não foi possível criar a coleção."))
+  return response.json()
+}
+
+/** Muda o estado de uma encomenda (logística — admin ou super_admin). */
+export async function atualizarEstadoVenda(venda: Venda, novoEstado: string): Promise<void> {
+  await requestJson(`/vendas/${venda.id}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify({ ...venda, vendaEstado: novoEstado }),
+  })
+}
+
+/**
+ * Cria um produto com fotos. O backend usa multipart/form-data (IFormFile[] "Fotos"),
+ * por isso NÃO definimos Content-Type (o browser adiciona o boundary).
+ */
+export async function criarProduto(dados: {
+  nome: string
+  descricao: string
+  preco: number
+  stock: number
+  categoriaId: string
+  fotos: File[]
+}): Promise<Produto> {
+  const form = new FormData()
+  form.append("Nome", dados.nome)
+  form.append("Descricao", dados.descricao)
+  form.append("Preco", String(dados.preco))
+  form.append("Stock", String(dados.stock))
+  form.append("CategoriaId", dados.categoriaId)
+  dados.fotos.forEach((foto) => form.append("Fotos", foto))
+
+  const response = await fetch(apiUrl("/produtos"), { method: "POST", headers: authHeaders(), body: form })
+  if (!response.ok) throw new Error(await readErrorMessage(response, "Não foi possível criar o produto."))
+  return response.json()
+}
+
+/**
+ * Garante que existe um Cliente real (com GUID) para um utilizador de login social.
+ * Procura por email; se não existir, cria. Devolve o GUID do cliente.
+ */
+export async function resolveClienteId(dados: { nome: string; email: string; morada?: string }): Promise<string | null> {
+  if (MOCK_ENABLED) return null
+  const email = dados.email?.trim().toLowerCase()
+  if (!email) return null
+
+  try {
+    const clientes = await requestJson<Cliente[]>("/clientes").catch(() => [] as Cliente[])
+    const existente = clientes.find((cliente) => cliente.email?.trim().toLowerCase() === email)
+    if (existente?.id) return existente.id
+
+    const novo = await requestJson<{ id: string }>("/clientes", {
+      method: "POST",
+      body: JSON.stringify({ nome: dados.nome, email: dados.email, morada: dados.morada || "" }),
+    })
+    return novo.id || null
+  } catch (error) {
+    console.error("Não foi possível resolver o cliente para login social:", error)
+    return null
   }
 }
 
@@ -110,7 +279,11 @@ export async function registarUsuario(dados: DadosRegisto): Promise<{ usuario: U
   }
 }
 
-export async function loginUsuario(dados: DadosLogin): Promise<{ usuario: Usuario; token: string }> {
+export type UserRole = "super_admin" | "admin" | null
+
+export async function loginUsuario(
+  dados: DadosLogin,
+): Promise<{ usuario: Usuario; token: string; isAdmin: boolean; role: UserRole }> {
   try {
     const result = await requestJson<any>("/users/login", {
       method: "POST",
@@ -150,22 +323,13 @@ export async function loginUsuario(dados: DadosLogin): Promise<{ usuario: Usuari
       throw new Error("Resposta de autenticação inválida.")
     }
 
-    return { usuario, token }
+    const isAdmin = Boolean(result.isAdmin ?? result.IsAdmin ?? tokenPayload.isAdmin ?? tokenPayload.IsAdmin)
+    const roleRaw = result.role ?? result.Role ?? tokenPayload.role ?? tokenPayload.Role ?? null
+    const role: UserRole = roleRaw === "super_admin" || roleRaw === "admin" ? roleRaw : null
+
+    return { usuario, token, isAdmin, role }
   } catch (error) {
     console.error("Erro ao fazer login:", error)
-    throw error
-  }
-}
-
-export async function verificarToken(token: string): Promise<Usuario> {
-  try {
-    return await requestJson<Usuario>("/usuarios/verificar", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-  } catch (error) {
-    console.error("Erro ao verificar token:", error)
     throw error
   }
 }
@@ -187,6 +351,7 @@ export async function fetchUsuario(username: string): Promise<Usuario> {
 }
 
 export async function fetchColecoes(): Promise<Colecao[]> {
+  if (MOCK_ENABLED) return mockColecoes
   try {
     return await requestJson<Colecao[]>("/colecoes")
   } catch (error) {
@@ -196,6 +361,10 @@ export async function fetchColecoes(): Promise<Colecao[]> {
 }
 
 export async function fetchColecao(id: string): Promise<Colecao> {
+  if (MOCK_ENABLED) {
+    const colecao = mockColecao(id)
+    if (colecao) return colecao
+  }
   try {
     return await requestJson<Colecao>(`/colecoes/${id}`)
   } catch (error) {
@@ -238,6 +407,30 @@ export async function criarVenda(dados: {
       total: dados.total,
       urlRastreio: dados.urlRastreio,
     }),
+  })
+}
+
+export interface VendaProdutoLinha {
+  id: string
+  vendaId: string
+  produtoId: string
+  quantidade: number
+  precoUnitario: number
+}
+
+export async function fetchVendaProdutos(vendaId: string): Promise<VendaProdutoLinha[]> {
+  try {
+    return await requestJson<VendaProdutoLinha[]>(`/vendaProdutos?vendaId=${encodeURIComponent(vendaId)}`)
+  } catch (error) {
+    console.error("Erro ao buscar linhas da encomenda:", error)
+    return []
+  }
+}
+
+export async function atualizarCliente(cliente: Cliente): Promise<Cliente> {
+  return requestJson<Cliente>(`/clientes/${cliente.id}`, {
+    method: "PUT",
+    body: JSON.stringify(cliente),
   })
 }
 

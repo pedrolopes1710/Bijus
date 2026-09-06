@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.Users;
 using Microsoft.AspNetCore.Authorization;
@@ -68,6 +69,7 @@ namespace DDDSample1.Controllers
             }
         }
 
+<<<<<<< Updated upstream
         [HttpPost("admin")]
         [Authorize(Roles = "superadmin")]
         public async Task<ActionResult<UserDto>> CreateBackofficeUser(CreatingUserDto dto)
@@ -83,6 +85,9 @@ namespace DDDSample1.Controllers
             }
         }
 
+=======
+        [Authorize(Roles = "super_admin")]
+>>>>>>> Stashed changes
         [HttpPut("{id}")]
         [Authorize(Roles = "superadmin")]
         public async Task<ActionResult<UserDto>> Update(Guid id, UserDto dto)
@@ -105,6 +110,7 @@ namespace DDDSample1.Controllers
             }
         }
 
+        [Authorize(Roles = "super_admin")]
         [HttpDelete("{id}")]
         [Authorize(Roles = "superadmin")]
         public async Task<ActionResult> Delete(Guid id)

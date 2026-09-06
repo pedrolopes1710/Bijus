@@ -1,4 +1,5 @@
 import type { Usuario } from "./types"
+import { resolveClienteId } from "./api"
 
 export type SocialProvider = "google" | "facebook"
 
@@ -172,6 +173,12 @@ export async function completeSocialLogin(code: string, state: string) {
       email,
       morada: "",
     },
+  }
+
+  // Garante um Cliente real (GUID) para que o utilizador social possa comprar e ver encomendas.
+  const clienteId = await resolveClienteId({ nome: name, email, morada: "" })
+  if (clienteId) {
+    usuario.clienteDto.id = clienteId
   }
 
   sessionStorage.removeItem(AUTH_TRANSACTION_KEY)

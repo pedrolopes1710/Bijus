@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace dddnetcore.Domain.Users
 {
@@ -129,11 +131,38 @@ namespace dddnetcore.Domain.Users
             if (!user.UserPassword.VerifyPassword(password))
                 throw new BusinessRuleValidationException("Password incorreta.");
 
+            var role = GetUserRole(user);
             return new LoginResponseDto
             {
                 Token = GenerateJwtToken(user),
-                User = new UserDto(user)
+                User = new UserDto(user),
+                Role = role,
+                IsAdmin = role != null
             };
+        }
+
+        /// <summary>
+        /// Determina o papel do utilizador a partir das allowlists (usernames separados por vírgula):
+        /// SUPER_ADMIN_USERS -> "super_admin" (gere tudo); ADMIN_USERS -> "admin" (logística).
+        /// </summary>
+        private static string GetUserRole(User user)
+        {
+            var username = user.UserName?.Nome?.Trim().ToLowerInvariant();
+            if (string.IsNullOrEmpty(username)) return null;
+
+            if (MatchesAllowlist("SUPER_ADMIN_USERS", username)) return "super_admin";
+            if (MatchesAllowlist("ADMIN_USERS", username)) return "admin";
+            return null;
+        }
+
+        private static bool MatchesAllowlist(string envVar, string username)
+        {
+            var raw = Environment.GetEnvironmentVariable(envVar);
+            if (string.IsNullOrWhiteSpace(raw)) return false;
+
+            return raw
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Any(entry => entry.ToLowerInvariant() == username);
         }
 
         private string GenerateJwtToken(User user)
@@ -141,7 +170,7 @@ namespace dddnetcore.Domain.Users
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSecret));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.AsGuid().ToString()),
                 new Claim(ClaimTypes.Name, user.UserName.Nome),
@@ -149,6 +178,12 @@ namespace dddnetcore.Domain.Users
                 new Claim("role", user.Role),
                 new Claim("cliente_id", user.Cliente.Id.AsGuid().ToString()),
             };
+
+            var role = GetUserRole(user);
+            if (role != null)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var token = new JwtSecurityToken(
                 claims: claims,

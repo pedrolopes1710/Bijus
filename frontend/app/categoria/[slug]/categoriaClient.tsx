@@ -118,31 +118,33 @@ export default function CategoriaClient({ slug }: CategoriaClientProps) {
             <span className="text-foreground">{categoria?.nome}</span>
           </nav>
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold mb-2 text-balance">{categoria?.nome}</h1>
-              <p className="text-lg text-muted-foreground">
-                {produtos.length} {produtos.length === 1 ? "produto disponível" : "produtos disponíveis"}
+              <h1 className="mb-2 font-display text-4xl font-semibold tracking-[-0.02em] text-balance sm:text-5xl">
+                {categoria?.nome}
+              </h1>
+              <p className="text-muted-foreground">
+                {produtos.length} {produtos.length === 1 ? "peça disponível" : "peças disponíveis"}
               </p>
             </div>
             <Link href="/categorias">
-              <Button variant="outline">
+              <Button variant="outline" className="border-foreground/15">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Todas as Categorias
+                Todas as categorias
               </Button>
             </Link>
           </div>
         </div>
 
         {produtos.length > 0 && categoria && (
-          <div className="max-w-md mb-8">
+          <div className="mb-8 max-w-md">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder={`Buscar em ${categoria.nome}...`}
+                placeholder={`Pesquisar em ${categoria.nome}...`}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="h-12 rounded-full pl-11"
               />
             </div>
           </div>

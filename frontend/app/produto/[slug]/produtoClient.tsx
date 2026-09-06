@@ -5,7 +5,7 @@ import { notFound } from "next/navigation"
 import { fetchProdutos } from "@/lib/api"
 import { createSlug } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Heart, ShoppingBag, ArrowLeft, Truck, Shield, RefreshCw, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react"
+import { Heart, ShoppingBag, ArrowLeft, Truck, Sparkles, RefreshCw, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react"
 import useEmblaCarousel from "embla-carousel-react"
 import { resolveImageUrl } from "@/lib/api"
 import Link from "next/link"
@@ -67,8 +67,8 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
     return (
       <>
         <Header />
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <p>Carregando...</p>
+        <div className="flex min-h-[60vh] items-center justify-center bg-background">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
         </div>
         <Footer />
       </>
@@ -109,17 +109,27 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
           <div className="grid md:grid-cols-2 gap-8 mb-12">
             {/* Imagem do produto */}
             <div className="space-y-4">
+<<<<<<< Updated upstream
               <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
                 {stockDisponivel < 10 && stockDisponivel > 0 && (
+=======
+              <div
+                className="relative aspect-square overflow-hidden rounded-2xl bg-muted shadow-soft"
+                style={{ viewTransitionName: "product-media" }}
+              >
+                {produto.stock < 10 && produto.stock > 0 && (
+>>>>>>> Stashed changes
                   <div className="absolute top-4 left-4 z-10">
-                    <span className="px-3 py-1 text-sm font-semibold rounded-full bg-orange-500 text-white">
+                    <span className="rounded-full bg-accent px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-accent-foreground shadow-sm">
                       Últimas unidades
                     </span>
                   </div>
                 )}
                 {stockDisponivel === 0 && (
                   <div className="absolute top-4 left-4 z-10">
-                    <span className="px-3 py-1 text-sm font-semibold rounded-full bg-red-500 text-white">Esgotado</span>
+                    <span className="rounded-full bg-foreground/85 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-background shadow-sm backdrop-blur">
+                      Esgotado
+                    </span>
                   </div>
                 )}
                 {/* Embla slider for product photos */}
@@ -140,19 +150,29 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
               <div>
                 <Link
                   href={`/categoria/${createSlug(produto.categoria.nome)}`}
-                  className="text-sm text-muted-foreground hover:text-accent"
+                  className="eyebrow text-accent hover:opacity-80"
                 >
                   {produto.categoria.nome}
                 </Link>
-                <h1 className="text-3xl font-bold mt-2 text-balance">{produto.nome}</h1>
+                <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.05] tracking-[-0.02em] text-balance sm:text-5xl">
+                  {produto.nome}
+                </h1>
               </div>
 
+<<<<<<< Updated upstream
               <div className="space-y-2">
                 <p className="text-4xl font-bold">{formatPrice(precoAtual)}</p>
                 <p className="text-sm text-muted-foreground">Stock disponível: {stockDisponivel} unidades</p>
+=======
+              <div className="space-y-1">
+                <p className="font-display text-4xl font-semibold tracking-tight">{formatPrice(produto.preco)}</p>
+                <p className="text-sm text-muted-foreground">
+                  {produto.stock > 0 ? `${produto.stock} unidades disponíveis` : "De momento esgotado"}
+                </p>
+>>>>>>> Stashed changes
               </div>
 
-              <p className="text-muted-foreground leading-relaxed">{produto.descricao}</p>
+              <p className="leading-relaxed text-muted-foreground">{produto.descricao}</p>
 
               {(produto.opcoes || []).map((opcao: any) => (
                 <div key={opcao.nome} className="space-y-2">
@@ -215,26 +235,32 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
                 </Button>
               </div>
 
-              <div className="border-t pt-6 space-y-4">
+              <div className="grid gap-4 border-t border-foreground/[0.08] pt-6">
                 <div className="flex items-start gap-3">
-                  <Truck className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent/10 text-accent">
+                    <Sparkles className="h-4 w-4" />
+                  </span>
                   <div>
-                    <p className="font-semibold text-sm">Envio grátis</p>
-                    <p className="text-sm text-muted-foreground">Para encomendas acima de 50€</p>
+                    <p className="text-sm font-semibold">Feito à mão</p>
+                    <p className="text-sm text-muted-foreground">Peça modelada e pintada uma a uma</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Shield className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent/10 text-accent">
+                    <Truck className="h-4 w-4" />
+                  </span>
                   <div>
-                    <p className="font-semibold text-sm">Garantia de 2 anos</p>
-                    <p className="text-sm text-muted-foreground">Cobertura total do fabricante</p>
+                    <p className="text-sm font-semibold">Envio cuidado em 48h</p>
+                    <p className="text-sm text-muted-foreground">Embalagem protegida para peças delicadas</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <RefreshCw className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent/10 text-accent">
+                    <RefreshCw className="h-4 w-4" />
+                  </span>
                   <div>
-                    <p className="font-semibold text-sm">Devoluções em 30 dias</p>
-                    <p className="text-sm text-muted-foreground">Devolução gratuita e sem complicações</p>
+                    <p className="text-sm font-semibold">Devoluções em 14 dias</p>
+                    <p className="text-sm text-muted-foreground">Salvo peças personalizadas por encomenda</p>
                   </div>
                 </div>
               </div>
@@ -243,22 +269,26 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
 
           {/* Produtos relacionados */}
           {produtosRelacionados.length > 0 && (
-            <div className="border-t pt-12">
-              <h2 className="text-2xl font-bold mb-6">Produtos relacionados</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="border-t border-foreground/[0.08] pt-12">
+              <h2 className="mb-8 font-display text-3xl font-semibold tracking-tight">
+                Também vai <span className="accent-italic">gostar</span>
+              </h2>
+              <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
                 {produtosRelacionados.map((p) => (
                   <Link key={p.id} href={`/produto/${createSlug(p.nome)}`} className="group">
-                    <div className="aspect-square overflow-hidden rounded-lg bg-muted mb-3">
+                    <div className="mb-3 aspect-square overflow-hidden rounded-2xl bg-muted shadow-soft">
                       <img
                         src={resolveImageUrl(p.fotos?.[0]?.urlProduto) || "/placeholder.svg"}
                         alt={p.nome}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
                       />
                     </div>
-                    <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-accent transition-colors">
+                    <h3 className="line-clamp-2 font-display text-base font-semibold leading-snug transition-colors group-hover:text-accent">
                       {p.nome}
                     </h3>
-                    <p className="text-sm font-bold mt-1">{formatPrice(p.preco)}</p>
+                    <p className="mt-1 font-display text-lg font-semibold">{formatPrice(p.preco)}</p>
                   </Link>
                 ))}
               </div>
@@ -300,7 +330,7 @@ function EmblaSlider({ fotos }: { fotos: any[] }) {
           <button
             aria-label="Imagem anterior"
             onClick={scrollPrev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white"
+            className="absolute left-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-card/85 text-foreground shadow-md backdrop-blur transition hover:bg-card"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -308,7 +338,7 @@ function EmblaSlider({ fotos }: { fotos: any[] }) {
           <button
             aria-label="Imagem seguinte"
             onClick={scrollNext}
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white"
+            className="absolute right-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-card/85 text-foreground shadow-md backdrop-blur transition hover:bg-card"
           >
             <ChevronRight className="h-5 w-5" />
           </button>

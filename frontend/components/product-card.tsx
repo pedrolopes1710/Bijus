@@ -8,10 +8,12 @@ import { ArrowRight, Heart, ShoppingBag } from "lucide-react"
 import type { Produto } from "@/lib/types"
 import { resolveImageUrl } from "@/lib/api"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { createSlug } from "@/lib/utils"
 import { useCart } from "@/contexts/cart-context"
 import { useFavorites } from "@/contexts/favorites-context"
-import { useState } from "react"
+import { useRef, useState } from "react"
+import { startViewTransition } from "@/lib/view-transition"
 
 interface ProductCardProps {
   produto: Produto
@@ -27,6 +29,46 @@ export function ProductCard({ produto, onAddToCart, onToggleFavorite }: ProductC
   const [adicionado, setAdicionado] = useState(false)
   const isFavorito = isFavorite(produto.id)
   const href = `/produto/${createSlug(produto.nome)}`
+  const router = useRouter()
+  const mediaRef = useRef<HTMLDivElement>(null)
+
+  const openProduct = (event: React.MouseEvent) => {
+    // Deixa passar cliques com modificador / botão do meio (abrir noutro separador)
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button === 1) return
+    event.preventDefault()
+    if (mediaRef.current) mediaRef.current.style.viewTransitionName = "product-media"
+    startViewTransition(
+      () => router.push(href),
+      () => {
+        if (mediaRef.current) mediaRef.current.style.viewTransitionName = ""
+      },
+    )
+  }
+
+  // Tilt 3D: inclina o cartão e move o brilho consoante o cursor.
+  const handleTiltMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (typeof window !== "undefined" && !window.matchMedia("(pointer: fine)").matches) return
+    const el = event.currentTarget
+    const rect = el.getBoundingClientRect()
+    const px = (event.clientX - rect.left) / rect.width
+    const py = (event.clientY - rect.top) / rect.height
+    const max = 5.5
+    el.style.setProperty("--tilt-y", `${(px - 0.5) * max * 2}deg`)
+    el.style.setProperty("--tilt-x", `${(0.5 - py) * max * 2}deg`)
+    el.style.setProperty("--glare-x", `${px * 100}%`)
+    el.style.setProperty("--glare-y", `${py * 100}%`)
+  }
+
+  const handleTiltEnter = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.currentTarget.classList.add("tilt-active")
+  }
+
+  const handleTiltLeave = (event: React.MouseEvent<HTMLDivElement>) => {
+    const el = event.currentTarget
+    el.classList.remove("tilt-active")
+    el.style.setProperty("--tilt-x", "0deg")
+    el.style.setProperty("--tilt-y", "0deg")
+  }
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("pt-PT", {
@@ -61,23 +103,39 @@ export function ProductCard({ produto, onAddToCart, onToggleFavorite }: ProductC
   const stockLabel = produto.stock === 0 ? "Esgotado" : produto.stock < 10 ? "Ultimas unidades" : "Em stock"
 
   return (
-    <Card className="group overflow-hidden rounded-lg border border-foreground/10 bg-card shadow-sm transition duration-500 hover:-translate-y-1 hover:border-foreground/18 hover:shadow-2xl hover:shadow-foreground/10">
+    <Card
+      className="tilt group relative overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card shadow-soft transition-[box-shadow,border-color] duration-500 hover:border-accent/25 hover:shadow-lift"
+      onMouseMove={handleTiltMove}
+      onMouseEnter={handleTiltEnter}
+      onMouseLeave={handleTiltLeave}
+    >
+      <span className="tilt-glare" />
       <CardContent className="p-0">
-        <div className="relative aspect-[4/5] overflow-hidden bg-muted">
-          <Link href={href} aria-label={`Ver ${produto.nome}`} className="block h-full">
+        <div ref={mediaRef} className="relative aspect-[4/5] overflow-hidden bg-muted">
+          <Link href={href} aria-label={`Ver ${produto.nome}`} className="block h-full" onClick={openProduct}>
             <img
               src={imageUrl}
               alt={produto.nome}
-              className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-[1.07]"
               onError={(event) => {
                 event.currentTarget.src = FALLBACK_IMAGE
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-foreground/46 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+            <div className="absolute inset-0 bg-gradient-to-t from-foreground/50 via-foreground/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
           </Link>
 
           <div className="absolute left-3 top-3 z-10 flex flex-wrap gap-2">
-            <span className="rounded-full bg-background/92 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-foreground shadow-sm backdrop-blur">
+            <span
+              className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] shadow-sm backdrop-blur ${
+                produto.stock === 0
+                  ? "bg-foreground/85 text-background"
+                  : produto.stock < 10
+                    ? "bg-accent text-accent-foreground"
+                    : "bg-card/92 text-foreground"
+              }`}
+            >
               {stockLabel}
             </span>
           </div>
@@ -85,33 +143,39 @@ export function ProductCard({ produto, onAddToCart, onToggleFavorite }: ProductC
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-3 top-3 z-10 rounded-md bg-background/90 text-foreground shadow-sm backdrop-blur hover:bg-background"
+            className="absolute right-3 top-3 z-10 rounded-full bg-card/90 text-foreground shadow-sm backdrop-blur transition hover:scale-110 hover:bg-card"
             onClick={handleToggleFavorite}
             aria-label={isFavorito ? "Remover dos favoritos" : "Adicionar aos favoritos"}
           >
-            <Heart className={`h-4 w-4 ${isFavorito ? "fill-accent text-accent" : ""}`} />
+            <Heart className={`h-4 w-4 transition ${isFavorito ? "scale-110 fill-accent text-accent" : ""}`} />
           </Button>
 
           <Button
             size="sm"
             disabled={produto.stock === 0}
-            className="absolute bottom-3 left-3 right-3 z-10 h-10 translate-y-3 bg-background text-foreground opacity-0 shadow-xl transition duration-300 hover:bg-background/92 disabled:opacity-70 group-hover:translate-y-0 group-hover:opacity-100"
+            className="absolute bottom-3 left-3 right-3 z-10 h-10 translate-y-3 rounded-full bg-card text-foreground opacity-0 shadow-xl transition duration-300 hover:bg-card/92 disabled:opacity-70 group-hover:translate-y-0 group-hover:opacity-100"
             onClick={handleAddToCart}
           >
             <ShoppingBag className="h-4 w-4" />
+<<<<<<< Updated upstream
             {produto.stock === 0 ? "Esgotado" : (produto.opcoes || []).length > 0 ? "Escolher opções" : adicionado ? "Adicionado" : "Adicionar"}
+=======
+            {produto.stock === 0 ? "Esgotado" : adicionado ? "Adicionado ✓" : "Adicionar"}
+>>>>>>> Stashed changes
           </Button>
         </div>
 
-        <div className="space-y-4 p-4">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between gap-3 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+        <div className="space-y-3.5 p-5">
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
               <span className="truncate">{produto.categoria?.nome || "Produto"}</span>
-              <span>{produto.stock > 0 ? `${produto.stock} disp.` : "0 disp."}</span>
+              <span className={produto.stock > 0 ? "text-muted-foreground" : "text-accent"}>
+                {produto.stock > 0 ? `${produto.stock} disp.` : "Esgotado"}
+              </span>
             </div>
 
-            <Link href={href} className="group/title block">
-              <h3 className="line-clamp-2 min-h-[2.5rem] text-base font-black leading-5 transition-colors group-hover/title:text-accent">
+            <Link href={href} className="group/title block" onClick={openProduct}>
+              <h3 className="line-clamp-2 min-h-[2.75rem] font-display text-lg font-semibold leading-[1.15] tracking-[-0.01em] transition-colors group-hover/title:text-accent">
                 {produto.nome}
               </h3>
             </Link>
@@ -119,10 +183,15 @@ export function ProductCard({ produto, onAddToCart, onToggleFavorite }: ProductC
             <p className="line-clamp-2 min-h-[2.5rem] text-sm leading-5 text-muted-foreground">{produto.descricao}</p>
           </div>
 
-          <div className="flex items-center justify-between gap-3 border-t border-foreground/10 pt-4">
-            <span className="text-xl font-black tracking-tight">{formatPrice(produto.preco)}</span>
-            <Button variant="ghost" size="icon" className="rounded-md hover:bg-muted" asChild>
-              <Link href={href} aria-label={`Abrir ${produto.nome}`}>
+          <div className="flex items-center justify-between gap-3 border-t border-foreground/[0.08] pt-3.5">
+            <span className="font-display text-2xl font-semibold tracking-tight">{formatPrice(produto.preco)}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full text-accent transition hover:bg-accent hover:text-accent-foreground"
+              asChild
+            >
+              <Link href={href} aria-label={`Abrir ${produto.nome}`} onClick={openProduct}>
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.Categorias;
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +8,7 @@ namespace DDDSample1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "super_admin")]
     public class CategoriasController : ControllerBase
     {
         private readonly CategoriaService _service;
@@ -17,6 +19,7 @@ namespace DDDSample1.Controllers
         }
 
         // GET: api/Categorias
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoriaDto>>> GetAll()
         {
@@ -24,6 +27,7 @@ namespace DDDSample1.Controllers
         }
 
         // GET: api/Categorias/5
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoriaDto>> GetById(Guid id)
         {
