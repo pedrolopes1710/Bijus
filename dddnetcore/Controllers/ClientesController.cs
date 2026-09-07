@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.Clientes;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace DDDSample1.Controllers
 {
@@ -57,14 +58,21 @@ namespace DDDSample1.Controllers
             }
         }
 
-        // PUT: api/Categorias/5
+        // PUT: api/Clientes/5  -> o próprio cliente ou um gestor podem editar
         [HttpPut("{id}")]
-        [Authorize(Roles = "admin,superadmin")]
+        [Authorize]
         public async Task<ActionResult<ClienteDto>> Update(Guid id, ClienteDto dto)
         {
             if (id != dto.Id)
             {
                 return BadRequest();
+            }
+
+            var proprio = string.Equals(User.FindFirstValue("cliente_id"), id.ToString(), StringComparison.OrdinalIgnoreCase);
+            var gestor = User.IsInRole("admin") || User.IsInRole("superadmin");
+            if (!proprio && !gestor)
+            {
+                return Forbid();
             }
 
             try
@@ -84,7 +92,7 @@ namespace DDDSample1.Controllers
         }
 
         // DELETE: api/Categorias/5
-        [Microsoft.AspNetCore.Authorization.Authorize(Roles = "super_admin")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Roles = "superadmin")]
         [HttpDelete("{id}")]
         [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<ClienteDto>> HardDelete(Guid id)

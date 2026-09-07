@@ -10,10 +10,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/contexts/auth-context"
 import { beginSocialLogin, isSocialLoginConfigured, type SocialProvider } from "@/lib/social-auth"
+import { GoogleSignInButton } from "@/components/google-signin-button"
 
 export default function LoginPage() {
   const router = useRouter()
-  const { isAuthenticated, isLoading: authLoading, login } = useAuth()
+  const { isAuthenticated, isLoading: authLoading, login, loginGoogle } = useAuth()
   const [userOrEmail, setUserOrEmail] = useState("")
   const [password, setPassword] = useState("")
   const [mostrarSenha, setMostrarSenha] = useState(false)
@@ -25,10 +26,15 @@ export default function LoginPage() {
   const socialConfigured = isSocialLoginConfigured()
 
   useEffect(() => {
-    const redirect = new URLSearchParams(window.location.search).get("redirect")
+    const params = new URLSearchParams(window.location.search)
+    const redirect = params.get("redirect")
 
     if (redirect?.startsWith("/") && !redirect.startsWith("//") && !redirect.startsWith("/login")) {
       setRedirectTo(redirect)
+    }
+
+    if (params.get("expirado") === "1") {
+      setErro("A sua sessão expirou. Inicie sessão novamente para continuar.")
     }
 
     setIsRedirectReady(true)
@@ -60,6 +66,16 @@ export default function LoginPage() {
       setErro(error.message || "Não foi possível iniciar sessão. Tente novamente.")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleGoogle = async (idToken: string) => {
+    setErro("")
+    try {
+      await loginGoogle(idToken)
+      router.push(redirectTo)
+    } catch (error: any) {
+      setErro(error.message || "Não foi possível entrar com o Google.")
     }
   }
 
@@ -122,6 +138,15 @@ export default function LoginPage() {
                 {erro}
               </div>
             )}
+
+            <>
+              <GoogleSignInButton onCredential={handleGoogle} onError={setErro} text="continue_with" />
+              <div className="my-7 flex items-center gap-4">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-xs uppercase tracking-wide text-muted-foreground">ou</span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+            </>
 
             {socialConfigured && (
               <>

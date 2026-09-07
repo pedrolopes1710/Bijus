@@ -8,7 +8,7 @@ namespace DDDSample1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "super_admin")]
+    [Authorize(Roles = "superadmin")]
     public class FotoProdutosController : ControllerBase
     {
         private readonly FotoProdutoService _service;

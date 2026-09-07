@@ -81,10 +81,14 @@ namespace dddnetcore.Domain.Pagamentos
             var options = new SessionCreateOptions
             {
                 Mode = "payment",
-                PaymentMethodTypes = new List<string> { "mb_way" },
+                // Embedded: o formulário da Stripe é renderizado dentro da nossa página de checkout.
+                UiMode = "embedded_page",
+                // Lista explícita: o modo dinâmico NÃO inclui o Multibanco (método diferido/voucher),
+                // por isso indicamos os métodos manualmente para garantir Multibanco (entidade/referência).
+                PaymentMethodTypes = new List<string> { "card", "mb_way", "multibanco", "klarna", "bancontact", "eps" },
                 CustomerEmail = venda.Cliente.EmailCliente.Email,
-                SuccessUrl = $"{_siteUrl}/pedido-confirmado?session_id={{CHECKOUT_SESSION_ID}}",
-                CancelUrl = $"{_siteUrl}/checkout?pagamento=cancelado",
+                // Em modo embedded usa-se ReturnUrl (não SuccessUrl/CancelUrl).
+                ReturnUrl = $"{_siteUrl}/pedido-confirmado?session_id={{CHECKOUT_SESSION_ID}}",
                 LineItems = lineItems,
                 Metadata = new Dictionary<string, string> { ["venda_id"] = vendaId.ToString() },
                 PaymentIntentData = new SessionPaymentIntentDataOptions
@@ -98,23 +102,33 @@ namespace dddnetcore.Domain.Pagamentos
                 IdempotencyKey = $"mbway-venda-{vendaId}"
             });
 
-            venda.PrepararPagamento("mbway", "stripe", session.Id, session.PaymentStatus ?? "unpaid", (double)total);
+            venda.PrepararPagamento("stripe", "stripe", session.Id, session.PaymentStatus ?? "unpaid", (double)total);
             await _unitOfWork.CommitAsync();
 
-            return new CheckoutMbWayDto { VendaId = vendaId, SessionId = session.Id, Url = session.Url };
+            return new CheckoutMbWayDto
+            {
+                VendaId = vendaId,
+                SessionId = session.Id,
+                Url = session.Url ?? string.Empty,
+                ClientSecret = session.ClientSecret ?? string.Empty
+            };
         }
 
         public async Task<EstadoPagamentoDto> ObterEstadoAsync(string sessionId, Guid clienteId)
         {
             ValidarConfiguracao(requireWebhook: false);
-            var session = await new SessionService(new StripeClient(_secretKey)).GetAsync(sessionId);
+            var client = new StripeClient(_secretKey);
+            var session = await new SessionService(client).GetAsync(
+                sessionId,
+                new SessionGetOptions { Expand = new List<string> { "payment_intent.payment_method" } });
             var vendaId = ObterVendaId(session);
             var venda = await _vendaRepo.GetDetalheAsync(new VendaId(vendaId));
             if (venda == null || venda.Cliente.Id.AsGuid() != clienteId)
                 throw new BusinessRuleValidationException("Pagamento não encontrado.");
 
             var pago = session.PaymentStatus == "paid";
-            venda.AtualizarPagamento(session.PaymentStatus ?? session.Status ?? "unknown", pago);
+            var metodo = session.PaymentIntent?.PaymentMethod?.Type;
+            venda.AtualizarPagamento(session.PaymentStatus ?? session.Status ?? "unknown", pago, metodo);
             await _unitOfWork.CommitAsync();
             return new EstadoPagamentoDto { VendaId = vendaId, Estado = venda.PagamentoEstado ?? "unknown", Pago = pago };
         }
@@ -133,7 +147,21 @@ namespace dddnetcore.Domain.Pagamentos
             var vendaId = ObterVendaId(session);
             var venda = await _vendaRepo.GetDetalheAsync(new VendaId(vendaId));
             if (venda == null) return;
-            venda.AtualizarPagamento(pago ? "paid" : stripeEvent.Type, pago);
+
+            string? metodo = null;
+            if (!string.IsNullOrWhiteSpace(session.PaymentIntentId))
+            {
+                try
+                {
+                    var pi = await new PaymentIntentService(new StripeClient(_secretKey)).GetAsync(
+                        session.PaymentIntentId,
+                        new PaymentIntentGetOptions { Expand = new List<string> { "payment_method" } });
+                    metodo = pi?.PaymentMethod?.Type;
+                }
+                catch (StripeException) { /* método é acessório; não bloquear a confirmação */ }
+            }
+
+            venda.AtualizarPagamento(pago ? "paid" : stripeEvent.Type, pago, metodo);
             await _unitOfWork.CommitAsync();
         }
 

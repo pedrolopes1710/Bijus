@@ -35,33 +35,16 @@ namespace dddnetcore.Domain.VendaProdutos
 
         public async Task<VendaProdutoDto> AddAsync(CreatingVendaProdutoDto dto)
         {
-<<<<<<< Updated upstream
             var venda = await _vendaRepo.GetByIdAsync(new VendaId(dto.VendaId));
             var produto = await _produtoRepo.GetByIdAsync(new ProdutoId(dto.ProdutoId));
             var item = new VendaProduto(venda, produto, new Quantidade(dto.Quantidade), new PrecoUnitario(dto.PrecoUnitario), dto.DetalhesVariante);
             await _repo.AddAsync(item);
-            await _unitOfWork.CommitAsync();
-            return new VendaProdutoDto(item);
-=======
-            var venda = await this._vendaRepo.GetByIdAsync(new VendaId(dto.VendaId));
-            var produto = await this._produtoRepo.GetByIdAsync(new ProdutoId(dto.ProdutoId));
-
-            var vendaProduto = new VendaProduto(
-                venda,
-                produto,
-                new Quantidade(dto.Quantidade),
-                new PrecoUnitario(dto.PrecoUnitario)
-            );
-
-            await this._repo.AddAsync(vendaProduto);
 
             // Decrementa o stock do produto vendido (regra de negócio no servidor).
             produto?.ReduzirStock(dto.Quantidade);
 
-            await this._unitOfWork.CommitAsync();
-
-            return new VendaProdutoDto(vendaProduto);
->>>>>>> Stashed changes
+            await _unitOfWork.CommitAsync();
+            return new VendaProdutoDto(item);
         }
 
         public async Task<VendaProdutoDto> DeleteAsync(VendaProdutoId id)

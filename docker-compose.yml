@@ -28,14 +28,18 @@ services:
       JwtSettings__Issuer: BijusAPI
       JwtSettings__Audience: BijusUsers
       ALLOWED_ORIGINS: ${PUBLIC_SITE_URL}
-<<<<<<< Updated upstream
       PublicSiteUrl: ${PUBLIC_SITE_URL}
       Stripe__SecretKey: ${STRIPE_SECRET_KEY:-}
       Stripe__WebhookSecret: ${STRIPE_WEBHOOK_SECRET:-}
-=======
       ADMIN_USERS: ${ADMIN_USERS}
       SUPER_ADMIN_USERS: ${SUPER_ADMIN_USERS}
->>>>>>> Stashed changes
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME:-Biscuit&Arte}
     volumes:
       - api_uploads:/app/wwwroot/uploads
     networks:
@@ -50,9 +54,24 @@ services:
         NEXT_PUBLIC_AUTH0_CLIENT_ID: ${NEXT_PUBLIC_AUTH0_CLIENT_ID}
         NEXT_PUBLIC_AUTH0_REDIRECT_URI: ${PUBLIC_SITE_URL}/auth/callback
         NEXT_PUBLIC_AUTH0_AUDIENCE: ${NEXT_PUBLIC_AUTH0_AUDIENCE}
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
     restart: unless-stopped
     depends_on:
       - api
+    networks:
+      - bijus
+
+  # [APENAS DEV] Encaminha os eventos da Stripe para a API (confirmação automática em testes locais).
+  # Corre só com o profile "dev" (o .env local tem COMPOSE_PROFILES=dev).
+  # Em produção NÃO corre — usa-se um webhook real no Dashboard da Stripe.
+  stripe:
+    image: stripe/stripe-cli:latest
+    restart: unless-stopped
+    profiles: ["dev"]
+    depends_on:
+      - api
+    command: listen --api-key ${STRIPE_SECRET_KEY} --forward-to http://api:8080/api/pagamentos/stripe/webhook
     networks:
       - bijus
 

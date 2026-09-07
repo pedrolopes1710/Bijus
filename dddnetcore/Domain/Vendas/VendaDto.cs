@@ -27,7 +27,7 @@ namespace dddnetcore.Domain.Vendas
             this.VendaData = venda.VendaData.Data;
             this.VendaEstado = venda.VendaEstado.ToString();
             this.VendaTotal = venda.VendaTotal.Total;
-            this.Cliente = new ClienteDto(venda.Cliente);
+            this.Cliente = venda.Cliente != null ? new ClienteDto(venda.Cliente) : null;
             this.Transportadora = venda.Transportadora;
             this.CodigoRastreio = venda.CodigoRastreio;
             this.UrlRastreio = venda.UrlRastreio;

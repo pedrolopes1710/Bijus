@@ -185,6 +185,7 @@ namespace DDDSample1
             services.AddTransient<IGrupoVariantesRepository, GrupoVariantesRepository>();
             services.AddTransient<GrupoVariantesService>();
             services.AddTransient<StripePagamentoService>();
+            services.AddSingleton<dddnetcore.Domain.Emails.IEmailService, dddnetcore.Infraestructure.Emails.EmailService>();
         }
 
         private static void ApplyDatabaseMigrations(IApplicationBuilder app)

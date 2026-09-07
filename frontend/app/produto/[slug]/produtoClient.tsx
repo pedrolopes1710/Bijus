@@ -109,16 +109,11 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
           <div className="grid md:grid-cols-2 gap-8 mb-12">
             {/* Imagem do produto */}
             <div className="space-y-4">
-<<<<<<< Updated upstream
-              <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
-                {stockDisponivel < 10 && stockDisponivel > 0 && (
-=======
               <div
                 className="relative aspect-square overflow-hidden rounded-2xl bg-muted shadow-soft"
                 style={{ viewTransitionName: "product-media" }}
               >
-                {produto.stock < 10 && produto.stock > 0 && (
->>>>>>> Stashed changes
+                {stockDisponivel < 10 && stockDisponivel > 0 && (
                   <div className="absolute top-4 left-4 z-10">
                     <span className="rounded-full bg-accent px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-accent-foreground shadow-sm">
                       Últimas unidades
@@ -159,17 +154,11 @@ export default function ProdutoClient({ slug }: ProdutoClientProps) {
                 </h1>
               </div>
 
-<<<<<<< Updated upstream
-              <div className="space-y-2">
-                <p className="text-4xl font-bold">{formatPrice(precoAtual)}</p>
-                <p className="text-sm text-muted-foreground">Stock disponível: {stockDisponivel} unidades</p>
-=======
               <div className="space-y-1">
-                <p className="font-display text-4xl font-semibold tracking-tight">{formatPrice(produto.preco)}</p>
+                <p className="font-display text-4xl font-semibold tracking-tight">{formatPrice(precoAtual)}</p>
                 <p className="text-sm text-muted-foreground">
-                  {produto.stock > 0 ? `${produto.stock} unidades disponíveis` : "De momento esgotado"}
+                  {stockDisponivel > 0 ? `${stockDisponivel} unidades disponíveis` : "De momento esgotado"}
                 </p>
->>>>>>> Stashed changes
               </div>
 
               <p className="leading-relaxed text-muted-foreground">{produto.descricao}</p>

@@ -9,7 +9,12 @@ namespace dddnetcore.Domain.Users
         public UserPassword UserPassword {get; private set;}
         public Cliente Cliente {get; private set;}
         public string Role { get; private set; }
-           
+
+        // Confirmação de conta por email.
+        public bool EmailConfirmado { get; private set; }
+        public string? TokenConfirmacao { get; private set; }
+        public DateTime? TokenConfirmacaoExpira { get; private set; }
+
         private User() { }
 
         public User(
@@ -44,6 +49,31 @@ namespace dddnetcore.Domain.Users
             this.Cliente = cliente;
             this.Role = NormalizeRole(role);
         }
+
+        /// <summary>
+        /// Gera um novo token de confirmação de email (válido por N horas) e marca a conta como não confirmada.
+        /// </summary>
+        public string GerarTokenConfirmacao(int horasValidade = 48)
+        {
+            this.EmailConfirmado = false;
+            this.TokenConfirmacao = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N");
+            this.TokenConfirmacaoExpira = DateTime.UtcNow.AddHours(horasValidade);
+            return this.TokenConfirmacao;
+        }
+
+        /// <summary>Confirma a conta e invalida o token.</summary>
+        public void ConfirmarEmail()
+        {
+            this.EmailConfirmado = true;
+            this.TokenConfirmacao = null;
+            this.TokenConfirmacaoExpira = null;
+        }
+
+        /// <summary>Marca a conta como confirmada sem token (contas de confiança: backoffice / login Google verificado).</summary>
+        public void MarcarEmailConfirmado() => ConfirmarEmail();
+
+        public bool TokenConfirmacaoExpirado()
+            => this.TokenConfirmacaoExpira != null && this.TokenConfirmacaoExpira < DateTime.UtcNow;
 
         private static string NormalizeRole(string role)
         {

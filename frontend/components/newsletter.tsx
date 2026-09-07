@@ -4,23 +4,31 @@ import { ArrowRight, Check, Mail, ShieldCheck, Sparkles } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { subscreverNewsletter } from "@/lib/api"
 
 export function Newsletter() {
   const [email, setEmail] = useState("")
-  const [estado, setEstado] = useState<"idle" | "ok" | "erro">("idle")
+  const [estado, setEstado] = useState<"idle" | "ok" | "erro" | "loading">("idle")
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     const valido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
     if (!valido) {
       setEstado("erro")
       return
     }
+    setEstado("loading")
+    try {
+      await subscreverNewsletter(email.trim())
+    } catch {
+      // Mesmo que o envio de email falhe, não penalizamos o utilizador.
+    }
     try {
       const key = "newsletter_subs"
       const atuais: string[] = JSON.parse(localStorage.getItem(key) || "[]")
-      if (!atuais.includes(email.trim().toLowerCase())) {
-        atuais.push(email.trim().toLowerCase())
+      const e = email.trim().toLowerCase()
+      if (!atuais.includes(e)) {
+        atuais.push(e)
         localStorage.setItem(key, JSON.stringify(atuais))
       }
     } catch {
@@ -73,9 +81,10 @@ export function Newsletter() {
               </div>
               <Button
                 type="submit"
+                disabled={estado === "loading"}
                 className="commerce-sheen relative h-12 overflow-hidden rounded-full bg-accent px-7 font-semibold text-accent-foreground transition hover:bg-accent/90"
               >
-                Subscrever
+                {estado === "loading" ? "A subscrever..." : "Subscrever"}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </form>

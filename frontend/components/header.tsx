@@ -4,7 +4,7 @@ import type React from "react"
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ChevronDown, Heart, LayoutDashboard, LogOut, Menu, PackageSearch, Search, ShoppingBag, User } from "lucide-react"
+import { ChevronDown, Heart, LayoutDashboard, LogOut, Menu, PackageSearch, Search, ShieldCheck, ShoppingBag, Sparkles, Truck, User } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -33,7 +33,7 @@ export function Header() {
   const [searchTerm, setSearchTerm] = useState("")
   const { totalItens, isLoaded } = useCart()
   const { favoritos } = useFavorites()
-  const { usuario, isAuthenticated, isAdmin, role, isLoading: authLoading, logout } = useAuth()
+  const { usuario, isAuthenticated, isAdmin, isLoading: authLoading, logout } = useAuth()
 
   useEffect(() => {
     async function loadNavigation() {
@@ -65,8 +65,6 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-foreground/10 bg-background/92 backdrop-blur-xl supports-[backdrop-filter]:bg-background/78">
-<<<<<<< Updated upstream
-=======
       <div className="border-b border-white/10 bg-foreground text-background">
         <div className="container mx-auto flex h-9 items-center justify-between gap-4 px-4 text-[10.5px] font-semibold uppercase tracking-[0.26em]">
           <span className="inline-flex min-w-0 items-center gap-2 truncate">
@@ -86,7 +84,6 @@ export function Header() {
         </div>
       </div>
 
->>>>>>> Stashed changes
       <div className="container mx-auto px-4">
         <div className="flex h-[72px] items-center justify-between gap-3">
           <Link href="/" className="group flex shrink-0 items-center gap-3" aria-label={`${STORE_NAME} - inicio`}>
@@ -137,7 +134,7 @@ export function Header() {
                 className="h-10 gap-2 rounded-full px-4 text-sm font-semibold text-accent hover:bg-accent/[0.08] hover:text-accent"
                 asChild
               >
-                <Link href="/admin">
+                <Link href="/backoffice">
                   <ShieldCheck className="h-4 w-4" />
                   Backoffice
                 </Link>
@@ -180,29 +177,8 @@ export function Header() {
                             </p>
                           </div>
                         </div>
-<<<<<<< Updated upstream
-=======
-                        <div
-                          className={`mt-3 inline-flex items-center rounded-md border px-2 py-1 text-[11px] font-medium uppercase tracking-wide ${
-                            isAdmin ? "border-accent/30 bg-accent/10 text-accent" : "bg-muted/45 text-muted-foreground"
-                          }`}
-                        >
-                          {role === "super_admin" ? "Super admin" : role === "admin" ? "Admin · Logística" : "Cliente autenticado"}
-                        </div>
->>>>>>> Stashed changes
                       </div>
                       <DropdownMenuSeparator />
-                      {isAdmin && (
-                        <>
-                          <DropdownMenuItem asChild className="cursor-pointer font-semibold text-accent">
-                            <Link href="/admin">
-                              <ShieldCheck className="mr-2 h-4 w-4" />
-                              Backoffice
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                        </>
-                      )}
                       <DropdownMenuItem asChild className="cursor-pointer">
                         <Link href="/perfil">
                           <User className="mr-2 h-4 w-4" />
@@ -405,7 +381,7 @@ function MobileMenu({
           <MobileLink href="/carrinho" label="Carrinho" />
           {isAdmin && (
             <SheetClose asChild>
-              <Link href="/admin" className="inline-flex items-center gap-2 text-base font-semibold text-accent">
+              <Link href="/backoffice" className="inline-flex items-center gap-2 text-base font-semibold text-accent">
                 <ShieldCheck className="h-4 w-4" />
                 Backoffice
               </Link>

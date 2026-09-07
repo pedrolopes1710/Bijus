@@ -63,7 +63,7 @@ namespace DDDSample1.Controllers
         }
 
         // PUT: api/Vendas/5  -> mudar estado da encomenda (logística)
-        [Authorize(Roles = "admin,super_admin")]
+        [Authorize(Roles = "admin,superadmin")]
         [HttpPut("{id}")]
         [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<VendaDto>> Update(Guid id, VendaDto dto)
@@ -90,7 +90,7 @@ namespace DDDSample1.Controllers
         }
 
         // DELETE: api/Vendas/5
-        [Authorize(Roles = "admin,super_admin")]
+        [Authorize(Roles = "admin,superadmin")]
         [HttpDelete("{id}")]
         [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<VendaDto>> HardDelete(Guid id)

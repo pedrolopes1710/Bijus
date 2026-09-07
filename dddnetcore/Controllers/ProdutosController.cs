@@ -41,7 +41,7 @@ namespace DDDSample1.Controllers
         }
 
         // POST: api/Produtos
-        [Authorize(Roles = "super_admin")]
+        [Authorize(Roles = "superadmin")]
         [HttpPost]
         [Authorize(Roles = "admin,superadmin")]
         public async Task<IActionResult> Create([FromForm] CreatingProdutoDto dto)
@@ -60,8 +60,8 @@ namespace DDDSample1.Controllers
             }
         }
 
-        // PUT: api/Produtos/5/stock  -> gestão de logística (admin) ou super_admin
-        [Authorize(Roles = "admin,super_admin")]
+        // PUT: api/Produtos/5/stock  -> gestão de logística (admin) ou superadmin
+        [Authorize(Roles = "admin,superadmin")]
         [HttpPut("{id}/stock")]
         public async Task<ActionResult<ProdutoDto>> UpdateStock(Guid id, [FromBody] AtualizarStockDto dto)
         {
@@ -78,7 +78,7 @@ namespace DDDSample1.Controllers
         }
 
         // PUT: api/Produtos/5
-        [Authorize(Roles = "super_admin")]
+        [Authorize(Roles = "superadmin")]
         [HttpPut("{id}")]
         [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<ProdutoDto>> Update(Guid id, ProdutoDto dto)
@@ -105,7 +105,7 @@ namespace DDDSample1.Controllers
         }
 
         // DELETE: api/Produtos/5
-        [Authorize(Roles = "super_admin")]
+        [Authorize(Roles = "superadmin")]
         [HttpDelete("{id}")]
         [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<ProdutoDto>> HardDelete(Guid id)

@@ -18,13 +18,15 @@ namespace dddnetcore.Infraestructure.VendaProdutos
         {
             if (vendaId == null) return await GetAllAsync();
 
-            var query = _context.VendaProdutos.AsQueryable();
-
-            query = query.Where(vp => vp.Venda.Id.AsGuid().Equals(vendaId.Value))
+            // Filtra por venda em memória para evitar erro de tradução EF do value object VendaId.
+            var todos = await _context.VendaProdutos
                 .Include(vp => vp.Venda)
-                .Include(vp => vp.Produto);
+                .Include(vp => vp.Produto)
+                .ToListAsync();
 
-            return await query.ToListAsync();
+            return todos
+                .Where(vp => vp.Venda != null && vp.Venda.Id.AsGuid() == vendaId.Value)
+                .ToList();
         }
 
         public new async Task<List<VendaProduto>> GetAllAsync()

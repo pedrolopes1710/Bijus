@@ -67,6 +67,14 @@ namespace dddnetcore.Infraestructure.Users
             return byEmail;
         }
 
+        public async Task<User?> GetByTokenConfirmacaoAsync(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token)) return null;
+            return await _context.Users
+                .Include(u => u.Cliente)
+                .FirstOrDefaultAsync(u => u.TokenConfirmacao == token);
+        }
+
         public async Task<User> UpdateAsync(User user)
         {
             _context.Users.Update(user);

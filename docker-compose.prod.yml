@@ -1,0 +1,23 @@
+# Override de PRODUÇÃO.
+# Usar SEMPRE em conjunto com o base:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# Arquitetura: a Cloudflare recebe biscuitarte.shop (HTTPS) e, através de um
+# Cloudflare Tunnel, encaminha para o container "caddy" na porta 80 (HTTP interno).
+# Não é preciso abrir portas no router nem IP fixo.
+services:
+  # Túnel Cloudflare -> expõe o Caddy à internet sem abrir portas.
+  # O TUNNEL_TOKEN vem do .env (criado no Zero Trust: Networks -> Tunnels).
+  # No painel do túnel, define o Public Hostname:
+  #   biscuitarte.shop        -> http://caddy:80
+  #   www.biscuitarte.shop    -> http://caddy:80   (opcional)
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - caddy
+    networks:
+      - bijus

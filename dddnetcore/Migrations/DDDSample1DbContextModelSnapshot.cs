@@ -327,12 +327,22 @@ namespace DDDNetCore.Migrations
                     b.Property<Guid>("ClienteId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("EmailConfirmado")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)")
                         .HasDefaultValue("cliente");
+
+                    b.Property<string>("TokenConfirmacao")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("TokenConfirmacaoExpira")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -523,7 +533,7 @@ namespace DDDNetCore.Migrations
                     b.HasOne("dddnetcore.Domain.GruposVariantes.ValorOpcaoProduto", "ValorOpcao")
                         .WithMany()
                         .HasForeignKey("ValorOpcaoProdutoId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
                     b.HasOne("dddnetcore.Domain.GruposVariantes.VarianteProduto", "Variante")

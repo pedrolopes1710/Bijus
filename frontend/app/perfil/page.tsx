@@ -4,11 +4,7 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-<<<<<<< Updated upstream
-import { Heart, Loader2, LogOut, Package, User } from "lucide-react"
-=======
-import { Check, Heart, Loader2, LogOut, Package, Pencil, RefreshCw, User, X } from "lucide-react"
->>>>>>> Stashed changes
+import { Check, Heart, Loader2, LogOut, MailWarning, Package, Pencil, User, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -22,10 +18,11 @@ import { atualizarCliente } from "@/lib/api"
 type PerfilTab = "dados" | "encomendas" | "favoritos"
 
 export default function PerfilPage() {
-  const { usuario, isAuthenticated, isLoading, logout } = useAuth()
+  const { usuario, authProvider, isAuthenticated, isLoading, logout, atualizarClienteLocal, contaConfirmada, reenviarConfirmacao } = useAuth()
   const { favoritos } = useFavorites()
   const router = useRouter()
   const [erro, setErro] = useState("")
+  const [reenvio, setReenvio] = useState<"idle" | "loading" | "ok" | "erro">("idle")
   const [active, setActive] = useState<PerfilTab>("dados")
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -62,7 +59,7 @@ export default function PerfilPage() {
     setErro("")
     try {
       await atualizarCliente({ id: clienteId, nome: form.nome, email: form.email, morada: form.morada })
-      await recarregarUsuario()
+      atualizarClienteLocal({ nome: form.nome, email: form.email, morada: form.morada })
       setEditing(false)
     } catch (err) {
       console.error("Erro ao guardar dados:", err)
@@ -106,6 +103,38 @@ export default function PerfilPage() {
 
         {erro && <div className="mb-6 rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">{erro}</div>}
 
+        {!contaConfirmada && (
+          <div className="mb-6 flex flex-col gap-3 rounded-lg border border-accent/30 bg-accent/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <MailWarning className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
+              <div>
+                <p className="text-sm font-semibold">Conta por confirmar</p>
+                <p className="text-sm text-muted-foreground">
+                  Confirma o teu email para poderes finalizar compras.
+                  {reenvio === "ok" && <span className="text-foreground"> Email reenviado — verifica a caixa de entrada.</span>}
+                  {reenvio === "erro" && <span className="text-destructive"> Não foi possível reenviar agora.</span>}
+                </p>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={reenvio === "loading"}
+              onClick={async () => {
+                setReenvio("loading")
+                try {
+                  await reenviarConfirmacao()
+                  setReenvio("ok")
+                } catch {
+                  setReenvio("erro")
+                }
+              }}
+            >
+              {reenvio === "loading" ? "A reenviar…" : "Reenviar email"}
+            </Button>
+          </div>
+        )}
+
         <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
           <aside className="rounded-lg border bg-card/40 p-3">
             <nav className="grid gap-1">
@@ -128,13 +157,6 @@ export default function PerfilPage() {
                   </div>
                 </div>
 
-<<<<<<< Updated upstream
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <InfoItem label="Nome" value={cliente?.nome || usuario.userName} />
-                  <InfoItem label="Email" value={cliente?.email || "Sem email associado"} />
-                  <InfoItem label="Morada" value={cliente?.morada || "Sem morada guardada"} />
-                </div>
-=======
                 {editing ? (
                   <form onSubmit={guardarDados} className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
@@ -191,16 +213,9 @@ export default function PerfilPage() {
                           Editar dados
                         </Button>
                       )}
-                      {authProvider === "password" && (
-                        <Button variant="outline" onClick={handleRecarregar} disabled={isRefreshing}>
-                          {isRefreshing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-                          Recarregar dados
-                        </Button>
-                      )}
                     </div>
                   </>
                 )}
->>>>>>> Stashed changes
               </div>
             )}
 
@@ -247,11 +262,11 @@ function TabButton({
   )
 }
 
-function InfoItem({ label, value }: { label: string; value: string }) {
+function InfoItem({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
     <div className="rounded-md border bg-background p-4">
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="mt-2 break-words text-sm font-medium">{value}</p>
+      <p className={`mt-2 break-words text-sm font-medium ${mono ? "font-mono text-muted-foreground" : ""}`}>{value}</p>
     </div>
   )
 }

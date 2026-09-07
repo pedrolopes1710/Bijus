@@ -2,7 +2,15 @@
 
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react"
 import type { DadosLogin, DadosRegisto, Usuario } from "@/lib/types"
-import { fetchUsuario, loginUsuario, registarUsuario, type UserRole } from "@/lib/api"
+import {
+  confirmarConta as confirmarContaApi,
+  fetchUsuario,
+  loginComGoogle,
+  loginUsuario,
+  registarUsuario,
+  reenviarConfirmacao as reenviarConfirmacaoApi,
+  type UserRole,
+} from "@/lib/api"
 
 interface AuthContextType {
   authProvider: string | null
@@ -11,12 +19,17 @@ interface AuthContextType {
   isAuthenticated: boolean
   isAdmin: boolean
   isSuperAdmin: boolean
+  contaConfirmada: boolean
   role: UserRole
   login: (dados: DadosLogin) => Promise<void>
+  loginGoogle: (idToken: string) => Promise<void>
   loginExterno: (usuario: Usuario, token: string, provider: string) => void
   registo: (dados: DadosRegisto) => Promise<void>
+  confirmarConta: (token: string) => Promise<void>
+  reenviarConfirmacao: (userOrEmail?: string) => Promise<void>
   logout: () => void
   recarregarUsuario: () => Promise<void>
+  atualizarClienteLocal: (dados: { nome: string; email: string; morada: string }) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -45,7 +58,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAuthProvider(provider)
         setIsAdmin(localStorage.getItem(ADMIN_KEY) === "true")
         const savedRole = localStorage.getItem(ROLE_KEY)
-        setRole(savedRole === "super_admin" || savedRole === "admin" ? savedRole : null)
+        setRole(
+          savedRole === "superadmin" || savedRole === "admin" || savedRole === "cliente" ? savedRole : null,
+        )
       } catch (error) {
         console.error("Erro ao carregar sessão:", error)
         clearSession()
@@ -80,14 +95,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     saveSession(resultado.usuario, resultado.token || "", "password", resultado.isAdmin, resultado.role)
   }, [saveSession])
 
+  const loginGoogle = useCallback(async (idToken: string) => {
+    const r = await loginComGoogle(idToken)
+    saveSession(r.usuario, r.token || "", "google", r.isAdmin, r.role)
+  }, [saveSession])
+
   const loginExterno = useCallback((user: Usuario, token: string, provider: string) => {
     saveSession(user, token, provider, false, null)
   }, [saveSession])
 
   const registo = useCallback(async (dados: DadosRegisto) => {
-    const resultado = await registarUsuario(dados)
-    saveSession(resultado.usuario, resultado.token || "", "password", false, null)
+    await registarUsuario(dados)
+    // Inicia sessão automaticamente para obter um token JWT válido (o registo não devolve token).
+    const resultado = await loginUsuario({ username: dados.username, password: dados.password })
+    saveSession(resultado.usuario, resultado.token || "", "password", resultado.isAdmin, resultado.role)
   }, [saveSession])
+
+  const confirmarConta = useCallback(async (token: string) => {
+    const r = await confirmarContaApi(token)
+    saveSession(r.usuario, r.token || "", "password", r.isAdmin, r.role)
+  }, [saveSession])
+
+  const reenviarConfirmacao = useCallback(async (userOrEmail?: string) => {
+    const alvo = userOrEmail || usuario?.clienteDto?.email || usuario?.userName
+    if (!alvo) throw new Error("Sem email associado para reenviar a confirmação.")
+    await reenviarConfirmacaoApi(alvo)
+  }, [usuario])
 
   const recarregarUsuario = useCallback(async () => {
     if (!usuario?.userName) {
@@ -98,6 +131,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUsuario(usuarioAtualizado)
     localStorage.setItem(USER_KEY, JSON.stringify(usuarioAtualizado))
   }, [usuario?.userName])
+
+  const atualizarClienteLocal = useCallback((dados: { nome: string; email: string; morada: string }) => {
+    setUsuario((cur) => {
+      if (!cur) return cur
+      const novo = { ...cur, clienteDto: { ...cur.clienteDto, ...dados } }
+      localStorage.setItem(USER_KEY, JSON.stringify(novo))
+      return novo
+    })
+  }, [])
 
   const logout = useCallback(() => {
     setUsuario(null)
@@ -115,13 +157,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         isAuthenticated: Boolean(usuario),
         isAdmin,
-        isSuperAdmin: role === "super_admin",
+        isSuperAdmin: role === "superadmin",
+        contaConfirmada: usuario ? usuario.emailConfirmado !== false : false,
         role,
         login,
+        loginGoogle,
         loginExterno,
         registo,
+        confirmarConta,
+        reenviarConfirmacao,
         logout,
         recarregarUsuario,
+        atualizarClienteLocal,
       }}
     >
       {children}

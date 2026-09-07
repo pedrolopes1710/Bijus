@@ -21,6 +21,15 @@ namespace dddnetcore.Infraestructure.Users
                 .HasDefaultValue("cliente")
                 .IsRequired();
 
+            // Confirmação de conta por email.
+            builder.Property(b => b.EmailConfirmado)
+                .IsRequired();
+
+            builder.Property(b => b.TokenConfirmacao)
+                .HasMaxLength(200);
+
+            builder.Property(b => b.TokenConfirmacaoExpira);
+
             builder.OwnsOne(b => b.UserName, un =>
             {
                 un.Property(p => p.Nome)

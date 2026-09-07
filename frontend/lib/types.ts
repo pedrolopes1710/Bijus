@@ -87,6 +87,7 @@ export interface Usuario {
   userPassword?: string // Opcional, não deve ser exposto no frontend
   clienteDto: Cliente
   role?: "superadmin" | "admin" | "cliente" | string
+  emailConfirmado?: boolean
 }
 
 export interface DadosRegisto {

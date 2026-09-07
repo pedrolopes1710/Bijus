@@ -52,7 +52,6 @@ namespace dddnetcore.Domain.Produtos
             this.ColecaoId = colecaoId;
         }
 
-<<<<<<< Updated upstream
         public void AtualizarDados(
             NomeProduto nomeProduto,
             DescricaoProduto descricaoProduto,
@@ -85,7 +84,8 @@ namespace dddnetcore.Domain.Produtos
         public void DefinirGrupoVariantes(GrupoVariantes? grupoVariantes)
         {
             GrupoVariantes = grupoVariantes;
-=======
+        }
+
         /// <summary>Reduz o stock após uma venda (nunca abaixo de zero).</summary>
         public void ReduzirStock(int quantidade)
         {
@@ -98,7 +98,6 @@ namespace dddnetcore.Domain.Produtos
         public void DefinirStock(int stock)
         {
             this.StockProduto = new StockProduto(Math.Max(0, stock));
->>>>>>> Stashed changes
         }
     }
 }

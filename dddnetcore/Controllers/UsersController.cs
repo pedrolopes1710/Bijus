@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.Users;
-using Microsoft.AspNetCore.Authorization;
 
 namespace DDDSample1.Controllers
 {
@@ -69,7 +68,6 @@ namespace DDDSample1.Controllers
             }
         }
 
-<<<<<<< Updated upstream
         [HttpPost("admin")]
         [Authorize(Roles = "superadmin")]
         public async Task<ActionResult<UserDto>> CreateBackofficeUser(CreatingUserDto dto)
@@ -85,9 +83,6 @@ namespace DDDSample1.Controllers
             }
         }
 
-=======
-        [Authorize(Roles = "super_admin")]
->>>>>>> Stashed changes
         [HttpPut("{id}")]
         [Authorize(Roles = "superadmin")]
         public async Task<ActionResult<UserDto>> Update(Guid id, UserDto dto)
@@ -110,7 +105,7 @@ namespace DDDSample1.Controllers
             }
         }
 
-        [Authorize(Roles = "super_admin")]
+        [Authorize(Roles = "superadmin")]
         [HttpDelete("{id}")]
         [Authorize(Roles = "superadmin")]
         public async Task<ActionResult> Delete(Guid id)
@@ -141,6 +136,64 @@ namespace DDDSample1.Controllers
             catch (BusinessRuleValidationException ex)
             {
                 return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        // POST: api/Users/google  -> criar/entrar com conta Google
+        [HttpPost("google")]
+        public async Task<ActionResult> Google([FromBody] GoogleLoginDto dto)
+        {
+            try
+            {
+                var login = await _service.LoginOrRegisterGoogleAsync(dto?.IdToken);
+                return Ok(login);
+            }
+            catch (BusinessRuleValidationException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        // POST: api/Users/confirmar  -> confirma a conta a partir do token do email (devolve sessão iniciada)
+        [HttpPost("confirmar")]
+        public async Task<ActionResult> ConfirmarEmail([FromBody] ConfirmarEmailDto dto)
+        {
+            try
+            {
+                var login = await _service.ConfirmarEmailAsync(dto?.Token);
+                return Ok(login);
+            }
+            catch (BusinessRuleValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        // POST: api/Users/reenviar-confirmacao  -> reenvia o email de confirmação
+        [HttpPost("reenviar-confirmacao")]
+        public async Task<ActionResult> ReenviarConfirmacao([FromBody] ReenviarConfirmacaoDto dto)
+        {
+            try
+            {
+                await _service.ReenviarConfirmacaoAsync(dto?.UserOrEmail);
+                // Resposta neutra para não revelar se a conta existe.
+                return Ok(new { message = "Se a conta existir e ainda não estiver confirmada, enviámos um novo email." });
+            }
+            catch (BusinessRuleValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {

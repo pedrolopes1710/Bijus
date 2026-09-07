@@ -6,5 +6,6 @@ namespace dddnetcore.Domain.Users
         public UserDto User { get; set; }
         public bool IsAdmin { get; set; }
         public string Role { get; set; }
+        public bool EmailConfirmado { get; set; }
     }
 }

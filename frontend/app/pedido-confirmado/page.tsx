@@ -61,7 +61,7 @@ export default function PedidoConfirmadoPage() {
 
             <p className="mb-8 text-neutral-600">
               {estado === "loading" && "Estamos a validar a resposta segura da Stripe."}
-              {estado === "paid" && "A encomenda foi paga com MB WAY e já pode ser preparada."}
+              {estado === "paid" && "A encomenda foi paga e já pode ser preparada."}
               {estado === "failed" && mensagem}
             </p>
 

@@ -9,10 +9,7 @@
 		reverse_proxy api:8080
 	}
 
-<<<<<<< Updated upstream
-=======
 	# Imagens carregadas ficam no wwwroot da API (fonte única).
->>>>>>> Stashed changes
 	handle /uploads/* {
 		reverse_proxy api:8080
 	}

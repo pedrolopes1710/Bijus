@@ -17,6 +17,12 @@
     <!-- Config -->
     <PackageReference Include="DotNetEnv" Version="3.1.1" />
 
+    <!-- Google Sign-In (verificação do ID token) -->
+    <PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
+
+    <!-- Envio de emails (SMTP) -->
+    <PackageReference Include="MailKit" Version="4.8.0" />
+
     <!-- ASP.NET Core -->
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.0" />

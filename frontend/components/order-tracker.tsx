@@ -158,7 +158,6 @@ function OrderCard({ order, produtoMap }: { order: Venda; produtoMap: Record<str
         </div>
       </div>
 
-<<<<<<< Updated upstream
       {(order.transportadora || order.urlRastreio) && (
         <div className="mt-5 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
           {order.transportadora && <Info label="Transportadora" value={order.transportadora} />}
@@ -172,7 +171,7 @@ function OrderCard({ order, produtoMap }: { order: Venda; produtoMap: Record<str
           )}
         </div>
       )}
-=======
+
       {linhas.length > 0 && (
         <div className="mt-5 border-t pt-4">
           <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Produtos</p>
@@ -189,12 +188,6 @@ function OrderCard({ order, produtoMap }: { order: Venda; produtoMap: Record<str
           </ul>
         </div>
       )}
-
-      <div className="mt-5 grid gap-3 border-t pt-4 text-sm sm:grid-cols-2">
-        <Info label="Origem" value="Estado confirmado pela loja" />
-        <Info label="Tracking externo" value={status === "enviada" || status === "entregue" ? "Sem codigo de transportadora configurado" : "Ainda nao aplicavel"} />
-      </div>
->>>>>>> Stashed changes
     </article>
   )
 }

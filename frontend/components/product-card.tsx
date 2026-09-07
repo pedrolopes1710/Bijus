@@ -157,11 +157,13 @@ export function ProductCard({ produto, onAddToCart, onToggleFavorite }: ProductC
             onClick={handleAddToCart}
           >
             <ShoppingBag className="h-4 w-4" />
-<<<<<<< Updated upstream
-            {produto.stock === 0 ? "Esgotado" : (produto.opcoes || []).length > 0 ? "Escolher opções" : adicionado ? "Adicionado" : "Adicionar"}
-=======
-            {produto.stock === 0 ? "Esgotado" : adicionado ? "Adicionado ✓" : "Adicionar"}
->>>>>>> Stashed changes
+            {produto.stock === 0
+              ? "Esgotado"
+              : (produto.opcoes || []).length > 0
+                ? "Escolher opções"
+                : adicionado
+                  ? "Adicionado ✓"
+                  : "Adicionar"}
           </Button>
         </div>
 

@@ -102,16 +102,11 @@ namespace dddnetcore.Domain.Vendas
             VendaTotal = new VendaTotal(total);
         }
 
-        public void AtualizarPagamento(string estado, bool pago)
+        public void AtualizarPagamento(string estado, bool pago, string? metodo = null)
         {
             PagamentoEstado = estado;
+            if (!string.IsNullOrWhiteSpace(metodo)) MetodoPagamento = metodo;
             if (pago) VendaEstado = VendaEstado.paga;
-        }
-
-        /// <summary>Muda o estado da encomenda (gestão de logística).</summary>
-        public void AtualizarEstado(VendaEstado estado)
-        {
-            this.VendaEstado = estado;
         }
     }
 }

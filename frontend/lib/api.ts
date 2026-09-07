@@ -41,12 +41,34 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
     },
   })
 
+  if (response.status === 401 && token) {
+    // Token enviado mas recusado -> sessão expirada/inválida. Limpa e reencaminha para o login.
+    tratarSessaoExpirada()
+    throw new Error("A sua sessão expirou. Inicie sessão novamente.")
+  }
+
   if (!response.ok) {
     const message = await readErrorMessage(response, `Erro HTTP ${response.status}`)
     throw new Error(message)
   }
 
   return response.json()
+}
+
+/** Limpa a sessão local e envia o utilizador para o login, preservando o destino. */
+function tratarSessaoExpirada() {
+  if (typeof window === "undefined") return
+  try {
+    for (const k of ["auth_token", "auth_user", "auth_provider", "auth_is_admin", "auth_role"]) {
+      localStorage.removeItem(k)
+    }
+  } catch {
+    // ignora falhas de storage
+  }
+  const atual = window.location.pathname + window.location.search
+  if (!atual.startsWith("/login")) {
+    window.location.assign(`/login?expirado=1&redirect=${encodeURIComponent(atual)}`)
+  }
 }
 
 export function resolveImageUrl(url: string | undefined | null | { url?: string }) {
@@ -279,7 +301,87 @@ export async function registarUsuario(dados: DadosRegisto): Promise<{ usuario: U
   }
 }
 
-export type UserRole = "super_admin" | "admin" | null
+export type UserRole = "superadmin" | "admin" | "cliente" | null
+
+export interface AuthResult {
+  usuario: Usuario
+  token: string
+  isAdmin: boolean
+  role: UserRole
+}
+
+function parseAuthResult(result: any): AuthResult {
+  const tokenPayload =
+    typeof result.token === "object" && result.token !== null
+      ? result.token
+      : typeof result.Token === "object" && result.Token !== null
+        ? result.Token
+        : result
+
+  const token =
+    (typeof result.token === "string" ? result.token : undefined) ||
+    (typeof result.Token === "string" ? result.Token : undefined) ||
+    tokenPayload.token ||
+    tokenPayload.Token ||
+    result.jwt ||
+    result.Jwt ||
+    ""
+
+  const usuario =
+    tokenPayload.user ||
+    tokenPayload.User ||
+    tokenPayload.usuario ||
+    tokenPayload.Usuario ||
+    result.usuario ||
+    result.Usuario ||
+    result.user ||
+    result.User
+
+  if (!usuario) {
+    throw new Error("Resposta de autenticação inválida.")
+  }
+
+  const isAdmin = Boolean(result.isAdmin ?? result.IsAdmin ?? tokenPayload.isAdmin ?? tokenPayload.IsAdmin)
+  const roleRaw = (result.role ?? result.Role ?? usuario?.role ?? tokenPayload.role ?? tokenPayload.Role ?? null) as
+    | string
+    | null
+  const role: UserRole =
+    roleRaw === "superadmin" || roleRaw === "admin" || roleRaw === "cliente" ? (roleRaw as UserRole) : null
+
+  const emailConfirmadoRaw =
+    result.emailConfirmado ?? result.EmailConfirmado ?? tokenPayload.emailConfirmado ?? tokenPayload.EmailConfirmado
+  if (typeof emailConfirmadoRaw === "boolean" && usuario) {
+    usuario.emailConfirmado = emailConfirmadoRaw
+  }
+
+  return { usuario, token, isAdmin, role }
+}
+
+/** Cria/entra com uma conta Google, a partir do ID token do Google Identity Services. */
+export async function loginComGoogle(idToken: string): Promise<AuthResult> {
+  const result = await requestJson<any>("/users/google", {
+    method: "POST",
+    body: JSON.stringify({ idToken }),
+  })
+  return parseAuthResult(result)
+}
+
+/** Confirma a conta a partir do token recebido por email. Devolve uma sessão iniciada. */
+export async function confirmarConta(token: string): Promise<AuthResult> {
+  const result = await requestJson<any>("/users/confirmar", {
+    method: "POST",
+    body: JSON.stringify({ token }),
+  })
+  return parseAuthResult(result)
+}
+
+/** Reenvia o email de confirmação de conta (resposta neutra do servidor). */
+export async function reenviarConfirmacao(userOrEmail: string): Promise<void> {
+  await requestJson("/users/reenviar-confirmacao", {
+    method: "POST",
+    body: JSON.stringify({ userOrEmail }),
+  })
+}
 
 export async function loginUsuario(
   dados: DadosLogin,
@@ -324,8 +426,15 @@ export async function loginUsuario(
     }
 
     const isAdmin = Boolean(result.isAdmin ?? result.IsAdmin ?? tokenPayload.isAdmin ?? tokenPayload.IsAdmin)
-    const roleRaw = result.role ?? result.Role ?? tokenPayload.role ?? tokenPayload.Role ?? null
-    const role: UserRole = roleRaw === "super_admin" || roleRaw === "admin" ? roleRaw : null
+    const roleRaw = (result.role ?? result.Role ?? usuario?.role ?? tokenPayload.role ?? tokenPayload.Role ?? null) as string | null
+    const role: UserRole =
+      roleRaw === "superadmin" || roleRaw === "admin" || roleRaw === "cliente" ? (roleRaw as UserRole) : null
+
+    const emailConfirmadoRaw =
+      result.emailConfirmado ?? result.EmailConfirmado ?? tokenPayload.emailConfirmado ?? tokenPayload.EmailConfirmado
+    if (typeof emailConfirmadoRaw === "boolean" && usuario) {
+      usuario.emailConfirmado = emailConfirmadoRaw
+    }
 
     return { usuario, token, isAdmin, role }
   } catch (error) {
@@ -427,6 +536,14 @@ export async function fetchVendaProdutos(vendaId: string): Promise<VendaProdutoL
   }
 }
 
+/** Subscreve a newsletter (envia email de boas-vindas se o SMTP estiver configurado). */
+export async function subscreverNewsletter(email: string): Promise<void> {
+  await requestJson("/newsletter", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  })
+}
+
 export async function atualizarCliente(cliente: Cliente): Promise<Cliente> {
   return requestJson<Cliente>(`/clientes/${cliente.id}`, {
     method: "PUT",
@@ -453,12 +570,17 @@ export async function criarVendaProduto(dados: {
   })
 }
 
-export async function iniciarPagamentoMbWay(vendaId: string): Promise<{ vendaId: string; sessionId: string; url: string }> {
+export async function iniciarPagamento(
+  vendaId: string,
+): Promise<{ vendaId: string; sessionId: string; url: string; clientSecret: string }> {
   return requestJson("/pagamentos/stripe/checkout", {
     method: "POST",
     body: JSON.stringify({ vendaId }),
   })
 }
+
+/** @deprecated usar iniciarPagamento (agora com Embedded Checkout). Mantido por compatibilidade. */
+export const iniciarPagamentoMbWay = iniciarPagamento
 
 export async function obterEstadoPagamentoStripe(sessionId: string): Promise<{ vendaId: string; estado: string; pago: boolean }> {
   return requestJson(`/pagamentos/stripe/sessoes/${encodeURIComponent(sessionId)}`)

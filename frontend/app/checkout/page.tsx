@@ -13,21 +13,31 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Smartphone, Check } from 'lucide-react'
-import { criarVenda, criarVendaProduto, iniciarPagamentoMbWay } from "@/lib/api"
+import { Smartphone, Check, MailWarning } from 'lucide-react'
+import { criarVenda, criarVendaProduto, iniciarPagamento } from "@/lib/api"
+import { StripeEmbeddedCheckout } from "@/components/stripe-embedded-checkout"
+import { DISTRITOS, DISTRITOS_CONCELHOS } from "@/lib/distritos-concelhos"
 import type { DadosEnvio, DadosPagamento } from "@/lib/types"
+
+/** Formata o input para código postal português: 0000-000 */
+function formatarCodigoPostal(valor: string) {
+  const digitos = valor.replace(/\D/g, "").slice(0, 7)
+  return digitos.length > 4 ? `${digitos.slice(0, 4)}-${digitos.slice(4)}` : digitos
+}
 
 const guidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export default function CheckoutPage() {
   const router = useRouter()
   const { itens, totalPreco, setDadosEnvio, setDadosPagamento, isLoaded } = useCart()
-  const { usuario } = useAuth()
+  const { usuario, contaConfirmada, reenviarConfirmacao } = useAuth()
   const [etapa, setEtapa] = useState<"envio" | "pagamento" | "confirmacao">("envio")
   const [metodoPagamento] = useState<"mbway">("mbway")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [checkoutError, setCheckoutError] = useState("")
+  const [reenvio, setReenvio] = useState<"idle" | "loading" | "ok" | "erro">("idle")
+  const [clientSecret, setClientSecret] = useState<string | null>(null)
+  const [envioErro, setEnvioErro] = useState("")
 
   const [dadosEnvioForm, setDadosEnvioForm] = useState<DadosEnvio>({
     nome: usuario?.clienteDto?.nome || "",
@@ -85,8 +95,87 @@ export default function CheckoutPage() {
     return null
   }
 
+  // Conta por confirmar: bloquear a finalização da compra até confirmar o email.
+  if (!contaConfirmada) {
+    const handleReenviar = async () => {
+      setReenvio("loading")
+      try {
+        await reenviarConfirmacao()
+        setReenvio("ok")
+      } catch {
+        setReenvio("erro")
+      }
+    }
+
+    return (
+      <ProtectedRoute>
+        <Header />
+        <main className="min-h-screen bg-muted/30 py-12">
+          <div className="container mx-auto px-4 max-w-2xl">
+            <Card className="p-8 text-center">
+              <span className="mx-auto mb-5 grid h-16 w-16 place-items-center rounded-full bg-accent/15 text-accent">
+                <MailWarning className="h-8 w-8" />
+              </span>
+              <h1 className="font-display text-3xl font-semibold tracking-[-0.02em]">Confirma a tua conta</h1>
+              <p className="mx-auto mt-3 max-w-md text-muted-foreground">
+                Para finalizar a compra precisas de confirmar o teu email. Enviámos um link
+                {usuario?.clienteDto?.email ? <> para <strong>{usuario.clienteDto.email}</strong></> : null}. Verifica
+                também a pasta de spam.
+              </p>
+
+              {reenvio === "ok" && (
+                <p className="mt-5 rounded-md border border-accent/30 bg-accent/10 p-3 text-sm text-foreground">
+                  Email reenviado. Verifica a tua caixa de entrada e clica no link.
+                </p>
+              )}
+              {reenvio === "erro" && (
+                <p className="mt-5 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                  Não foi possível reenviar agora. Tenta novamente daqui a pouco.
+                </p>
+              )}
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+                <Button onClick={handleReenviar} disabled={reenvio === "loading"}>
+                  {reenvio === "loading" ? "A reenviar…" : "Reenviar email de confirmação"}
+                </Button>
+                <Button variant="outline" onClick={() => router.push("/carrinho")}>
+                  Voltar ao carrinho
+                </Button>
+              </div>
+              <p className="mt-6 text-sm text-muted-foreground">
+                Já confirmaste?{" "}
+                <button className="font-medium text-primary hover:underline" onClick={() => window.location.reload()}>
+                  Atualizar
+                </button>{" "}
+                depois de iniciares sessão novamente.
+              </p>
+            </Card>
+          </div>
+        </main>
+        <Footer />
+      </ProtectedRoute>
+    )
+  }
+
+  const concelhosDisponiveis = dadosEnvioForm.estado ? DISTRITOS_CONCELHOS[dadosEnvioForm.estado] ?? [] : []
+
   const handleEnvioSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    setEnvioErro("")
+
+    if (!dadosEnvioForm.estado) {
+      setEnvioErro("Selecione o distrito.")
+      return
+    }
+    if (!dadosEnvioForm.cidade) {
+      setEnvioErro("Selecione o concelho.")
+      return
+    }
+    if (!/^\d{4}-\d{3}$/.test(dadosEnvioForm.cep)) {
+      setEnvioErro("Código postal inválido. Use o formato 0000-000.")
+      return
+    }
+
     setDadosEnvio(dadosEnvioForm)
     setEtapa("pagamento")
   }
@@ -144,8 +233,16 @@ export default function CheckoutPage() {
           total: totalPreco,
         }),
       )
-      const checkout = await iniciarPagamentoMbWay(venda.id)
-      window.location.assign(checkout.url)
+      const checkout = await iniciarPagamento(venda.id)
+      if (checkout.clientSecret) {
+        // Embedded Checkout: mostra o formulário da Stripe dentro desta página.
+        setClientSecret(checkout.clientSecret)
+      } else if (checkout.url) {
+        // Fallback (caso o embedded não esteja disponível): redireciona.
+        window.location.assign(checkout.url)
+      } else {
+        throw new Error("Nao foi possivel iniciar o pagamento.")
+      }
     } catch (err: any) {
       setCheckoutError(err.message || "Nao foi possivel criar a encomenda.")
       setIsSubmitting(false)
@@ -245,33 +342,67 @@ export default function CheckoutPage() {
 
                     <div className="grid sm:grid-cols-3 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="cidade">Cidade</Label>
-                        <Input
-                          id="cidade"
-                          required
-                          value={dadosEnvioForm.cidade}
-                          onChange={(e) => setDadosEnvioForm({ ...dadosEnvioForm, cidade: e.target.value })}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="estado">Estado/Distrito</Label>
-                        <Input
-                          id="estado"
+                        <Label htmlFor="distrito">Distrito</Label>
+                        <select
+                          id="distrito"
                           required
                           value={dadosEnvioForm.estado}
-                          onChange={(e) => setDadosEnvioForm({ ...dadosEnvioForm, estado: e.target.value })}
-                        />
+                          onChange={(e) =>
+                            setDadosEnvioForm({ ...dadosEnvioForm, estado: e.target.value, cidade: "" })
+                          }
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <option value="" disabled>
+                            Selecione…
+                          </option>
+                          {DISTRITOS.map((d) => (
+                            <option key={d} value={d}>
+                              {d}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="concelho">Concelho</Label>
+                        <select
+                          id="concelho"
+                          required
+                          disabled={!dadosEnvioForm.estado}
+                          value={dadosEnvioForm.cidade}
+                          onChange={(e) => setDadosEnvioForm({ ...dadosEnvioForm, cidade: e.target.value })}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <option value="" disabled>
+                            {dadosEnvioForm.estado ? "Selecione…" : "Escolha o distrito primeiro"}
+                          </option>
+                          {concelhosDisponiveis.map((c) => (
+                            <option key={c} value={c}>
+                              {c}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="cep">Código Postal</Label>
                         <Input
                           id="cep"
                           required
+                          inputMode="numeric"
+                          placeholder="0000-000"
+                          pattern="\d{4}-\d{3}"
+                          title="Formato: 0000-000"
+                          maxLength={8}
                           value={dadosEnvioForm.cep}
-                          onChange={(e) => setDadosEnvioForm({ ...dadosEnvioForm, cep: e.target.value })}
+                          onChange={(e) =>
+                            setDadosEnvioForm({ ...dadosEnvioForm, cep: formatarCodigoPostal(e.target.value) })
+                          }
                         />
                       </div>
                     </div>
+
+                    {envioErro && (
+                      <p className="text-sm font-medium text-destructive">{envioErro}</p>
+                    )}
 
                     <Button type="submit" size="lg" className="w-full">
                       Continuar para Pagamento
@@ -284,120 +415,20 @@ export default function CheckoutPage() {
                 <Card className="p-6">
                   <h2 className="text-2xl font-bold mb-6">Método de Pagamento</h2>
                   <form onSubmit={handlePagamentoSubmit} className="space-y-6">
-<<<<<<< Updated upstream
-                    <RadioGroup value={metodoPagamento}>
-                      <div className="flex items-center space-x-3 border rounded-lg p-4">
-=======
-                    <RadioGroup value={metodoPagamento} onValueChange={(value: any) => setMetodoPagamento(value)}>
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/30">
-                        <RadioGroupItem value="cartao" id="cartao" />
-                        <Label htmlFor="cartao" className="flex items-center gap-2 cursor-pointer flex-1">
-                          <CreditCard className="h-5 w-5" />
-                          <span>Cartão de Crédito/Débito</span>
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/30">
->>>>>>> Stashed changes
-                        <RadioGroupItem value="mbway" id="mbway" />
-                        <Label htmlFor="mbway" className="flex items-center gap-2 flex-1">
-                          <Smartphone className="h-5 w-5" />
-                          <span>MB WAY</span>
-                        </Label>
-                      </div>
-<<<<<<< Updated upstream
-                    </RadioGroup>
-                    <div className="bg-neutral-100 p-4 rounded-lg">
-                      <p className="text-sm text-neutral-600">
-                        Será encaminhado para a página segura da Stripe. Introduza aí o número associado ao MB WAY e confirme o pagamento na aplicação.
-                      </p>
-                    </div>
-=======
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/30">
-                        <RadioGroupItem value="transferencia" id="transferencia" />
-                        <Label htmlFor="transferencia" className="flex items-center gap-2 cursor-pointer flex-1">
-                          <Building2 className="h-5 w-5" />
-                          <span>Transferência Bancária</span>
-                        </Label>
-                      </div>
-                    </RadioGroup>
-
-                    {metodoPagamento === "cartao" && (
-                      <div className="space-y-4 pt-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="numeroCartao">Número do Cartão</Label>
-                          <Input
-                            id="numeroCartao"
-                            placeholder="1234 5678 9012 3456"
-                            required
-                            value={dadosPagamentoForm.numeroCartao}
-                            onChange={(e) =>
-                              setDadosPagamentoForm({ ...dadosPagamentoForm, numeroCartao: e.target.value })
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="nomeCartao">Nome no Cartão</Label>
-                          <Input
-                            id="nomeCartao"
-                            required
-                            value={dadosPagamentoForm.nomeCartao}
-                            onChange={(e) =>
-                              setDadosPagamentoForm({ ...dadosPagamentoForm, nomeCartao: e.target.value })
-                            }
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="validade">Validade</Label>
-                            <Input
-                              id="validade"
-                              placeholder="MM/AA"
-                              required
-                              value={dadosPagamentoForm.validadeCartao}
-                              onChange={(e) =>
-                                setDadosPagamentoForm({ ...dadosPagamentoForm, validadeCartao: e.target.value })
-                              }
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="cvv">CVV</Label>
-                            <Input
-                              id="cvv"
-                              placeholder="123"
-                              required
-                              value={dadosPagamentoForm.cvv}
-                              onChange={(e) => setDadosPagamentoForm({ ...dadosPagamentoForm, cvv: e.target.value })}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {metodoPagamento === "mbway" && (
-                      <div className="space-y-4 pt-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="numeroMbway">Número de Telemóvel</Label>
-                          <Input
-                            id="numeroMbway"
-                            placeholder="+351 912 345 678"
-                            required
-                            value={dadosPagamentoForm.numeroMbway}
-                            onChange={(e) =>
-                              setDadosPagamentoForm({ ...dadosPagamentoForm, numeroMbway: e.target.value })
-                            }
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {metodoPagamento === "transferencia" && (
-                      <div className="bg-muted p-4 rounded-lg">
+                    <div className="flex items-start gap-3 border rounded-lg p-4">
+                      <Smartphone className="mt-0.5 h-5 w-5 text-accent" />
+                      <div>
+                        <p className="font-medium">Pagamento seguro via Stripe</p>
                         <p className="text-sm text-muted-foreground">
-                          Após confirmar o pedido, receberá os dados bancários por email para efetuar a transferência.
+                          MB WAY, Multibanco, cartão e outros métodos disponíveis.
                         </p>
                       </div>
-                    )}
->>>>>>> Stashed changes
+                    </div>
+                    <div className="bg-muted p-4 rounded-lg">
+                      <p className="text-sm text-muted-foreground">
+                        Será encaminhado para a página segura da Stripe, onde escolhe o método que preferir e confirma o pagamento.
+                      </p>
+                    </div>
 
                     <div className="flex gap-4">
                       <Button
@@ -417,7 +448,14 @@ export default function CheckoutPage() {
                 </Card>
               )}
 
-              {etapa === "confirmacao" && (
+              {etapa === "confirmacao" && clientSecret && (
+                <Card className="p-6">
+                  <h2 className="text-2xl font-bold mb-6">Pagamento</h2>
+                  <StripeEmbeddedCheckout clientSecret={clientSecret} />
+                </Card>
+              )}
+
+              {etapa === "confirmacao" && !clientSecret && (
                 <Card className="p-6">
                   <h2 className="text-2xl font-bold mb-6">Confirmar Pedido</h2>
 
@@ -440,15 +478,7 @@ export default function CheckoutPage() {
 
                     <div>
                       <h3 className="font-semibold mb-2">Método de Pagamento</h3>
-<<<<<<< Updated upstream
-                      <p className="text-sm text-neutral-600">MB WAY através da Stripe</p>
-=======
-                      <p className="text-sm text-muted-foreground">
-                        {metodoPagamento === "cartao" && "Cartão de Crédito/Débito"}
-                        {metodoPagamento === "mbway" && "MB WAY"}
-                        {metodoPagamento === "transferencia" && "Transferência Bancária"}
-                      </p>
->>>>>>> Stashed changes
+                      <p className="text-sm text-muted-foreground">Pagamento seguro via Stripe (MB WAY, Multibanco, cartão e mais)</p>
                       <Button variant="link" className="p-0 h-auto" onClick={() => setEtapa("pagamento")}>
                         Editar
                       </Button>
@@ -458,13 +488,8 @@ export default function CheckoutPage() {
                       <h3 className="font-semibold mb-3">Produtos</h3>
                       <div className="space-y-2">
                         {itens.map((item) => (
-<<<<<<< Updated upstream
                           <div key={item.chave || item.produto.id} className="flex justify-between text-sm">
-                            <span className="text-neutral-600">
-=======
-                          <div key={item.produto.id} className="flex justify-between text-sm">
                             <span className="text-muted-foreground">
->>>>>>> Stashed changes
                               {item.produto.nome} x {item.quantidade}
                             </span>
                             <span className="font-medium">{(item.produto.preco * item.quantidade).toFixed(2)}€</span>
@@ -480,7 +505,7 @@ export default function CheckoutPage() {
                     )}
 
                     <Button size="lg" className="w-full" onClick={handleFinalizarPedido} disabled={isSubmitting}>
-                      {isSubmitting ? "A iniciar pagamento..." : "Pagar com MB WAY"}
+                      {isSubmitting ? "A iniciar pagamento..." : "Ir para pagamento seguro"}
                     </Button>
                   </div>
                 </Card>

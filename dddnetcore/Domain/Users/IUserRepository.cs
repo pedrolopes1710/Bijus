@@ -7,6 +7,7 @@ namespace dddnetcore.Domain.Users
         public Task<List<User>> GetUserAsync(Guid? userId = null);
         public Task<User> GetUserByClientAsync(Guid? clienteId = null);
         Task<User?> GetByUsernameOrEmailAsync(string userOrEmail);
+        Task<User?> GetByTokenConfirmacaoAsync(string token);
         Task<User> UpdateAsync(User user);
 
     }

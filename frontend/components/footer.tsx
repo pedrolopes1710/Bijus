@@ -1,5 +1,6 @@
-import { Mail, MapPin, Phone, ShieldCheck, Truck } from "lucide-react"
+import { Facebook, Instagram, Mail, MapPin, Phone, ShieldCheck, Truck } from "lucide-react"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 const STORE_NAME = "Biscuit&Arte"
 
@@ -16,12 +17,6 @@ export function Footer() {
               </span>
               <span className="font-display text-2xl font-semibold tracking-tight">{STORE_NAME}</span>
             </Link>
-<<<<<<< Updated upstream
-            <p className="mt-4 text-sm leading-6 text-muted-foreground">
-              Uma loja online com curadoria, detalhes claros e uma experi&ecirc;ncia visual pensada para transformar descoberta
-              em compra.
-            </p>
-=======
             <p className="mt-5 text-sm leading-6 text-muted-foreground">
               Peças feitas à mão, com curadoria e detalhe. Uma experiência de compra pensada para transformar
               descoberta em desejo.
@@ -43,7 +38,6 @@ export function Footer() {
                 </a>
               </Button>
             </div>
->>>>>>> Stashed changes
           </div>
 
           <FooterColumn
@@ -56,8 +50,6 @@ export function Footer() {
             ]}
           />
 
-<<<<<<< Updated upstream
-=======
           <FooterColumn
             title="Apoio"
             links={[
@@ -68,7 +60,6 @@ export function Footer() {
             ]}
           />
 
->>>>>>> Stashed changes
           <div>
             <h4 className="text-[11px] font-bold uppercase tracking-[0.26em] text-muted-foreground">Contacto</h4>
             <div className="mt-4 grid gap-3 text-sm text-muted-foreground">
@@ -99,10 +90,6 @@ export function Footer() {
           </div>
         </div>
 
-<<<<<<< Updated upstream
-        <div className="mt-10 border-t border-foreground/10 pt-6 text-sm text-muted-foreground">
-          <p>&copy; 2026 {STORE_NAME}. Todos os direitos reservados.</p>
-=======
         <div className="mt-10 flex flex-col gap-3 border-t border-foreground/10 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 {STORE_NAME}. Todos os direitos reservados.</p>
           <div className="flex gap-4">
@@ -113,7 +100,6 @@ export function Footer() {
               Termos
             </Link>
           </div>
->>>>>>> Stashed changes
         </div>
       </div>
     </footer>

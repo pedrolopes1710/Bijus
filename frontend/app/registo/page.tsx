@@ -12,10 +12,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, Mail, Lock, User, MapPin } from 'lucide-react'
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import { GoogleSignInButton } from "@/components/google-signin-button"
 
 export default function RegistoPage() {
   const router = useRouter()
-  const { registo } = useAuth()
+  const { registo, loginGoogle } = useAuth()
   const [nome, setNome] = useState("")
   const [email, setEmail] = useState("")
   const [morada, setMorada] = useState("")
@@ -25,6 +26,16 @@ export default function RegistoPage() {
   const [mostrarSenha, setMostrarSenha] = useState(false)
   const [erro, setErro] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+
+  const handleGoogle = async (idToken: string) => {
+    setErro("")
+    try {
+      await loginGoogle(idToken)
+      router.push("/")
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : "Não foi possível criar conta com o Google.")
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,7 +56,8 @@ export default function RegistoPage() {
 
     try {
       await registo({ nome, email, morada, username, password })
-      router.push("/")
+      // Conta criada, mas ainda por confirmar: encaminhar para o ecrã de confirmação.
+      router.push(`/confirmar-conta?email=${encodeURIComponent(email)}`)
     } catch (error) {
       setErro(error instanceof Error ? error.message : "Erro ao criar conta")
     } finally {
@@ -66,6 +78,14 @@ export default function RegistoPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="mb-6">
+                <GoogleSignInButton onCredential={handleGoogle} onError={setErro} text="signup_with" />
+                <div className="my-6 flex items-center gap-4">
+                  <div className="h-px flex-1 bg-border" />
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground">ou</span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+              </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 {erro && (
                   <Alert variant="destructive">
