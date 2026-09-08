@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using DDDSample1.Domain.Shared;
 using dddnetcore.Domain.ItensCarrinho;
 using dddnetcore.Domain.Carrinhos;
@@ -7,6 +8,7 @@ namespace DDDSample1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin,superadmin")]
     public class ItensCarrinhoController : ControllerBase
     {
         private readonly ItemCarrinhoService _service;

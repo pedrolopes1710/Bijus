@@ -118,9 +118,9 @@ export default function AjudaPage() {
             <h2 className="font-display text-2xl font-semibold tracking-tight">Ainda com dúvidas?</h2>
             <p className="mt-3 text-sm text-background/70">Fale connosco — respondemos rapidamente.</p>
             <div className="mt-5 grid gap-3 text-sm sm:grid-cols-3">
-              <a href="mailto:info@biscuitarte.pt" className="inline-flex items-center gap-2 text-background/85 hover:text-background">
+              <a href="mailto:info@biscuitarte.shop" className="inline-flex items-center gap-2 text-background/85 hover:text-background">
                 <Mail className="h-4 w-4 text-accent" />
-                info@biscuitarte.pt
+                info@biscuitarte.shop
               </a>
               <span className="inline-flex items-center gap-2 text-background/85">
                 <Phone className="h-4 w-4 text-accent" />

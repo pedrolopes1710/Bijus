@@ -20,13 +20,23 @@ namespace DDDSample1.Controllers
 
         // GET: api/Produtos
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<VendaDto>>> GetAll([FromQuery] Guid? clienteId = null)
         {
+            // Um cliente só pode listar as SUAS encomendas; admins veem todas.
+            if (!User.IsInRole("admin") && !User.IsInRole("superadmin"))
+            {
+                if (!Guid.TryParse(User.FindFirstValue("cliente_id"), out var proprio))
+                    return Forbid();
+                clienteId = proprio;
+            }
+
             return await _service.GetAllAsync(clienteId);
         }
 
         // GET: api/Produtos/5
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<VendaDto>> GetById(Guid id)
         {
             var venda = await _service.GetByIdAsync(new VendaId(id));
@@ -34,6 +44,14 @@ namespace DDDSample1.Controllers
             if (venda == null)
             {
                 return NotFound();
+            }
+
+            // Impede que um cliente autenticado leia encomendas de outro (IDOR).
+            if (!User.IsInRole("admin") && !User.IsInRole("superadmin"))
+            {
+                Guid.TryParse(User.FindFirstValue("cliente_id"), out var proprio);
+                if (venda.Cliente == null || venda.Cliente.Id != proprio)
+                    return NotFound();
             }
 
             return venda;

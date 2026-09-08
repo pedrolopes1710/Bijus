@@ -21,11 +21,14 @@ const buttonVariants = cva(
           'hover:bg-accent/[0.08] hover:text-accent dark:hover:bg-accent/50',
         link: 'text-primary underline-offset-4 hover:underline',
       },
+      // Em ecrãs pequenos os alvos crescem para 44px, o mínimo recomendado para
+      // toque (WCAG 2.5.5 / Apple HIG). A partir de `sm` voltam ao tamanho
+      // compacto, onde o rato é preciso o suficiente.
       size: {
-        default: 'h-10 px-5 py-2 has-[>svg]:px-4',
-        sm: 'h-8 gap-1.5 px-4 has-[>svg]:px-3',
-        lg: 'h-11 px-7 has-[>svg]:px-5',
-        icon: 'size-10',
+        default: 'h-11 px-5 py-2 has-[>svg]:px-4 sm:h-10',
+        sm: 'h-9 gap-1.5 px-4 has-[>svg]:px-3 sm:h-8',
+        lg: 'h-12 px-7 has-[>svg]:px-5 sm:h-11',
+        icon: 'size-11 sm:size-10',
       },
     },
     defaultVariants: {

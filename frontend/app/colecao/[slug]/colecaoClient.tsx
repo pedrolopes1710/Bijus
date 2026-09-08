@@ -144,10 +144,10 @@ export default function ColecaoClient({slug}:ColecaoClientProps): JSX.Element {
                     />
                     {temMultiplasImagens && (
                         <>
-                        <button onClick={imagemAnterior} className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100">
+                        <button onClick={imagemAnterior} className="absolute left-2 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-black/50 text-white transition-opacity hover:bg-black/70 sm:h-9 sm:w-9 sm:opacity-0 sm:group-hover:opacity-100">
                             <ChevronLeft className="w-6 h-6" />
                         </button>
-                        <button onClick={proximaImagem} className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100">
+                        <button onClick={proximaImagem} className="absolute right-2 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-black/50 text-white transition-opacity hover:bg-black/70 sm:h-9 sm:w-9 sm:opacity-0 sm:group-hover:opacity-100">
                             <ChevronRight className="w-6 h-6" />
                         </button>
                         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">

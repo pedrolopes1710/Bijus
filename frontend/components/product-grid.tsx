@@ -19,10 +19,13 @@ export function ProductGrid({
   onToggleFavorite,
   columns = "default",
 }: ProductGridProps) {
+  // Duas colunas já em telemóvel: com uma só, cada peça ocupava quase um ecrã
+  // inteiro e o catálogo passava dos 9000px de scroll. Duas é o padrão em
+  // e-commerce móvel e deixa comparar peças lado a lado.
   const gridClasses =
     columns === "wide"
-      ? "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-      : "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
+      ? "grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 xl:grid-cols-4"
+      : "grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4"
 
   if (loading) {
     return (

@@ -9,19 +9,23 @@ Corre numa máquina Windows com Docker Desktop, ligada 24/7. Sem abrir portas no
 Na máquina de produção, dentro da pasta do projeto:
 
 ```bash
-cp .env.prod.example .env
+cp .env.example .env
 ```
 
-Preenche o `.env`:
-- `MSSQL_SA_PASSWORD` — password forte e única.
-- `JWT_SECRET` — novo (gera com `openssl rand -hex 64`).
+Preenche o `.env` (o ficheiro tem, em comentário, onde ir buscar cada valor):
+- `DOMAIN` — deixa **`:80`**. Atrás do túnel o HTTPS é da Cloudflare; se puseres aqui o domínio, o Caddy tenta HTTPS próprio e redireciona `:80 → :443`, o que dá um ciclo de redirects.
+- `PUBLIC_SITE_URL` — `https://biscuitarte.shop`.
+- `MSSQL_SA_PASSWORD` — password forte e única. Se a BD já existe, **não a mudes**: só é aplicada quando o volume é criado de raiz.
+- `JWT_SECRET` — novo (gera com `openssl rand -hex 64`). Trocá-lo expulsa todas as sessões ativas.
 - `SUPER_ADMIN_USERS` — o teu username (para gerires o backoffice).
-- `SMTP_PASSWORD` — password da caixa `info@biscuitarte.shop`.
+- `SMTP_*` — `SMTP_PASSWORD` é a password da caixa `info@biscuitarte.shop`. Sem SMTP ninguém consegue confirmar a conta.
 - `GOOGLE_CLIENT_ID` — o mesmo de teste (ver passo 5).
-- `STRIPE_*` — chaves **live** e o webhook real (ver passo 4).
+- `STRIPE_SECRET_KEY` / `STRIPE_PUBLISHABLE_KEY` / `STRIPE_WEBHOOK_SECRET` — **live** (ver passo 4).
 - `CLOUDFLARE_TUNNEL_TOKEN` — do passo 2.
 
 > Não definas `COMPOSE_PROFILES` em produção (mantém o Stripe CLI de testes desligado).
+
+> `PUBLIC_SITE_URL`, `GOOGLE_CLIENT_ID`, `STRIPE_PUBLISHABLE_KEY` e as `NEXT_PUBLIC_*` são **build args** do frontend: ao mudá-las é obrigatório `up -d --build`, um `restart` não aplica.
 
 ---
 

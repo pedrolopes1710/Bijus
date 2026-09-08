@@ -103,7 +103,7 @@ function CatalogoConteudo() {
   }, [produtos, categoriaId, soDisponiveis, searchTerm, ordenacao])
 
   const selectClasses =
-    "h-11 rounded-full border border-foreground/10 bg-card px-4 text-sm font-medium text-foreground outline-none transition focus:ring-2 focus:ring-accent/25"
+    "h-11 w-full rounded-full border border-foreground/10 bg-card px-4 text-sm font-medium text-foreground outline-none transition focus:ring-2 focus:ring-accent/25 sm:w-auto"
 
   return (
       <main className="container mx-auto px-4 py-12 sm:py-16">
@@ -134,8 +134,8 @@ function CatalogoConteudo() {
         </div>
 
         {/* Filtros */}
-        <div className="mx-auto mb-8 flex max-w-3xl flex-wrap items-center justify-center gap-3">
-          <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+        <div className="mx-auto mb-8 grid max-w-3xl grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap sm:justify-center sm:gap-3">
+          <span className="hidden items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground sm:inline-flex">
             <SlidersHorizontal className="h-4 w-4" />
             Filtrar
           </span>
@@ -159,7 +159,7 @@ function CatalogoConteudo() {
           <button
             type="button"
             onClick={() => setSoDisponiveis((v) => !v)}
-            className={`h-11 rounded-full border px-4 text-sm font-medium transition ${
+            className={`col-span-2 h-11 w-full rounded-full border px-4 text-sm font-medium transition sm:col-auto sm:w-auto ${
               soDisponiveis
                 ? "border-accent bg-accent text-accent-foreground"
                 : "border-foreground/10 bg-card text-foreground hover:border-accent/40"

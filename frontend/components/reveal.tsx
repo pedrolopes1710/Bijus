@@ -39,11 +39,23 @@ export function Reveal({ children, className = "", delay = 0, as: Tag = "div" }:
           }
         })
       },
-      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+      // threshold 0: basta um pixel entrar no viewport. Com um limiar maior, um
+      // bloco mais alto do que o ecrã (a grelha de produtos em telemóvel chega a
+      // 5700px) nunca chega a atingi-lo e ficaria invisível para sempre.
+      { threshold: 0, rootMargin: "0px 0px -8% 0px" },
     )
 
     observer.observe(node)
-    return () => observer.disconnect()
+
+    // Rede de segurança: se ao fim de 1,2s nada revelou o bloco (observer que não
+    // dispara, animação bloqueada, etc.), mostra à mesma. Mais vale perder a
+    // animação do que esconder o conteúdo.
+    const fallback = window.setTimeout(() => setVisible(true), 1200)
+
+    return () => {
+      observer.disconnect()
+      window.clearTimeout(fallback)
+    }
   }, [])
 
   return (

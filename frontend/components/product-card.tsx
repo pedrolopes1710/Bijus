@@ -150,10 +150,13 @@ export function ProductCard({ produto, onAddToCart, onToggleFavorite }: ProductC
             <Heart className={`h-4 w-4 transition ${isFavorito ? "scale-110 fill-accent text-accent" : ""}`} />
           </Button>
 
+          {/* Em ecrãs de toque não há hover: o botão fica sempre visível, senão
+              era impossível adicionar ao carrinho a partir da listagem. A partir
+              de `sm` volta a surgir com o hover, como no desenho original. */}
           <Button
             size="sm"
             disabled={produto.stock === 0}
-            className="absolute bottom-3 left-3 right-3 z-10 h-10 translate-y-3 rounded-full bg-card text-foreground opacity-0 shadow-xl transition duration-300 hover:bg-card/92 disabled:opacity-70 group-hover:translate-y-0 group-hover:opacity-100"
+            className="absolute bottom-3 left-3 right-3 z-10 h-11 translate-y-0 rounded-full bg-card text-foreground opacity-100 shadow-xl transition duration-300 hover:bg-card/92 disabled:opacity-70 sm:h-10 sm:translate-y-3 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100"
             onClick={handleAddToCart}
           >
             <ShoppingBag className="h-4 w-4" />
@@ -167,9 +170,9 @@ export function ProductCard({ produto, onAddToCart, onToggleFavorite }: ProductC
           </Button>
         </div>
 
-        <div className="space-y-3.5 p-5">
+        <div className="space-y-2.5 p-3 sm:space-y-3.5 sm:p-5">
           <div className="space-y-2.5">
-            <div className="flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
+            <div className="flex items-center justify-between gap-2 text-[9px] font-bold uppercase tracking-[0.16em] text-muted-foreground sm:gap-3 sm:text-[10px] sm:tracking-[0.22em]">
               <span className="truncate">{produto.categoria?.nome || "Produto"}</span>
               <span className={produto.stock > 0 ? "text-muted-foreground" : "text-accent"}>
                 {produto.stock > 0 ? `${produto.stock} disp.` : "Esgotado"}
@@ -177,16 +180,16 @@ export function ProductCard({ produto, onAddToCart, onToggleFavorite }: ProductC
             </div>
 
             <Link href={href} className="group/title block" onClick={openProduct}>
-              <h3 className="line-clamp-2 min-h-[2.75rem] font-display text-lg font-semibold leading-[1.15] tracking-[-0.01em] transition-colors group-hover/title:text-accent">
+              <h3 className="line-clamp-2 min-h-[2.75rem] font-display text-[0.95rem] font-semibold leading-[1.15] tracking-[-0.01em] transition-colors group-hover/title:text-accent sm:min-h-[2.75rem] sm:text-lg">
                 {produto.nome}
               </h3>
             </Link>
 
-            <p className="line-clamp-2 min-h-[2.5rem] text-sm leading-5 text-muted-foreground">{produto.descricao}</p>
+            <p className="hidden min-h-[2.5rem] text-sm leading-5 text-muted-foreground line-clamp-2 sm:block">{produto.descricao}</p>
           </div>
 
           <div className="flex items-center justify-between gap-3 border-t border-foreground/[0.08] pt-3.5">
-            <span className="font-display text-2xl font-semibold tracking-tight">{formatPrice(produto.preco)}</span>
+            <span className="font-display text-xl font-semibold tracking-tight sm:text-2xl">{formatPrice(produto.preco)}</span>
             <Button
               variant="ghost"
               size="icon"

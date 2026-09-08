@@ -1,4 +1,5 @@
 /*using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ namespace DDDSample1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin,superadmin")]
     public class AtividadesController : ControllerBase
     {
         private readonly AtividadeService _service;

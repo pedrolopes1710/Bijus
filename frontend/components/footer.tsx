@@ -33,7 +33,7 @@ export function Footer() {
                 </a>
               </Button>
               <Button variant="outline" size="icon" className="rounded-full transition hover:border-accent/40 hover:text-accent" aria-label="Email" asChild>
-                <a href="mailto:info@biscuitarte.pt">
+                <a href="mailto:info@biscuitarte.shop">
                   <Mail className="h-4 w-4" />
                 </a>
               </Button>
@@ -67,11 +67,11 @@ export function Footer() {
                 <MapPin className="mt-0.5 h-4 w-4 text-accent" />
                 Castelo de Paiva, Portugal
               </span>
-              <a href="tel:+351918172468" className="flex items-center gap-3 transition hover:text-foreground">
+              <a href="tel:+351918172468" className="flex items-center gap-3 py-2.5 transition hover:text-foreground sm:py-0">
                 <Phone className="h-4 w-4 text-accent" />
                 +351 918 172 468
               </a>
-              <a href="mailto:info@biscuitarte.shop" className="flex items-center gap-3 transition hover:text-foreground">
+              <a href="mailto:info@biscuitarte.shop" className="flex items-center gap-3 py-2.5 transition hover:text-foreground sm:py-0">
                 <Mail className="h-4 w-4 text-accent" />
                 info@biscuitarte.shop
               </a>
@@ -93,10 +93,10 @@ export function Footer() {
         <div className="mt-10 flex flex-col gap-3 border-t border-foreground/10 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 {STORE_NAME}. Todos os direitos reservados.</p>
           <div className="flex gap-4">
-            <Link href="/ajuda#privacidade" className="hover:text-foreground">
+            <Link href="/ajuda#privacidade" className="inline-block py-3 hover:text-foreground sm:py-0">
               Privacidade
             </Link>
-            <Link href="/ajuda#termos" className="hover:text-foreground">
+            <Link href="/ajuda#termos" className="inline-block py-3 hover:text-foreground sm:py-0">
               Termos
             </Link>
           </div>
@@ -113,7 +113,7 @@ function FooterColumn({ title, links }: { title: string; links: { href: string; 
       <ul className="mt-4 grid gap-2 text-sm">
         {links.map((link) => (
           <li key={link.label}>
-            <Link href={link.href} className="text-muted-foreground transition hover:text-foreground">
+            <Link href={link.href} className="-my-1 inline-block py-3 text-muted-foreground transition hover:text-foreground sm:my-0 sm:py-0">
               {link.label}
             </Link>
           </li>
