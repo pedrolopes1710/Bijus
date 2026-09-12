@@ -9,7 +9,10 @@ namespace DDDSample1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "admin,superadmin")]
+    // Autenticacao ao nivel da classe; a restricao por papel esta em cada metodo.
+    // Atencao: [Authorize] na classe e no metodo SOMA-SE (nao substitui), por isso
+    // uma role aqui bloquearia o POST que os clientes precisam no checkout.
+    [Authorize]
     public class VendaProdutosController : ControllerBase
     {
         private readonly VendaProdutoService _service;
@@ -23,6 +26,7 @@ namespace DDDSample1.Controllers
 
         // GET: api/VendaProdutos
         [HttpGet]
+        [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<IEnumerable<VendaProdutoDto>>> GetAll([FromQuery] Guid? vendaId = null)
         {
             return await _service.GetAllAsync(vendaId);
@@ -30,6 +34,7 @@ namespace DDDSample1.Controllers
 
         // GET: api/VendaProdutos/5
         [HttpGet("{id}")]
+        [Authorize(Roles = "admin,superadmin")]
         public async Task<ActionResult<VendaProdutoDto>> GetById(Guid id)
         {
             var vendaProduto = await _service.GetByIdAsync(new VendaProdutoId(id));
